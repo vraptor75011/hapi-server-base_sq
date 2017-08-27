@@ -1,14 +1,10 @@
 const Role = require('../../../models/role/role_model');
 const Boom = require('boom');
 
-const Mapper = require('jsonapi-mapper');
 
 const RoleFindAll =
 	{
 		roleFindAll: function (request, reply) {
-			let mapper = new Mapper.Bookshelf(request.server.info.uri);
-
-			let requestData = request.pre.requestData;
 
 			let totalCount = 0;
 			let filteredCount = 0;
@@ -74,8 +70,7 @@ const RoleFindAll =
 												rowCount: collection.pagination.rowCount,
 											},
 										};
-										let collMap = mapper.map(collection, 'role', mapperOptions);
-										return reply(collMap);
+										return reply(mapperOptions);
 									})
 							})
 					})

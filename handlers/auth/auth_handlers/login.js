@@ -1,6 +1,8 @@
 const Boom = require('boom');
-const Mapper = require('jsonapi-mapper');
 const User = require('../../../models/user/user_model');
+const Role = require('../../../models/role/role_model');
+const Realm = require('../../../models/realm/realm_model');
+
 
 const Config = require('../../../config');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
@@ -10,13 +12,12 @@ const authStrategy = Config.get('/serverHapiConfig/authStrategy');
 const Login =
 	{
 		login: function (request, reply) {
-			let mapper = new Mapper.Bookshelf(request.server.info.uri);
 
 			let authHeader = "";
 			let refreshToken = "";
 			let scope = "";
-			let user = request.pre.user.attributes;
-			let realm = request.pre.realm.attributes;
+			let user = request.pre.user;
+			let realm = request.pre.realm;
 
 			switch (authStrategy) {
 				case AUTH_STRATEGIES.PURE_TOKEN:
@@ -35,23 +36,34 @@ const Login =
 			}
 
 			User
-				.findOne({ id: user.id },
-					{withRelated: ['roles', {
-						'roles': function (qb) {
-							qb.where('roles.realm_id', '=', realm.id);
-						}}, 'roles.realm']
-					})
+				.findOne({
+					where: {id: user.id},
+					include: [{
+						model: Role,
+						through: {
+							where: {realmId: realm.id}
+						}
+					},{
+						model: Realm,
+						through: {
+							where: {realmId: realm.id}
+						}
+					}],
+				})
 				.then(function (result) {
 					user = result;
+					delete user.dataValues.password;
 					const mapperOptions = {
 						meta: {
 							authHeader,
 							refreshToken,
 							scope,
 						},
+						data: {
+							user
+						},
 					};
-					let collMap = mapper.map(user, 'user', mapperOptions);
-					return reply(collMap);
+					return reply(mapperOptions);
 				});
 		}
 	};

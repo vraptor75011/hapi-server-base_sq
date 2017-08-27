@@ -3,40 +3,53 @@ const Config = require('../config');
 
 function createToken(user, session, scope, roles, realm, expirationPeriod) {
 
-  let token = {};
+	let token = {};
+	let tokenRoles = [];
 
-  if (session) {
-    user = session;
-	  const tokenUser ={
-		  username: user.username,
-		  email: user.email,
-		  createdAt: user.createdAt,
-		  updatedAt: user.updatedAt,
-	  };
-    token = Jwt.sign({
-      sessionUser: tokenUser,
-      scope: scope,
-	    roles: roles,
-	    realm: realm,
-    }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
-  }
-  else {
-    const tokenUser ={
-      username: user.username,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+	roles.forEach(function(role){
+		let tmp = {
+			id: role.id,
+			name: role.name,
+		};
+		tokenRoles.push(tmp);
+	});
 
-    token = Jwt.sign({
-      user: tokenUser,
-      scope: scope,
-	    roles: roles,
-	    realm: realm,
-    }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
-  }
+	let tokenRealm = {
+		id: realm.id,
+		name: realm.name,
+	};
 
-  return token;
+
+	if (session) {
+		user = session;
+		const tokenUser = {
+			id: user.id,
+			username: user.username,
+			email: user.email,
+		};
+		token = Jwt.sign({
+			sessionUser: tokenUser,
+			scope: scope,
+			roles: tokenRoles,
+			realm: tokenRealm,
+		}, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
+	}
+	else {
+		const tokenUser = {
+			id: user.id,
+			username: user.username,
+			email: user.email,
+		};
+
+		token = Jwt.sign({
+			user: tokenUser,
+			scope: scope,
+			roles: tokenRoles,
+			realm: tokenRealm,
+		}, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
+	}
+
+	return token;
 }
 
 module.exports = createToken;

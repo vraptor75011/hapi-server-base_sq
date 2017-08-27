@@ -1,30 +1,24 @@
-const Bookshelf = require('../bookshelf');
+const SeqBase = require('../sequelize');
+const Sequelize = require('sequelize');
 
-// related models
-require('../../models/realms_roles_users/realms_roles_users_model');
 
-const Realm = Bookshelf.Model.extend({
-		tableName: 'realms',
+const Realm = SeqBase.define('realms', {
 
-		softDelete: true,
-		hasTimestamps: true,
-
-		// relationships
-		realms_roles_users: function () {
-			return this.hasMany(Bookshelf._models.RealmsRolesUsers, 'realms_roles_users', 'realm_id');
+	// ATTRIBUTES
+	name: {
+		type: Sequelize.STRING,
+		unique: true,
+		allowNull: false,
+		validation: {
+			len: [3,64]
 		},
 	},
-	// {
-	// 	schema: [
-	// 		Fields.StringField('name', {maxLength: 64, required: true}),
-	// 		//Relations
-	// 		BelongsToMany('User', {table: 'realms_users', foreignKey: 'realmId', otherKey: 'userId'}),
-	// 		//Scopes
-	// 		Scope('findByName', function(name) {
-	// 			this.where('name', name)
-	// 		}),
-	// 	]
-	// },
-);
+	description: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
 
-module.exports = Bookshelf.model('Realm', Realm);
+
+});
+
+module.exports = Realm;

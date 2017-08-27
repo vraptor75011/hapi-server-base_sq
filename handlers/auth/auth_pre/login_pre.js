@@ -1,6 +1,7 @@
 const Boom = require('boom');
 const User = require('../../../models/user/user_model');
 const Realm = require('../../../models/realm/realm_model');
+const Role = require('../../../models/role/role_model');
 const Bcrypt = require('bcrypt');
 const Token = require('../../../utilities/token');
 
@@ -41,45 +42,37 @@ const LoginPre = [
 
 			let user = {};
 
-			if (username) {
-				User.findOne({ username: username }, {require: false})
-					.then(function (result) {
-						if (!result) {
-							return reply(Boom.unauthorized('Invalid username or password'));
-						}
-						user = result;
-						return Bcrypt.compare(password, user.attributes.password)
-					})
-					.then(function (match) {
-						if (match) {
-							return reply(user);
-						}
+			const usernameReq = async (param) => {
+				let user = {};
+				try {
+					user = await User
+						.findOne({where:
+							{
+								$or: [
+									{	username: {$eq: param} },
+									{	email: {$eq: param}	}
+								]}
+						});
+					if (!user) {
 						return reply(Boom.unauthorized('Invalid username or password'));
-					})
-					.catch(function (error) {
-						let errorMsg = error.message || 'An error occurred';
-						return reply(Boom.gatewayTimeout(errorMsg));
-					});
+					}
+					let match = Bcrypt.compareSync(password, user.password);
+					if (match) {
+						return reply(user);
+					}
+					return reply(Boom.unauthorized('Invalid username or password'));
+				}
+				catch (error) {
+					let errorMsg = error.message || 'An error occurred';
+					return reply(Boom.gatewayTimeout(errorMsg));
+				}
+			};
+
+
+			if (username) {
+				usernameReq(username);
 			} else if (email) {
-				User.findOne({email: email}, {require: false})
-					.fetch()
-					.then(function (result) {
-						if (!result) {
-							return reply(Boom.unauthorized('Invalid email or password'));
-						}
-						user = result;
-						return Bcrypt.compare(password, user.password)
-					})
-					.then(function (match) {
-						if (match) {
-							return reply(user);
-						}
-						return reply(Boom.unauthorized('Invalid email or password'));
-					})
-					.catch(function (error) {
-						let errorMsg = error.message || 'An error occurred';
-						return reply(Boom.gatewayTimeout(errorMsg));
-					});
+				usernameReq(email);
 			}
 
 		}
@@ -89,10 +82,10 @@ const LoginPre = [
 		method: function (request, reply) {
 
 			let realmName = request.payload.realm;
-			let user = request.pre.user.attributes;
 
 			Realm
-				.findOne({name: realmName}, {require: false})
+				.findOne({where:
+					{name: realmName}})
 				.then(function(result){
 					let realm = result;
 					if (!realm) {
@@ -132,7 +125,7 @@ const LoginPre = [
 		assign: 'isActive',
 		method: function (request, reply) {
 
-			let user = request.pre.user.attributes;
+			let user = request.pre.user;
 
 			if (user.isActive) {
 				return reply();
@@ -164,19 +157,22 @@ const LoginPre = [
 		assign: 'roles',
 		method: function (request, reply) {
 
-			let user = request.pre.user.attributes;
-			let realm = request.pre.realm.attributes;
+			let user = request.pre.user;
+			let realm = request.pre.realm;
 			let roles = [];
 
 			User
-				.findOne({id: user.id},
-					{withRelated: ['roles', {
-						'roles': function (qb) {
-							qb.where('roles.realm_id', '=', realm.id);
-						}}]
-					})
+				.findOne({
+					where: {id: user.id},
+					include: [{
+						model: Role,
+						through: {
+							where: {realmId: realm.id}
+						}
+					}]
+				})
 				.then(function(result){
-					roles = result.related('roles');
+					roles = result.roles;
 					if(roles && roles.length){
 						return reply(roles);
 					} else {
@@ -198,7 +194,7 @@ const LoginPre = [
 		assign: 'scope',
 		method: function (request, reply) {
 
-			let realm = request.pre.realm.attributes;
+			let realm = request.pre.realm;
 			let roles = request.pre.roles;
 			let scope = [];
 
@@ -206,11 +202,11 @@ const LoginPre = [
 			scope = scope.concat('Realm-'+realm.id);
 
 			// Add Roles to Scope
-			roles.each(function (role){
-				if (role.attributes.name.indexOf('User') !== -1) {
-					scope = scope.concat(role.attributes.name+'-'+request.pre.user.attributes.id)
+			roles.forEach(function (role){
+				if (role.name.indexOf('User') !== -1) {
+					scope = scope.concat(role.name+'-'+request.pre.user.id)
 				} else {
-					scope = scope.concat(role.attributes.name);
+					scope = scope.concat(role.name);
 				}
 			});
 
@@ -227,8 +223,8 @@ const LoginPre = [
 		assign: 'standardToken',
 		method: function (request, reply) {
 
-			let user = request.pre.user.attributes;
-			let realm = request.pre.realm.attributes;
+			let user = request.pre.user;
+			let realm = request.pre.realm;
 			let roles = request.pre.roles;
 			let scope = request.pre.scope;
 
@@ -266,8 +262,8 @@ const LoginPre = [
 		assign: 'refreshToken',
 		method: function (request, reply) {
 
-			let user = request.pre.user.attributes;
-			let realm = request.pre.realm.attributes;
+			let user = request.pre.user;
+			let realm = request.pre.realm;
 			let roles = request.pre.roles;
 			let scope = request.pre.scope;
 

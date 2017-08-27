@@ -2,7 +2,6 @@ const User = require('../../../models/user/user_model');
 const Boom = require('boom');
 const URL = require('url');
 
-const Mapper = require('jsonapi-mapper');
 
 const UserFindAll =
 	{
