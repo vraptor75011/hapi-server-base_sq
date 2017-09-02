@@ -4,7 +4,7 @@ const Plugins = require('./plugins');
 const Routes = require('./routes');
 const Auth = require('./auth');
 
-const Config = require('./config');
+const Config = require('./config/config');
 
 const HOST = Config.get('/host');
 const PORT = Config.get('/port');

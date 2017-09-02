@@ -1,6 +1,6 @@
 const AuthJWT2 = require('hapi-auth-jwt2');
 
-const Config = require('./config');
+const Config = require('./config/config');
 
 
 module.exports.register = (server, options, next) => {

@@ -1,4 +1,4 @@
-const RealmsRolesUsers = require('./data/04-realms_roles_users_data');
+const RealmsRolesUsers = require('../seeders/data/04-realms_roles_users_data');
 
 
 exports.seed = function(knex, Promise) {

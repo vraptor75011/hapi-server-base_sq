@@ -1,5 +1,5 @@
 const Jwt = require('jsonwebtoken');
-const Config = require('../config');
+const Config = require('../config/config');
 
 function createToken(user, session, scope, roles, realm, expirationPeriod) {
 

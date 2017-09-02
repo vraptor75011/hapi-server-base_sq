@@ -1,6 +1,6 @@
-const AuthRoutes = require('./handlers/auth/auth_routes');
-const RoleRoutes = require('./handlers/role/role_routes');
-const UserRoutes = require('./handlers/user/user_routes');
+const AuthRoutes = require('./api/v1/auth/routes/auth_routes');
+const RoleRoutes = require('./api/v1/role/routes/role_routes');
+const UserRoutes = require('./api/v1/user/routes/user_routes');
 
 
 const Routes = [

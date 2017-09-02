@@ -1,4 +1,4 @@
-const Users = require('./data/01-user_data');
+const Users = require('../seeders/data/01-user_data');
 
 
 exports.seed = function(knex, Promise) {

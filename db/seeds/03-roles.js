@@ -1,4 +1,4 @@
-const Roles = require('./data/03-role_data');
+const Roles = require('../seeders/data/03-role_data');
 
 
 exports.seed = function(knex, Promise) {
