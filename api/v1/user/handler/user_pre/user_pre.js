@@ -1,10 +1,11 @@
 const Boom = require('boom');
 const _ = require('lodash');
 
-const UserValidation = require('../../model/user_validations');
+const DB = require('../../../../../config/sequelize');
 const PreHandlerBase = require('../../../../pre_handler_base');
+const UserValidation = require('../../model/user_validations');
 
-
+const User = DB.User;
 
 const UserPre = [
 	{
@@ -16,11 +17,12 @@ const UserPre = [
 			let requestData = {
 				resourceType: 'users',
 				queryData: {
-					fields: {},
+					fields: [],
 					filter: {},
 					sort: [],
 					pagination: {},
-					count: {},
+					count: false,
+					include: [],
 					withRelated: [],
 					withFields: {},
 					relatedQuery: {},
@@ -39,12 +41,12 @@ const UserPre = [
 				if (!Object.keys(error).length > 0) {
 					// Filters
 					if (referenceModel.filters.hasOwnProperty(e)) {
-						if (_.isString(queryUrl[e])) {
+						if (_.isString(queryUrl[e]) || _.isBoolean(queryUrl[e])) {
 							let tmp = [];
 							tmp.push(queryUrl[e]);
 							queryUrl[e] = tmp;
 						}
-						requestData = PreHandlerBase.filterParser(requestData, e, queryUrl[e], UserSchema);
+						requestData = PreHandlerBase.filterParser(requestData, e, queryUrl[e], User);
 					}
 				}
 
@@ -56,7 +58,7 @@ const UserPre = [
 							tmp.push(queryUrl[e]);
 							queryUrl[e] = tmp;
 						}
-						requestData = PreHandlerBase.sortParser(requestData, queryUrl[e], UserSchema);
+						requestData = PreHandlerBase.sortParser(requestData, queryUrl[e], User);
 					}
 				}
 
@@ -69,9 +71,9 @@ const UserPre = [
 							let tmp = [];
 							tmp.push(queryUrl[e]);
 							queryUrl[e] = tmp;
-							requestData = PreHandlerBase.extraParser(requestData, e, queryUrl[e], UserSchema);
+							requestData = PreHandlerBase.extraParser(requestData, e, queryUrl[e], User);
 						} else {
-							requestData = PreHandlerBase.extraParser(requestData, e, queryUrl[e], UserSchema);
+							requestData = PreHandlerBase.extraParser(requestData, e, queryUrl[e], User);
 						}
 					}
 				}

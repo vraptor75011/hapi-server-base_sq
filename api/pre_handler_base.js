@@ -1,18 +1,54 @@
 const _ = require('lodash');
 const Joi = require('joi');
+const SchemaUtility = require('../utilities/schema/schema_utility');
+const DB = require('../config/sequelize');
 
 // Only ONE element follows
-const Operator = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}', '{like}'];
+const Operator = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}', '{like}', '{%like}', '{like%}'];
+const SQOperators = {
+	'{=}': '$eq',
+	'{<}': '$lt',
+	'{<=}': '$lte',
+	'{>}': '$gt',
+	'{>=}': '$gte',
+	'{<>}': '$ne',
+	'{like}': '$like',
+	'{%like}': '$like',
+	'{like%}': '$like',
+	'{not}{like}': '$notLike',
+	'{not}{%like}': '$notLike',
+	'{not}{like%}': '$notLike',
+};
+
 
 // Array follows
 const InOperator = '{in}';
+const SQInOperator = {
+	'{in}': '$in',
+	'{not}{in}': '$notIn'
+};
 // Array follows ONLY TWO elements
 const BtwOperator = '{btw}';
+const SQBtwOperator = {
+	'{btw}': '$between',
+	'{not}{btw}': '$notBetween',
+};
 // End condition
 const NullOperator = '{null}';
-// Change Where => whereNot, orWhere, orWhereNot, orWhereNotLike
+const SQNullOperator = {
+	'{null}': '$eq',
+	'{not}{null}': '$ne',
+};
+// Changes Where => OR Array with Where elements
 const OrOperator = '{or}';
+const SQOrOperator = {
+	'{or}': '$or',
+};
+// Changes Like, In, Between => notLike, notIn, notBetween
 const NotOperator = '{not}';
+const SQNotOperator = {
+	'{not}': '$not',
+};
 
 
 const PreHandlerBase = {
@@ -21,34 +57,27 @@ const PreHandlerBase = {
 			let actualLevel = response.queryData.filter;
 			let error = response.queryData.error;
 			let dbAttribute = _.snakeCase(key);     // DB Attribute name (Snake Case);
-			let orPresent = '';
+			let orPresent = null;
 			let notPresent = '';
 			let realValue = el;       // Final condition value;
 			// OR operator
 			if (_.includes(realValue, OrOperator)) {
-				orPresent = OrOperator;
+				orPresent = SQOrOperator[OrOperator];
 				realValue = _.replace(realValue, OrOperator, '');
 			}
 			// NOT operator
 			if (_.includes(realValue, NotOperator)) {
-				notPresent = NotOperator;
+				notPresent = '{not}';
 				realValue = _.replace(realValue, NotOperator, '');
 			}
-			if (orPresent && notPresent) {
-				if (!_.has(actualLevel, [[dbAttribute],[orPresent],[notPresent]])) {
-					_.set(actualLevel, [[dbAttribute],[orPresent],[notPresent]], {});
+			if (orPresent) {
+				if (!_.has(actualLevel, [orPresent])) {
+					_.set(actualLevel, [orPresent], []);
 				}
-				actualLevel = actualLevel[dbAttribute][orPresent][notPresent];
-			} else if (orPresent) {
-				if (!_.has(actualLevel, [[dbAttribute],[orPresent]])) {
-					_.set(actualLevel, [[dbAttribute],[orPresent]], {});
-				}
-				actualLevel = actualLevel[dbAttribute][orPresent];
-			} else if (notPresent) {
-				if (!_.has(actualLevel, [[dbAttribute],[notPresent]])) {
-					_.set(actualLevel, [[dbAttribute],[notPresent]], {});
-				}
-				actualLevel = actualLevel[dbAttribute][notPresent];
+				let tmp = {};
+				tmp[dbAttribute] = {};
+				actualLevel[orPresent].push(tmp);
+				actualLevel = tmp[dbAttribute];
 			} else {
 				if (!_.has(actualLevel, [dbAttribute])) {
 					_.set(actualLevel, [dbAttribute], {});
@@ -59,32 +88,32 @@ const PreHandlerBase = {
 			// NULL operator
 			if (_.includes(realValue, NullOperator)) {
 				realValue = _.replace(realValue, NullOperator, '');
-				if (!_.has(actualLevel, NullOperator)) {
-					actualLevel[NullOperator] = [];
+				if (!_.has(actualLevel, SQNullOperator[notPresent + NullOperator])) {
+					actualLevel[SQNullOperator[notPresent + NullOperator]] = null;
 				}
 			} else if (_.includes(realValue, BtwOperator)) {
 				// BETWEEN operator
 				realValue = _.replace(realValue, BtwOperator, '');
 				let tmp = _.split(realValue, ',');
 				tmp.forEach(function(value){
-					const result = Joi.validate({ [dbAttribute]: value }, schema.schemaQuery());
+					const result = Joi.validate({ [dbAttribute]: value }, schema.joiValid);
 					if (result.error) {
 						error['message'] = result.error.message;
 						return response;
 					}
 				});
-				if (!_.has(actualLevel, BtwOperator)) {
-					actualLevel[BtwOperator] = [];
-					actualLevel[BtwOperator].push(tmp);
+				if (!_.has(actualLevel, SQBtwOperator[notPresent + BtwOperator])) {
+					actualLevel[SQBtwOperator[notPresent + BtwOperator]] = {};
+					actualLevel[SQBtwOperator[notPresent + BtwOperator]] = tmp;
 				} else {
 					let found = false;
-					actualLevel[BtwOperator].forEach(function(cond){
+					actualLevel[SQBtwOperator[notPresent + BtwOperator]].forEach(function(cond){
 						if (_.isEqual(cond.sort(), tmp.sort())) {
 							found = true;
 						}
 					});
 					if (!found) {
-						actualLevel[BtwOperator].push(tmp);
+						actualLevel[SQBtwOperator[notPresent + BtwOperator]] = tmp;
 					}
 				}
 			} else if (_.includes(realValue, InOperator)) {
@@ -92,24 +121,24 @@ const PreHandlerBase = {
 				realValue = _.replace(realValue, InOperator, '');
 				let tmp = _.split(realValue, ',');
 				tmp.forEach(function(value){
-					const result = Joi.validate({ [dbAttribute]: value }, schema.schemaQuery());
+					const result = Joi.validate({ [dbAttribute]: value }, schema.joiValid);
 					if (result.error) {
 						error['message'] = result.error.message;
 						return response;
 					}
 				});
-				if (!_.has(actualLevel, InOperator)) {
-					actualLevel[InOperator] = [];
-					actualLevel[InOperator].push(tmp);
+				if (!_.has(actualLevel, SQInOperator[notPresent + InOperator])) {
+					actualLevel[SQInOperator[notPresent + InOperator]] = [];
+					actualLevel[SQInOperator[notPresent + InOperator]].push(tmp);
 				} else {
 					let found = false;
-					actualLevel[InOperator].forEach(function(cond){
+					actualLevel[SQInOperator[notPresent + InOperator]].forEach(function(cond){
 						if (_.isEqual(cond.sort(), tmp.sort())) {
 							found = true;
 						}
 					});
 					if (!found) {
-						actualLevel[InOperator].push(tmp);
+						actualLevel[SQInOperator[notPresent + InOperator]].push(tmp);
 					}
 				}
 			} else {
@@ -127,21 +156,25 @@ const PreHandlerBase = {
 				Operator.some(function (op) {
 					if (_.includes(realValue, op)) {
 						realValue = _.replace(realValue, op, '');
-						const result = Joi.validate({[dbAttribute]: realValue}, schema.schemaQuery());
+						const result = Joi.validate({[dbAttribute]: realValue}, schema.joiValid);
 						if (result.error) {
 							error['message'] = result.error.message;
 							return response;
 						}
 						if (op === '{like}') {
 							realValue = '%' + realValue + '%'
+						} else if (op === '{%like}') {
+							realValue = '%' + realValue
+						} else if (op === '{like%}') {
+							realValue = realValue + '%'
 						}
 
-						if (!_.has(actualLevel, op)) {
-							actualLevel[op] = [];
-							actualLevel[op].push(realValue);
+						if (!_.has(actualLevel, SQOperators[notPresent + op])) {
+							actualLevel[SQOperators[notPresent + op]] = [];
+							actualLevel[SQOperators[notPresent + op]].push(realValue);
 						} else {
-							if (!_.includes(actualLevel[op], realValue)) {
-								actualLevel[op].push(realValue);
+							if (!_.includes(actualLevel[SQOperators[notPresent + op]], realValue)) {
+								actualLevel[SQOperators[notPresent + op]].push(realValue);
 							}
 						}
 						return true;
@@ -175,6 +208,7 @@ const PreHandlerBase = {
 
 	extraParser: function(response, op, value, schema) {
 		let fields = response.queryData.fields;
+		let include = response.queryData.include;
 		let withRelated = response.queryData.withRelated;
 		let withCount = response.queryData.withCount;
 		let withFields = response.queryData.withFields;
@@ -186,17 +220,47 @@ const PreHandlerBase = {
 			if (op === 'fields') {
 				let realValue = _.replace(el, '{'+schema.name+'}', '');
 
-				if (!_.has(fields, [schema.name])) {
-					fields[schema.name] = [];
-				}
-
-				fields[schema.name].push(realValue);
+				let tmp = _.split(realValue, ',');
+				tmp.forEach(function(col){
+					fields.push(col);
+				});
 				responseChanged = true;
 			}
 			if (op === 'withRelated' && !responseChanged) {
-				if (_.indexOf(withRelated, el) === -1) {
-					withRelated.push(el);
-				}
+				let includeLevel = include;
+				let schemaClone = _.clone(schema);
+				let relTree = _.split(el,'.');
+				relTree.forEach(function(levelRel, level){
+					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone);
+					firstLevelRelations.forEach(function(rel){
+						if (levelRel === rel.name) {
+							if (!_.some(includeLevel, {model: DB[rel.model]})) {
+								if (level === 0) {
+									let tmp = {};
+									tmp.model = DB[rel.model];
+									includeLevel.push(tmp);
+									includeLevel = tmp;
+								} else if (level > 0) {
+									if (!_.has(includeLevel, 'include')) {
+										includeLevel['include'] = [];
+									}
+									let tmp = {};
+									tmp.model = DB[rel.model];
+									includeLevel['include'].push(tmp);
+									includeLevel = tmp;
+								}
+							} else {
+								includeLevel.forEach(function(elInclude){
+									if (_.includes(elInclude, DB[rel.model])) {
+										includeLevel = elInclude;
+									}
+								});
+							}
+							schemaClone = DB[rel.model];
+						}
+					});
+				});
+
 				responseChanged = true;
 			}
 			if (op === 'withCount' && !responseChanged) {

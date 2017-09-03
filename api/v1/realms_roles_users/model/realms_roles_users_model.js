@@ -17,11 +17,12 @@ module.exports = function(sequelize, DataTypes) {
 		},
 	);
 
-	// Class Method
-	// RealmsRolesUsers.associate = function (models) {
-	// 	User.belongsToMany(models.role, { through: 'realms_roles_users' });
-	// 	User.belongsToMany(models.realm, { through: 'realms_roles_users' });
-	// };
+	// Model Relations
+	RealmsRolesUsers.associate = function (models) {
+		RealmsRolesUsers.belongsTo(models.Realm);
+		RealmsRolesUsers.belongsTo(models.Role);
+		RealmsRolesUsers.belongsTo(models.User);
+	};
 
 	return RealmsRolesUsers;
 };

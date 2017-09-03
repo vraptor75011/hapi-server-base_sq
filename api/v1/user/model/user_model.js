@@ -45,10 +45,11 @@ module.exports = function(sequelize, DataTypes) {
 	);
 
 
-	// Class Method
+	// Model Relations
 	User.associate = function (models) {
 		User.belongsToMany(models.Role, { through: models.RealmsRolesUsers });
 		User.belongsToMany(models.Realm, { through: models.RealmsRolesUsers });
+		User.hasMany(models.RealmsRolesUsers)
 	};
 
 	return User;

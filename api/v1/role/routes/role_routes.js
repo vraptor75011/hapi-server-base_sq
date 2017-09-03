@@ -8,7 +8,7 @@ module.exports.register = (server, options, next) => {
 	server.route([
 		{
 			method: 'GET',
-			path: '/roles',
+			path: '/v1/roles',
 			config: {
 				handler: RoleHandlers.roleFindAll,
 				auth: {

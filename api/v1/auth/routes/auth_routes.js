@@ -9,11 +9,11 @@ module.exports.register = (server, options, next) => {
 	server.route([
 		{
 			method: 'POST',
-			path: '/login',
+			path: '/v1/login',
 			config: {
 				handler: AuthHandlers.login,
 				auth: false,
-				tags: ['api', 'Login'],
+				tags: ['Login', 'api', 'v1'],
 				description: 'User login.',
 				notes: ['Returns TOKENS after User authentication'],
 				validate: {

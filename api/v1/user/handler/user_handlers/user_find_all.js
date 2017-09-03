@@ -1,19 +1,20 @@
-const User = require('../../model/user_model');
 const Boom = require('boom');
 const URL = require('url');
+const DB = require('../../../../../config/sequelize');
+
+const User = DB.User;
 
 
 const UserFindAll =
 	{
 		userFindAll: function (request, reply) {
-			let mapper = new Mapper.Bookshelf(request.server.info.uri);
 			let requestData = request.pre.requestData;
 
 			// Calculating records total number
 			let totalCount = 0;
 			let filteredCount = 0;
 
-			if (Object.keys(requestData.queryData.count).length > 0) {
+			if (requestData.queryData.count) {
 				User
 					.count()
 					.then(function (totCount) {
@@ -22,11 +23,9 @@ const UserFindAll =
 						}
 						totalCount = totCount;
 						User
-							.filtered(requestData.queryData)
-							.selected(requestData.queryData)
-							.sorted(requestData.queryData)
-							.related(requestData.queryData)
-							.count()
+							.count({
+								where: requestData.queryData.filter,
+							})
 							.then(function (fltCount) {
 								if (fltCount.isNaN) {
 									return reply(Boom.badRequest('Impossible to count'));
@@ -50,51 +49,36 @@ const UserFindAll =
 						}
 						totalCount = totCount;
 						User
-							.filtered(requestData.queryData)
-							.count()
-							.then(function (fltCount) {
-								if (fltCount.isNaN) {
-									return reply(Boom.badRequest('Impossible to count'));
+							.findAll({
+								limit: requestData.queryData.pagination.limit,
+								offset: requestData.queryData.pagination.offset,
+								include: requestData.queryData.include,
+								attributes: requestData.queryData.fields,
+								where: requestData.queryData.filter,
+								order: requestData.queryData.sort,
+							})
+							.then(function (result) {
+								// if (result.count.isNaN) {
+								// 	return reply(Boom.badRequest('Impossible to count'));
+								// }
+								// filteredCount = result.count;
+								if (!result) {
+									return reply(Boom.badRequest('No users'));
 								}
-								filteredCount = fltCount;
-								User
-									.filtered(requestData.queryData)
-									.selected(requestData.queryData)
-									.sorted(requestData.queryData)
-									.related(requestData.queryData)
-									.paginated(requestData.queryData)
-									.buildQuery()
-									.then(function (prom) {
-										if (prom) {
-											request.server.log('info', prom.query.toString());
-										}
-										User
-											.filtered(requestData.queryData)
-											.selected(requestData.queryData)
-											.sorted(requestData.queryData)
-											.related(requestData.queryData)
-											.paginated(requestData.queryData)
-											.get()
-											.then(function (collection) {
-												if (!collection) {
-													return reply(Boom.badRequest('No users'));
-												}
 
-												const mapperOptions = {
-													meta: {
-														totalCount: totalCount,
-														filteredCount: filteredCount,
-														page: requestData.queryData.pagination.page,
-														pageCount: Math.floor(totalCount / requestData.queryData.pagination.pageSize) + 1,
-														pageSize: requestData.queryData.pagination.pageSize,
-														rowCount: collection.length,
-													},
-												};
-												let collMap = mapper.map(collection, 'user', mapperOptions);
-												return reply(collMap);
+								let mapper = {
+									meta: {
+										totalCount: totalCount,
+										filteredCount: filteredCount,
+										page: requestData.queryData.pagination.page,
+										pageCount: Math.floor(totalCount / requestData.queryData.pagination.pageSize) + 1,
+										pageSize: requestData.queryData.pagination.pageSize,
+										rowCount: result.length,
+									},
+									data: result,
+								};
+								return reply(mapper);
 
-											})
-									})
 							})
 					})
 					.catch(function (error) {

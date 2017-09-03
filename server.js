@@ -19,15 +19,17 @@ const server = new Hapi.Server({
 	connections: {
 		routes: {
 			security: true,
-			cors: true
+			cors: true,
 		}
 	},
 });
 
 server.connection({
 	host: HOST,
-	port: PORT
+	port: PORT,
 });
+
+server.realm.modifiers.route.prefix = '/api';
 
 // Auth module
 server.register(Auth, (err) => {

@@ -9,7 +9,7 @@ module.exports.register = (server, options, next) => {
 	server.route([
 		{
 			method: 'GET',
-			path: '/users',
+			path: '/v1/users',
 			config: {
 				handler: UserHandlers.userFindAll,
 				auth: false,

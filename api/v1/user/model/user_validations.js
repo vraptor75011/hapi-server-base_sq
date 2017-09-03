@@ -78,21 +78,20 @@ const pagination = {
 		.default(1),
 	pageSize: Joi.number().integer().min(5).max(100).description('rows per page')
 		.default(10),
-	offset: Joi.number().integer().min(0).description('(page number - 1) * pageSize'),
-	limit: Joi.number().integer().min(5).max(100).description('pageSize'),
 };
 
 const sort = {
 	sort: Joi.alternatives().try(
-		Joi.array()
-			.items(Joi.string().max(255)
-				.regex(ValidationBase.sortRegExp(User))
-				.example('-createdAt')
-			).description('sort column: [{users}][+,-]id,[{users}][+,-]username vs [-id, -username]')
-			.example(['{users}-email','-username']),
 		Joi.string().max(255)
 			.regex(ValidationBase.sortRegExp(User))
+			.description('sort column: [{users}][+,-]id,[{users}][+,-]username vs [-id, -username]')
 			.example('{users}-email'),
+		Joi.array()
+			.items(
+				Joi.string().max(255)
+					.regex(ValidationBase.sortRegExp(User))
+					.example('-createdAt'))
+			.example(['{users}-email','-username']),
 	),
 };
 
@@ -100,8 +99,9 @@ const extra = {
 	count: Joi.boolean().description('only number of records found'),
 	fields: Joi.alternatives().try(
 		Joi.array().description('selected attributes: [{User}]id, [id, username, {User}email]')
-			.items(Joi.string().max(255)
-				.regex(ValidationBase.fieldRegExp(User)))
+			.items(
+				Joi.string().max(255)
+					.regex(ValidationBase.fieldRegExp(User)))
 			.example(['{User}id','{User}username']),
 		Joi.string().max(255)
 			.regex(ValidationBase.fieldRegExp(User))
@@ -109,16 +109,18 @@ const extra = {
 	),
 	withRelated: Joi.alternatives().try(
 		Joi.array().description('includes relationships: Roles, [Roles.Users, Realms]')
-			.items(Joi.string().max(255)
-				.regex(ValidationBase.withRelatedRegExp(User)))
+			.items(
+				Joi.string().max(255)
+					.regex(ValidationBase.withRelatedRegExp(User)))
 			.example(['Realms','Roles']),
-		Joi.string().max(255).description('relationships: Roles, [Roles.Users, Realms]')
+		Joi.string().max(255)
 			.regex(ValidationBase.withRelatedRegExp(User))
-			.example('Realms')
+			.example('Realms'),
 	),
 	withCount: Joi.alternatives().try(
 		Joi.array().description('count relationships occurrences: Roles, [Roles.Users, Realms]')
-			.items(Joi.string().max(255)
+			.items(
+				Joi.string().max(255)
 				.regex(ValidationBase.withRelatedRegExp(User)))
 			.example(['Realms','Roles']),
 		Joi.string().max(255).description('relationships: Roles, [Roles.Users, Realms]')
@@ -162,7 +164,6 @@ const UserValidations = {
 	sort: sort,
 	extra: extra,
 	query: Joi.object().keys(Object.assign({}, filters, pagination, sort, extra)),
-
 };
 
 

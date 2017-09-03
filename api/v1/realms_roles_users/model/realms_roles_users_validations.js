@@ -40,8 +40,7 @@ const sort = {
 
 
 
-
-const RoleValidations = {
+const RealmsRolesUsersValidations = {
 	filters: filters,
 	pagination: pagination,
 	extra: extra,
@@ -50,4 +49,4 @@ const RoleValidations = {
 };
 
 
-module.exports = RoleValidations;
+module.exports = RealmsRolesUsersValidations;

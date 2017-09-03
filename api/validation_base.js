@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const DB = require('../config/sequelize');
+const SchemaUtility = require('../utilities/schema/schema_utility');
 const Pluralize = require('pluralize');
 
 
@@ -7,13 +8,15 @@ const Pluralize = require('pluralize');
 // Everyone can do with prefix {not} or {or}
 const numberOperators = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}'];
 const stringOperators = ['{=}', '{like}'];
-const nestedOperators = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}', '{like}', '{%like}', '{like%}'];
+const nestedOperators = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}'];
+const likeOperators = ['{like}', '{%like}', '{like%}'];
 const inOperator = ['{in}'];
 const btwOperator = ['{btw}'];
 const nullOperator = ['{null}'];
 
 // For the RegExp
 const OrOrNot = '(?:{not}|{or})?';
+const Or = '(?:{or})?';
 let intNumber = "[1-9]{1}[0-9]{0,6}";                                // From 1 to 9.999.999
 let floatNumber = "[-+]?([0]|[1-9]{1}[0-9]{0,6})(\.[0-9]{1,6})?";    // From -9,999,999.999,999 to [+]9,999,999.999,999
 let username = "([a-zA-Z0-9]+[_.-]?)*[a-zA-Z0-9]";                   // alt(a-zA-Z0-9||_.-) always ends with a-zA-Z0-9 no max length
@@ -28,40 +31,6 @@ let email = '(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+
 let datetime = '([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])(?:( [0-2][0-9]):([0-5][0-9]):([0-5][0-9]))?'; // Datetime for DB ex: 2017-08-15 10:00:00
 
 
-//HELPER to get array of relations from a schema
-let relationFromSchema = (schema) => {
-	let exclusion = [schema.name];
-	let relations = [];
-
-	Object.keys(schema.associations).map((rel) => {
-		let relModel = {};
-		let localExclusion = [rel];
-
-		if (DB.sequelize.models[Pluralize.singular(rel)]) {
-			relModel = DB.sequelize.models[Pluralize.singular(rel)];
-		} else if (DB.sequelize.models[rel]) {
-			relModel = DB.sequelize.models[rel];
-		}
-
-		relations.push({name: rel, model: relModel.name});
-
-		Object.keys(relModel.associations).map((relOfRel) => {
-			if (!_.includes(localExclusion, relOfRel)) {
-				if (DB.sequelize.models[Pluralize.singular(relOfRel)]) {
-					relModel = DB.sequelize.models[Pluralize.singular(relOfRel)];
-				} else if (DB.sequelize.models[relOfRel]) {
-					relModel = DB.sequelize.models[relOfRel];
-				}
-
-				relations.push({name: rel + '.' + relOfRel, model: relModel.name});
-			}
-		});
-	});
-
-	return relations;
-};
-
-
 const ValidationBase = {
 	// STRING admitted in Filter. Filter is an Operation on Model Attributes
 	filterRegExp: () => {
@@ -72,10 +41,15 @@ const ValidationBase = {
 				result += '|';
 			}
 			if (operator === '{=}') {
-				result += "^" + OrOrNot + "(?:" + operator + ")?.+$";
+				result += "^" + Or + "(?:" + operator + ")?.+$";
 			} else {
-				result += "^" + OrOrNot + operator + ".+$";
+				result += "^" + Or + operator + ".+$";
 			}
+		});
+
+		likeOperators.forEach(function(operator){
+			result += '|';
+			result += "^" + OrOrNot + operator + ".+$";
 		});
 
 		inOperator.forEach(function(operator){
@@ -104,6 +78,8 @@ const ValidationBase = {
 		Object.keys(schema.attributes).map((attr, index) => {
 			if (index > 0) {
 				columns += '|';
+			} else {
+				columns += '\\*|'
 			}
 			columns += attr;
 		});
@@ -158,7 +134,7 @@ const ValidationBase = {
 	// STRING admitted in with Related Field (related tables attributes) for all possible Relationships
 	withRelatedFieldRegExp: (schema) => {
 		let result = '';
-		let relations = relationFromSchema(schema);
+		let relations = SchemaUtility.relationFromSchema(schema);
 
 		relations.forEach(function(rel, index){
 			let columns = '(';
@@ -208,7 +184,7 @@ const ValidationBase = {
 	// STRING for with SORT
 	withSortRegExp: (schema) => {
 		let result = '';
-		let relations = relationFromSchema(schema);
+		let relations = SchemaUtility.relationFromSchema(schema);
 
 		relations.forEach(function(rel, index){
 			let columns = '(';
@@ -238,7 +214,7 @@ const ValidationBase = {
 	withFilterRegExp: (schema) => {
 		let result = '';
 		let attributes = '';
-		let relations = relationFromSchema(schema);
+		let relations = SchemaUtility.relationFromSchema(schema);
 
 		relations.forEach(function(rel, index){
 			let relation = '{' + rel.name + '}';
@@ -258,6 +234,11 @@ const ValidationBase = {
 				if (index > 0) {
 					result += '|';
 				}
+				result += "^" + relation + Or + "(" + attributes + ")" + operator + ".+$";
+			});
+
+			likeOperators.forEach(function(operator){
+				result += '|';
 				result += "^" + relation + OrOrNot + "(" + attributes + ")" + operator + ".+$";
 			});
 
