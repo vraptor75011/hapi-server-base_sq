@@ -1,4 +1,4 @@
-const HeaderValidation = require('../../../headerValidation');
+const HeaderValidation = require('../../../header_validation');
 const UserValidations = require('../model/user_validations');
 const UserHandlers = require('../handler/user_handlers');
 const UserPre = require('../handler/user_pre/user_pre');

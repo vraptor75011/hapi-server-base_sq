@@ -1,4 +1,4 @@
-const HeaderValidation = require('../../../headerValidation');
+const HeaderValidation = require('../../../header_validation');
 const RoleValidations = require('../model/role_validations');
 const RoleHandlers = require('../handler/role_handlers');
 
@@ -12,7 +12,7 @@ module.exports.register = (server, options, next) => {
 			config: {
 				handler: RoleHandlers.roleFindAll,
 				auth: {
-					scope: ['WA_SuperAdmin','WA_Admin']
+					scope: ['SuperAdmin','Admin']
 				},
 				tags: ['api', 'Roles'],
 				description: 'Roles List',
