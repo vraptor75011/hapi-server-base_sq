@@ -56,8 +56,8 @@ const PreHandlerBase = {
 		value.forEach(function(el){
 			let actualLevel = response.queryData.filter;
 			let error = response.queryData.error;
-			let dbAttribute = _.snakeCase(key);     // DB Attribute name (Snake Case);
-			let orPresent = null;
+			let dbAttribute = key;     // DB Attribute name (Camel Case);
+			let orPresent = '';
 			let notPresent = '';
 			let realValue = el;       // Final condition value;
 			// OR operator

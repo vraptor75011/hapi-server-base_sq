@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const ValidationBase = require('../../../validation_base');
+const ValidationBase = require('../../../../utilities/validation/validation_utility');
 const DB = require('../../../../config/sequelize');
 
 

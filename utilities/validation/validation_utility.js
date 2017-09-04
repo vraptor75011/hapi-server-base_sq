@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const DB = require('../config/sequelize');
-const SchemaUtility = require('../utilities/schema/schema_utility');
+const DB = require('../../config/sequelize');
+const SchemaUtility = require('../schema/schema_utility');
 const Pluralize = require('pluralize');
 
 
@@ -20,7 +20,7 @@ const Or = '(?:{or})?';
 let intNumber = "[1-9]{1}[0-9]{0,6}";                                // From 1 to 9.999.999
 let floatNumber = "[-+]?([0]|[1-9]{1}[0-9]{0,6})(\.[0-9]{1,6})?";    // From -9,999,999.999,999 to [+]9,999,999.999,999
 let username = "([a-zA-Z0-9]+[_.-]?)*[a-zA-Z0-9]";                   // alt(a-zA-Z0-9||_.-) always ends with a-zA-Z0-9 no max length
-let password = "^[a-zA-Z0-9àèéìòù\.\,\;\:\-\_\|@&%$]{3,}$";
+let password = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
 let pwdRegExp = new RegExp(password);
 let email = '(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"' +
 	'(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")' +
