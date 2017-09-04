@@ -161,12 +161,24 @@ const PreHandlerBase = {
 							error['message'] = result.error.message;
 							return response;
 						}
+
 						if (op === '{like}') {
 							realValue = '%' + realValue + '%'
 						} else if (op === '{%like}') {
 							realValue = '%' + realValue
 						} else if (op === '{like%}') {
 							realValue = realValue + '%'
+						}
+
+						let attr = schema.attributes[dbAttribute];
+
+						if (attr.type.key === 'BOOLEAN') {
+							if (realValue === 'true' || realValue === '1' || realValue === 1) {
+								realValue = true;
+							} else {
+								realValue = false;
+							}
+
 						}
 
 						if (!_.has(actualLevel, SQOperators[notPresent + op])) {
