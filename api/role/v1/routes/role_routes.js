@@ -1,5 +1,5 @@
 const HeaderValidation = require('../../../header_validation');
-const RoleValidations = require('../model/role_validations');
+const RoleValidations = require('../../model/role_validations');
 const RoleHandlers = require('../handler/role_handlers');
 
 

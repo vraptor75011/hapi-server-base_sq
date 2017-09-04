@@ -3,7 +3,7 @@ const _ = require('lodash');
 
 const DB = require('../../../../../config/sequelize');
 const PreHandlerBase = require('../../../../pre_handler_base');
-const UserValidation = require('../../model/user_validations');
+const UserValidation = require('../../../model/user_validations');
 
 const User = DB.User;
 

@@ -1,6 +1,6 @@
 const Joi = require('joi');
-const ValidationBase = require('../../../../utilities/validation/validation_utility');
-const DB = require('../../../../config/sequelize');
+const ValidationBase = require('../../../utilities/validation/validation_utility');
+const DB = require('../../../config/sequelize');
 
 
 const User = DB.User;

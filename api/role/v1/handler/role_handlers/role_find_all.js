@@ -1,4 +1,4 @@
-const Role = require('../../model/role_model');
+const Role = require('../../../model/role_model');
 const Boom = require('boom');
 
 

@@ -1,5 +1,5 @@
 const AuthHandlers = require('../handler/auth_handlers');
-const AuthValidations = require('../model/auth_validations');
+const AuthValidations = require('../../model/auth_validations');
 
 const LoginPre = require('../handler/auth_pre/login_pre');
 
