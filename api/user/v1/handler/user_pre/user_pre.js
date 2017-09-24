@@ -23,6 +23,7 @@ const UserPre = [
 					pagination: {},
 					count: false,
 					include: [],
+					group: [],
 					withRelated: [],
 					withFields: {},
 					relatedQuery: {},
@@ -33,6 +34,8 @@ const UserPre = [
 					error: {},
 				}
 			};
+
+			// requestData.queryData.fields = ['id'];
 
 			let queryUrl = request.query;
 			let error = requestData.queryData.error;

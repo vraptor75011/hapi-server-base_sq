@@ -219,6 +219,7 @@ const PreHandlerBase = {
 	},
 
 	extraParser: function(response, op, value, schema) {
+		let group = response.queryData.group;
 		let fields = response.queryData.fields;
 		let include = response.queryData.include;
 		let withRelated = response.queryData.withRelated;
@@ -243,13 +244,13 @@ const PreHandlerBase = {
 				let schemaClone = _.clone(schema);
 				let relTree = _.split(el,'.');
 				relTree.forEach(function(levelRel, level){
-					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone);
+					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 2);
 					firstLevelRelations.forEach(function(rel){
 						if (levelRel === rel.name) {
-							if (!_.some(includeLevel, {model: DB[rel.model]})) {
+							if (!_.some(includeLevel, {association: rel.name})) {
 								if (level === 0) {
 									let tmp = {};
-									tmp.model = DB[rel.model];
+									tmp.association = rel.name;
 									includeLevel.push(tmp);
 									includeLevel = tmp;
 								} else if (level > 0) {
@@ -257,13 +258,13 @@ const PreHandlerBase = {
 										includeLevel['include'] = [];
 									}
 									let tmp = {};
-									tmp.model = DB[rel.model];
+									tmp.association = rel.name;
 									includeLevel['include'].push(tmp);
 									includeLevel = tmp;
 								}
 							} else {
 								includeLevel.forEach(function(elInclude){
-									if (_.includes(elInclude, DB[rel.model])) {
+									if (_.includes(elInclude.association, rel.name)) {
 										includeLevel = elInclude;
 									}
 								});
@@ -275,15 +276,57 @@ const PreHandlerBase = {
 
 				responseChanged = true;
 			}
+
 			if (op === 'withCount' && !responseChanged) {
-				if (_.indexOf(withCount, el) === -1) {
-					withCount.push(el);
-				}
-				if (_.indexOf(withRelated, el) === -1) {
-					withRelated.push(el);
-				}
+				let includeLevel = include;
+				let fieldsLevel = fields;
+				let schemaClone = _.clone(schema);
+				let relTree = _.split(el,'.');
+				let rightLevel = relTree.length - 1;
+				group.push('User.id');
+				response.queryData.includeIgnoreAttributes = false;
+				relTree.forEach(function(levelRel, level){
+					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 1);
+					firstLevelRelations.forEach(function(rel){
+						if (levelRel === rel.name) {
+							if (!_.some(includeLevel, {association: rel.name})) {
+								if (level === 0) {
+									let tmp = {};
+									tmp.association = rel.name;
+									tmp.attributes = [];
+									tmp.duplicating = false;
+									fieldsLevel.push([DB.Sequelize.fn('COUNT', DB.Sequelize.col(rel.name + '.' + 'id')), _.camelCase(rel.name) + 'Count']);
+									includeLevel.push(tmp);
+									includeLevel = tmp;
+									fieldsLevel = tmp.attributes;
+								} else if (level > 0) {
+									if (!_.has(includeLevel, 'include')) {
+										includeLevel['include'] = [];
+									}
+									let tmp = {};
+									tmp.model = DB[rel.model];
+									tmp.attributes = [];
+									includeLevel['include'].push(tmp);
+									includeLevel = tmp;
+								}
+							} else {
+								includeLevel.forEach(function(elInclude){
+									if (_.includes(elInclude, rel.name)) {
+										includeLevel = elInclude;
+									}
+								});
+								fieldsLevel.push([DB.Sequelize.fn('COUNT', DB.Sequelize.col(rel.name + '.' + 'id')), _.camelCase(rel.name) + 'Count']);
+								includeLevel.attributes = [];
+								includeLevel.duplicating = false;
+							}
+							schemaClone = DB[rel.model];
+						}
+					});
+				});
+
 				responseChanged = true;
 			}
+
 			if (op === 'withFields' && !responseChanged) {
 				let relation = '';
 				let prefix = '';

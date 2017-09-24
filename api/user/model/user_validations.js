@@ -57,7 +57,7 @@ const filters = {
 		Joi.array().items(
 			Joi.string().max(255).regex(ValidationBase.filterRegExp())
 				.example('{=}2017-08-17 10:00:00'),
-		).description('the creation date: [{=}]2017-08-15[ 09:00:00] vs [{btw}2017-08-17 09:00:00,2017-08-17 23:30:00]')
+		).description('the update date: [{=}]2017-08-15[ 09:00:00] vs [{btw}2017-08-17 09:00:00,2017-08-17 23:30:00]')
 			.example(['{>=}2017-08-01', '{<}2017-09-01']),
 		Joi.string().max(255).regex(ValidationBase.filterRegExp('date'))
 			.example('2017-08-17 10:00:00'),
@@ -66,7 +66,7 @@ const filters = {
 		Joi.array().items(
 			Joi.string().max(255).regex(ValidationBase.filterRegExp())
 				.example('{=}2017-08-17 10:00:00'),
-		).description('the creation date: 2017-08-15 09:00:00 vs [{btw}2017-08-17 09:00:00,2017-08-17 23:30:00]')
+		).description('the delete date: 2017-08-15 09:00:00 vs [{btw}2017-08-17 09:00:00,2017-08-17 23:30:00]')
 			.example(['{>}2017-08-17 10:00:00', '{<}2017-08-31 10:00:00']),
 		Joi.string().max(255).regex(ValidationBase.filterRegExp())
 			.example('2017-08-17 10:00:00'),
@@ -118,13 +118,13 @@ const extra = {
 			.example('Realms'),
 	),
 	withCount: Joi.alternatives().try(
-		Joi.array().description('count relationships occurrences: Roles, [Roles.Users, Realms]')
+		Joi.array().description('count relationships occurrences: Roles, [Roles, Realms]')
 			.items(
 				Joi.string().max(255)
-				.regex(ValidationBase.withRelatedRegExp(User)))
+				.regex(ValidationBase.withCountRegExp(User)))
 			.example(['Realms','Roles']),
 		Joi.string().max(255).description('relationships: Roles, [Roles.Users, Realms]')
-			.regex(ValidationBase.withRelatedRegExp(User))
+			.regex(ValidationBase.withCountRegExp(User))
 			.example('Realms')
 	),
 	withFields: Joi.alternatives().try(

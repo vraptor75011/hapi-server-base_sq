@@ -49,7 +49,7 @@ module.exports = function(sequelize, DataTypes) {
 	User.associate = function (models) {
 		User.belongsToMany(models.Role, { through: models.RealmsRolesUsers });
 		User.belongsToMany(models.Realm, { through: models.RealmsRolesUsers });
-		User.hasMany(models.RealmsRolesUsers)
+		User.hasMany(models.RealmsRolesUsers);
 	};
 
 	return User;

@@ -79,7 +79,7 @@ const ValidationBase = {
 			if (index > 0) {
 				columns += '|';
 			} else {
-				columns += '\\*|'
+				columns += '|'
 			}
 			columns += attr;
 		});
@@ -119,7 +119,7 @@ const ValidationBase = {
 				Object.keys(relModel.associations).map((relOfRel) => {
 					if (!_.includes(exclusion, relOfRel) && !_.includes(localExclusion, relOfRel)) {
 						relations += '|';
-						relations += rel+'.'+relOfRel;
+						relations += rel + '.' + relOfRel;
 					}
 				});
 			}
@@ -131,10 +131,34 @@ const ValidationBase = {
 		return new RegExp(result);
 	},
 
+	// STRING admitted in withCount for relations. Possible Relations to include (only ONE level)
+	withCountRegExp: (schema) => {
+		let result = '';
+		let relations = '(';
+		let exclusion = [schema.name];
+
+		let schemaRelations = schema.associations;
+
+		Object.keys(schemaRelations).map((rel, index) => {
+			let localExclusion = [rel];
+			if (index > 0) {
+				relations += '|';
+			}
+
+			relations += rel;
+
+		});
+		relations += ')';
+
+		result += "^" + relations + "$";
+
+		return new RegExp(result);
+	},
+
 	// STRING admitted in with Related Field (related tables attributes) for all possible Relationships
 	withRelatedFieldRegExp: (schema) => {
 		let result = '';
-		let relations = SchemaUtility.relationFromSchema(schema);
+		let relations = SchemaUtility.relationFromSchema(schema, 2);
 
 		relations.forEach(function(rel, index){
 			let columns = '(';
@@ -184,7 +208,7 @@ const ValidationBase = {
 	// STRING for with SORT
 	withSortRegExp: (schema) => {
 		let result = '';
-		let relations = SchemaUtility.relationFromSchema(schema);
+		let relations = SchemaUtility.relationFromSchema(schema, 2);
 
 		relations.forEach(function(rel, index){
 			let columns = '(';
@@ -214,7 +238,7 @@ const ValidationBase = {
 	withFilterRegExp: (schema) => {
 		let result = '';
 		let attributes = '';
-		let relations = SchemaUtility.relationFromSchema(schema);
+		let relations = SchemaUtility.relationFromSchema(schema, 2);
 
 		relations.forEach(function(rel, index){
 			let relation = '{' + rel.name + '}';

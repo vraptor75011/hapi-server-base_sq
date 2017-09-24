@@ -1,6 +1,7 @@
 const Boom = require('boom');
 const URL = require('url');
 const DB = require('../../../../../config/sequelize');
+const QueryBase = require('../../../../../utilities/query/prepare_query');
 
 const User = DB.User;
 
@@ -13,6 +14,10 @@ const UserFindAll =
 			// Calculating records total number
 			let totalCount = 0;
 			let filteredCount = 0;
+
+			let queryFilters = QueryBase.filters(requestData.queryData);
+
+			request.server.log('info', 'queryFilters: ' + JSON.stringify(queryFilters));
 
 			if (requestData.queryData.count) {
 				User
@@ -48,15 +53,63 @@ const UserFindAll =
 							return reply(Boom.badRequest('Impossible to count'));
 						}
 						totalCount = totCount;
+						// User.findAll({
+						// 	// attributes: ['id','username'],
+						// 	include: [{
+						// 		association: 'RealmsRolesUsers',
+						// 		// attributes: ['id', 'realmId', 'roleId', 'userId'],
+						// 		include: [{
+						// 			association: 'Role',
+						// 			// attributes: ['id','name'],
+						// 		}, {
+						// 			association: 'Realm',
+						// 			// attributes: ['id','name'],
+						// 		}]
+						// 	}],
+						// })
+						// User.findAll({
+						// 	attributes: ['id','username'],
+						// 	include: [{
+						// 		model: DB.Role,
+						// 		attributes: ['id','name'],
+						// 	}, {
+						// 		model: DB.Realm,
+						// 		attributes: ['id','name'],
+						// 	}],
+						// })
+						// User.findAll({
+						// 	attributes: ['id', 'username'],
+						// 	// includeIgnoreAttributes: false,
+						// 	include: [{
+						// 		association: 'RealmsRolesUsers',
+						// 		attributes: [[DB.Sequelize.fn('COUNT', DB.Sequelize.col('Role.id')), 'roleCount']],
+						// 		include:[{
+						// 			association: 'Role',
+						// 			attributes: [],
+						// 			// through: {
+						// 			// 	attributes: []
+						// 			// },
+						// 			duplicating: false,
+						// 		}],
+						// 	}],
+						// 	// group : ['User.id'],
+						// 	limit: 10,
+						// 	offset: 0,
+						// })
+						// User.findAll({
+						// 	attributes: attributes2,
+						// 	includeIgnoreAttributes: false,
+						// 	include: [{
+						// 		association: 'Roles',
+						// 		attributes: [],
+						// 		duplicating: false,
+						// 	}],
+						// 	group: ['User.id'],
+						// 	limit: 10,
+						// 	offset: 0,
+						// })
 						User
-							.findAll({
-								limit: requestData.queryData.pagination.limit,
-								offset: requestData.queryData.pagination.offset,
-								include: requestData.queryData.include,
-								attributes: requestData.queryData.fields,
-								where: requestData.queryData.filter,
-								order: requestData.queryData.sort,
-							})
+							.findAll(queryFilters)
 							.then(function (result) {
 								// if (result.count.isNaN) {
 								// 	return reply(Boom.badRequest('Impossible to count'));
