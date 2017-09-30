@@ -1,9 +1,11 @@
 const Joi = require('joi');
-const ValidationBase = require('../../../utilities/validation/validation_utility');
 const DB = require('../../../config/sequelize');
-
+const ValidationBase = require('../../../utilities/validation/validation_utility');
+const SchemaUtility = require('../../../utilities/schema/schema_utility');
 
 const User = DB.User;
+const FLRelations = SchemaUtility.relationsFromSchema(User, 1, 1);
+const SLRelations = SchemaUtility.relationsFromSchema(User, 2, 2);
 
 
 const filters = {
@@ -98,7 +100,7 @@ const sort = {
 const extra = {
 	count: Joi.boolean().description('only number of records found'),
 	fields: Joi.alternatives().try(
-		Joi.array().description('selected attributes: [{User}]id, [id, username, {User}email]')
+		Joi.array().description('selected attributes: [{User}id, [id, username, {User}email]')
 			.items(
 				Joi.string().max(255)
 					.regex(ValidationBase.fieldRegExp(User)))
@@ -106,6 +108,16 @@ const extra = {
 		Joi.string().max(255)
 			.regex(ValidationBase.fieldRegExp(User))
 			.example('{User}id')
+	),
+	withCount: Joi.alternatives().try(
+		Joi.array().description('count relationships occurrences: Roles, [Roles, Realms]')
+			.items(
+				Joi.string().max(255)
+					.regex(ValidationBase.withCountRegExp(User)))
+			.example(['Realms','Roles']),
+		Joi.string().max(255).description('relationships: Roles, [Roles.Users, Realms]')
+			.regex(ValidationBase.withCountRegExp(User))
+			.example('Realms')
 	),
 	withRelated: Joi.alternatives().try(
 		Joi.array().description('includes relationships: Roles, [Roles.Users, Realms]')
@@ -116,16 +128,6 @@ const extra = {
 		Joi.string().max(255)
 			.regex(ValidationBase.withRelatedRegExp(User))
 			.example('Realms'),
-	),
-	withCount: Joi.alternatives().try(
-		Joi.array().description('count relationships occurrences: Roles, [Roles, Realms]')
-			.items(
-				Joi.string().max(255)
-				.regex(ValidationBase.withCountRegExp(User)))
-			.example(['Realms','Roles']),
-		Joi.string().max(255).description('relationships: Roles, [Roles.Users, Realms]')
-			.regex(ValidationBase.withCountRegExp(User))
-			.example('Realms')
 	),
 	withFields: Joi.alternatives().try(
 		Joi.array().description('selects relationships fields: {Roles}name, [{Realms}name,description]')
@@ -164,6 +166,8 @@ const UserValidations = {
 	sort: sort,
 	extra: extra,
 	query: Joi.object().keys(Object.assign({}, filters, pagination, sort, extra)),
+	FLRelations: FLRelations,
+	SLRelations: SLRelations,
 };
 
 

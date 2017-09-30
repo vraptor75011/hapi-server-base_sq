@@ -135,12 +135,10 @@ const ValidationBase = {
 	withCountRegExp: (schema) => {
 		let result = '';
 		let relations = '(';
-		let exclusion = [schema.name];
 
 		let schemaRelations = schema.associations;
 
 		Object.keys(schemaRelations).map((rel, index) => {
-			let localExclusion = [rel];
 			if (index > 0) {
 				relations += '|';
 			}

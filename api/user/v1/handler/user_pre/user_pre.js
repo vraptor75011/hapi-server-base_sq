@@ -24,13 +24,10 @@ const UserPre = [
 					count: false,
 					include: [],
 					group: [],
+					withCountFlag: false,
 					withRelated: [],
 					withFields: {},
-					relatedQuery: {},
 					withFilter: {},
-					withSort: {},
-					withCount: [],
-					countQuery: {},
 					error: {},
 				}
 			};

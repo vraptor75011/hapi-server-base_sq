@@ -223,11 +223,10 @@ const PreHandlerBase = {
 		let fields = response.queryData.fields;
 		let include = response.queryData.include;
 		let withRelated = response.queryData.withRelated;
-		let withCount = response.queryData.withCount;
+		let includeFlag = response.queryData.withCountFlag;
 		let withFields = response.queryData.withFields;
-		let withSort = response.queryData.withSort;
+		let sort = response.queryData.sort;
 		let withFilter = response.queryData.withFilter;
-		let relatedQuery = response.queryData.relatedQuery;
 		value.forEach(function(el){
 			let responseChanged = false;
 			if (op === 'fields') {
@@ -239,7 +238,30 @@ const PreHandlerBase = {
 				});
 				responseChanged = true;
 			}
-			if (op === 'withRelated' && !responseChanged) {
+
+			if (op === 'withCount' && !responseChanged) {
+				if (includeFlag === false) {
+					response.queryData.include = [];
+					include = response.queryData.include;
+					includeFlag = true;
+				}
+				let includeLevel = include;
+				let fieldsLevel = fields;
+				group.push(schema.name + '.id');
+				response.queryData.includeIgnoreAttributes = false;
+				if (!_.some(includeLevel, {association: el})) {
+					let tmp = {};
+					tmp.association = el;
+					tmp.attributes = [];
+					tmp.duplicating = false;
+					fieldsLevel.push([DB.Sequelize.fn('COUNT', DB.Sequelize.col(el + '.' + 'id')), _.camelCase(el) + 'Count']);
+					includeLevel.push(tmp);
+				}
+
+				responseChanged = true;
+			}
+
+			if (op === 'withRelated' && !responseChanged && !includeFlag) {
 				let includeLevel = include;
 				let schemaClone = _.clone(schema);
 				let relTree = _.split(el,'.');
@@ -257,10 +279,12 @@ const PreHandlerBase = {
 									if (!_.has(includeLevel, 'include')) {
 										includeLevel['include'] = [];
 									}
-									let tmp = {};
-									tmp.association = rel.name;
-									includeLevel['include'].push(tmp);
-									includeLevel = tmp;
+									if (!_.some(includeLevel['include'], {association: rel.name})) {
+										let tmp = {};
+										tmp.association = rel.name;
+										includeLevel['include'].push(tmp);
+										includeLevel = tmp;
+									}
 								}
 							} else {
 								includeLevel.forEach(function(elInclude){
@@ -277,114 +301,138 @@ const PreHandlerBase = {
 				responseChanged = true;
 			}
 
-			if (op === 'withCount' && !responseChanged) {
+			if (op === 'withFields' && !responseChanged && !includeFlag) {
+				let relation = '';
+				let prefix = '';
+				let associations = SchemaUtility.relationFromSchema(schema, 2);
+
+				associations.forEach(function(rel){
+					if (_.includes(el, rel.name)) {
+						relation = rel.name;
+						prefix = '{' + relation + '}';
+					}
+				});
+
+				let realValue = _.replace(el, prefix, '');
+
 				let includeLevel = include;
-				let fieldsLevel = fields;
 				let schemaClone = _.clone(schema);
-				let relTree = _.split(el,'.');
-				let rightLevel = relTree.length - 1;
-				group.push('User.id');
-				response.queryData.includeIgnoreAttributes = false;
+				let relTree = _.split(relation,'.');
 				relTree.forEach(function(levelRel, level){
-					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 1);
+					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 2);
 					firstLevelRelations.forEach(function(rel){
 						if (levelRel === rel.name) {
 							if (!_.some(includeLevel, {association: rel.name})) {
 								if (level === 0) {
 									let tmp = {};
 									tmp.association = rel.name;
-									tmp.attributes = [];
-									tmp.duplicating = false;
-									fieldsLevel.push([DB.Sequelize.fn('COUNT', DB.Sequelize.col(rel.name + '.' + 'id')), _.camelCase(rel.name) + 'Count']);
 									includeLevel.push(tmp);
 									includeLevel = tmp;
-									fieldsLevel = tmp.attributes;
 								} else if (level > 0) {
 									if (!_.has(includeLevel, 'include')) {
 										includeLevel['include'] = [];
 									}
-									let tmp = {};
-									tmp.model = DB[rel.model];
-									tmp.attributes = [];
-									includeLevel['include'].push(tmp);
-									includeLevel = tmp;
+									if (!_.some(includeLevel['include'], {association: rel.name})) {
+										let tmp = {};
+										tmp.association = rel.name;
+										includeLevel['include'].push(tmp);
+										includeLevel = tmp;
+									}
 								}
 							} else {
 								includeLevel.forEach(function(elInclude){
-									if (_.includes(elInclude, rel.name)) {
+									if (_.includes(elInclude.association, rel.name)) {
 										includeLevel = elInclude;
 									}
 								});
-								fieldsLevel.push([DB.Sequelize.fn('COUNT', DB.Sequelize.col(rel.name + '.' + 'id')), _.camelCase(rel.name) + 'Count']);
-								includeLevel.attributes = [];
-								includeLevel.duplicating = false;
 							}
 							schemaClone = DB[rel.model];
 						}
 					});
 				});
 
+				let columns = _.split(realValue, ',');
+
+				if (!_.has(includeLevel, 'attributes')) {
+					includeLevel['attributes'] = [];
+				}
+				columns.forEach(function(col){
+					includeLevel['attributes'].push(col);
+				});
+
 				responseChanged = true;
 			}
 
-			if (op === 'withFields' && !responseChanged) {
+			if (op === 'withSort' && !responseChanged && !includeFlag) {
 				let relation = '';
 				let prefix = '';
-				schema.relations.forEach(function(rel){
+				let associations = SchemaUtility.relationFromSchema(schema, 2);
+
+				associations.forEach(function(rel){
 					if (_.includes(el, rel.name)) {
 						relation = rel.name;
 						prefix = '{' + relation + '}';
 					}
 				});
+
 				let realValue = _.replace(el, prefix, '');
-				if (!_.has(withFields, relation)) {
-					withFields[relation] = [];
-				}
-				let tmp = _.split(realValue, ',');
-				tmp.forEach(function(col){
-					withFields[relation].push(_.snakeCase(col));
+
+				let includeLevel = include;
+				let schemaClone = _.clone(schema);
+				let relTree = _.split(relation,'.');
+				relTree.forEach(function(levelRel, level){
+					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 2);
+					firstLevelRelations.forEach(function(rel){
+						if (levelRel === rel.name) {
+							if (!_.some(includeLevel, {association: rel.name})) {
+								if (level === 0) {
+									let tmp = {};
+									tmp.association = rel.name;
+									includeLevel.push(tmp);
+									includeLevel = tmp;
+								} else if (level > 0) {
+									if (!_.has(includeLevel, 'include')) {
+										includeLevel['include'] = [];
+									}
+									if (!_.some(includeLevel['include'], {association: rel.name})) {
+										let tmp = {};
+										tmp.association = rel.name;
+										includeLevel['include'].push(tmp);
+										includeLevel = tmp;
+									}
+								}
+							} else {
+								includeLevel.forEach(function(elInclude){
+									if (_.includes(elInclude.association, rel.name)) {
+										includeLevel = elInclude;
+									}
+								});
+							}
+							schemaClone = DB[rel.model];
+						}
+					});
 				});
-				// withFields[relation].push(realValue);
-				if (_.indexOf(withRelated, relation) === -1) {
-					withRelated.push(relation);
-				}
-				responseChanged = true;
-			}
-			if (op === 'withSort' && !responseChanged) {
-				let relation = '';
-				let prefix = '';
-				schema.relations.forEach(function(rel){
-					if (_.includes(el, rel.name)) {
-						relation = rel.name;
-						prefix = '{' + relation + '}';
-					}
-				});
-				let realValue = _.replace(el, '{' + relation + '}', '');
+
 				let columns = _.split(realValue, ',');
-				if (!_.has(relatedQuery, relation)) {
-					relatedQuery[relation] = {};
-				}
+
 				columns.forEach(function(col){
 					let direction = _.includes(col, '-') ? 'DESC' : 'ASC';
 
 					realValue = _.replace(_.replace(col, '-', ''), '+', '');
-					if (!_.has(withSort, relation)) {
-						withSort[relation] = [];
-					}
-					if (!_.has(relatedQuery[relation], '{sort}')) {
-						relatedQuery[relation]['{sort}'] = [];
-					}
+
 					let tmp = [];
+					let relArray = _.split(relation,'.');
+					relArray.forEach(function(rel){
+						tmp.push(rel);
+					});
 					tmp.push(realValue);
 					tmp.push(direction);
-					withSort[relation].push(tmp);
-					relatedQuery[relation]['{sort}'].push(tmp);
-					if (_.indexOf(withRelated, relation) === -1) {
-						withRelated.push(relation);
-					}
+					sort.push(tmp);
 				});
+
 				responseChanged = true;
 			}
+
 			if (op === 'withFilter' && !responseChanged) {
 				let actualLevel = withFilter;
 				let newLevel = relatedQuery;
