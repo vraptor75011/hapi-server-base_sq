@@ -92,6 +92,35 @@ const ValidationBase = {
 		return new RegExp(result);
 	},
 
+	// Fields to apply sum, min & max. Model Fields to select
+	mathFieldRegExp: (schema) => {
+		let result = '';
+		let columns = '(';
+
+		Object.keys(schema.attributes).map((attr, index) => {
+			let attribute = schema.attributes[attr];
+			let type = attribute.type.key;
+
+			if (attribute.type.key === 'INTEGER' || attribute.type.key === 'FLOAT' ||
+				attribute.type.key === 'REAL' || attribute.type.key === 'DOUBLE' ||
+				attribute.type.key === 'DECIMAL' || attribute.type.key === 'DATE') {
+
+				if (columns !== '(') {
+					columns += '|';
+				}
+				columns += attr;
+			}
+
+		});
+		columns += ')';
+
+		let prefix = '(?:{' + schema.name + '})?';
+
+		result += "^" + prefix + columns + "$";
+
+		return new RegExp(result);
+	},
+
 	// STRING admitted in withRelated for relations. Possible Relations to include
 	withRelatedRegExp: (schema) => {
 		let result = '';

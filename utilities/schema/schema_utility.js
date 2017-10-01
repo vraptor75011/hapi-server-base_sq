@@ -55,7 +55,7 @@ const SchemaUtility = {
 				relModel = DB.sequelize.models[rel];
 			}
 
-			if (startLevel == 1) {
+			if (startLevel === 1) {
 				firstLevel.push(rel);
 			}
 

@@ -45,6 +45,120 @@ const UserFindAll =
 						let errorMsg = error.message || 'An error occurred';
 						return reply(Boom.gatewayTimeout(errorMsg));
 					});
+			} else if (requestData.queryData.minFlag) {
+				User
+					.count()
+					.then(function (totCount) {
+						if (totCount.isNaN) {
+							return reply(Boom.badRequest('Impossible to count'));
+						}
+						totalCount = totCount;
+						User
+							.count({
+								where: requestData.queryData.filter,
+							})
+							.then(function (fltCount) {
+								if (fltCount.isNaN) {
+									return reply(Boom.badRequest('Impossible to count'));
+								}
+								User
+									.min(requestData.queryData.min,
+										{
+											where: requestData.queryData.filter,
+										})
+									.then(function (count) {
+										if (count.isNaN) {
+											return reply(Boom.badRequest('Impossible to count'));
+										}
+										let replyObject = {
+											totalCount: totalCount,
+											filteredCount: fltCount,
+										};
+										replyObject[requestData.queryData.min + 'Min'] = count;
+										return reply(replyObject);
+									})
+							})
+					})
+					.catch(function (error) {
+						let errorMsg = error.message || 'An error occurred';
+						return reply(Boom.gatewayTimeout(errorMsg));
+					});
+			} else if (requestData.queryData.maxFlag) {
+				User
+					.count()
+					.then(function (totCount) {
+						if (totCount.isNaN) {
+							return reply(Boom.badRequest('Impossible to count'));
+						}
+						totalCount = totCount;
+						User
+							.count({
+								where: requestData.queryData.filter,
+							})
+							.then(function (fltCount) {
+								if (fltCount.isNaN) {
+									return reply(Boom.badRequest('Impossible to count'));
+								}
+								User
+									.max(requestData.queryData.max,
+										{
+											where: requestData.queryData.filter,
+										})
+									.then(function (count) {
+										if (count.isNaN) {
+											return reply(Boom.badRequest('Impossible to count'));
+										}
+										let replyObject = {
+											totalCount: totalCount,
+											filteredCount: fltCount,
+										};
+										replyObject[requestData.queryData.max + 'Max'] = count;
+										return reply(replyObject);
+									})
+							})
+					})
+					.catch(function (error) {
+						let errorMsg = error.message || 'An error occurred';
+						return reply(Boom.gatewayTimeout(errorMsg));
+					});
+			} else if (requestData.queryData.sumFlag) {
+				User
+					.count()
+					.then(function (totCount) {
+						if (totCount.isNaN) {
+							return reply(Boom.badRequest('Impossible to count'));
+						}
+						totalCount = totCount;
+						User
+							.count({
+								where: requestData.queryData.filter,
+							})
+							.then(function (fltCount) {
+								if (fltCount.isNaN) {
+									return reply(Boom.badRequest('Impossible to count'));
+								}
+								User
+									.sum(requestData.queryData.sum,
+										{
+											where: requestData.queryData.filter,
+										})
+									.then(function (sum) {
+										if (sum.isNaN) {
+											return reply(Boom.badRequest('Impossible to count'));
+										}
+										let replyObject = {
+											totalCount: totalCount,
+											filteredCount: fltCount,
+										};
+										replyObject[requestData.queryData.sum + 'Sum'] = sum;
+										return reply(replyObject);
+									})
+							})
+					})
+					.catch(function (error) {
+						let errorMsg = error.message || 'An error occurred';
+						return reply(Boom.gatewayTimeout(errorMsg));
+					});
 			} else {
 				User
 					.count()
@@ -81,16 +195,8 @@ const UserFindAll =
 						// 	attributes: ['id', 'username'],
 						// 	// includeIgnoreAttributes: false,
 						// 	include: [{
-						// 		association: 'RealmsRolesUsers',
-						// 		attributes: [[DB.Sequelize.fn('COUNT', DB.Sequelize.col('Role.id')), 'roleCount']],
-						// 		include:[{
-						// 			association: 'Role',
-						// 			attributes: [],
-						// 			// through: {
-						// 			// 	attributes: []
-						// 			// },
-						// 			duplicating: false,
-						// 		}],
+						// 		association: 'Roles',
+						// 		where: {name: 'SuperAdmin'}
 						// 	}],
 						// 	// group : ['User.id'],
 						// 	limit: 10,

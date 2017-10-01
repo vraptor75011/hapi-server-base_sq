@@ -25,9 +25,12 @@ const UserPre = [
 					include: [],
 					group: [],
 					withCountFlag: false,
-					withRelated: [],
-					withFields: {},
-					withFilter: {},
+					min: '',
+					minFlag: false,
+					max: '',
+					maxFlag: false,
+					sum: '',
+					sumFlag: false,
 					error: {},
 				}
 			};
@@ -63,6 +66,13 @@ const UserPre = [
 				}
 
 				if (!Object.keys(error).length > 0) {
+					// MATH Operations
+					if (referenceModel.math.hasOwnProperty(e)) {
+						requestData = PreHandlerBase.mathParser(requestData, e, queryUrl[e], User);
+					}
+				}
+
+				if (!Object.keys(error).length > 0) {
 					// Extra
 					if (referenceModel.extra.hasOwnProperty(e)) {
 						if (e === 'count') {
@@ -78,6 +88,24 @@ const UserPre = [
 					}
 				}
 			});
+
+			let found = false;
+			Object.keys(User.attributes).map((attr) => {
+				if (_.includes(requestData.queryData.fields, attr)) {
+					found = true;
+				}
+			});
+
+			if (found === false) {
+				Object.keys(User.attributes).map((attr) => {
+					requestData.queryData.fields.push(attr);
+				});
+			}
+
+			_.remove(requestData.queryData.fields, function(el) {
+				return el === 'password';
+			});
+
 
 			if (Object.keys(error).length > 0) {
 				return reply(Boom.badRequest(requestData.queryData.error.message));
