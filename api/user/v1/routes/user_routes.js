@@ -12,10 +12,10 @@ module.exports.register = (server, options, next) => {
 			path: '/v1/users',
 			config: {
 				handler: UserHandlers.userFindAll,
-				auth: false,
-				// {
-				// 	scope: ['WA_SuperAdmin','WA_Admin']
-				// },
+				auth:
+					{
+						scope: ['GameApp', 'SuperAdmin', 'Admin'],
+					},
 				tags: ['api', 'Users'],
 				description: 'Users List',
 				notes: ['Returns Users list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
@@ -23,7 +23,7 @@ module.exports.register = (server, options, next) => {
 								'User Second Level Relations: ' + UserValidations.SLRelations + '<br>'],
 				validate: {
 					query: UserValidations.query,
-					// headers: HeaderValidation.header,
+					headers: HeaderValidation.header,
 				},
 				pre: UserPre,
 			},

@@ -1,24 +1,17 @@
 const Jwt = require('jsonwebtoken');
-const Config = require('../config/config');
+const Config = require('../../config/config');
 
 function createToken(user, session, scope, roles, realm, expirationPeriod) {
 
 	let token = {};
 	let tokenRoles = [];
+	let tokenRealms = [];
 
 	roles.forEach(function(role){
-		let tmp = {
-			id: role.id,
-			name: role.name,
-		};
-		tokenRoles.push(tmp);
+		tokenRoles.push(role.name);
 	});
 
-	let tokenRealm = {
-		id: realm.id,
-		name: realm.name,
-	};
-
+	tokenRealms.push(realm.name);
 
 	if (session) {
 		user = session;
@@ -31,7 +24,7 @@ function createToken(user, session, scope, roles, realm, expirationPeriod) {
 			sessionUser: tokenUser,
 			scope: scope,
 			roles: tokenRoles,
-			realm: tokenRealm,
+			realms: tokenRealms,
 		}, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
 	}
 	else {
@@ -45,7 +38,7 @@ function createToken(user, session, scope, roles, realm, expirationPeriod) {
 			user: tokenUser,
 			scope: scope,
 			roles: tokenRoles,
-			realm: tokenRealm,
+			realms: tokenRealms,
 		}, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
 	}
 

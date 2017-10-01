@@ -36,6 +36,21 @@ const QueryBase = {
 		}
 
 		return queryObject;
+	},
+
+	countFilters: (queryData) => {
+
+		let queryObject = {};
+
+		if (queryData.include.length > 0) {
+			queryObject.include = queryData.include;
+		}
+
+		if (Object.keys(queryData.filter).length > 0) {
+			queryObject.where = queryData.filter;
+		}
+
+		return queryObject;
 	}
 
 

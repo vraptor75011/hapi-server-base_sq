@@ -16,6 +16,7 @@ const UserFindAll =
 			let filteredCount = 0;
 
 			let queryFilters = QueryBase.filters(requestData.queryData);
+			let countQueryFilters = QueryBase.countFilters(requestData.queryData);
 
 			request.server.log('info', 'queryFilters: ' + JSON.stringify(queryFilters));
 
@@ -28,9 +29,7 @@ const UserFindAll =
 						}
 						totalCount = totCount;
 						User
-							.count({
-								where: requestData.queryData.filter,
-							})
+							.count(countQueryFilters)
 							.then(function (fltCount) {
 								if (fltCount.isNaN) {
 									return reply(Boom.badRequest('Impossible to count'));
@@ -54,9 +53,7 @@ const UserFindAll =
 						}
 						totalCount = totCount;
 						User
-							.count({
-								where: requestData.queryData.filter,
-							})
+							.count(countQueryFilters)
 							.then(function (fltCount) {
 								if (fltCount.isNaN) {
 									return reply(Boom.badRequest('Impossible to count'));
@@ -92,9 +89,7 @@ const UserFindAll =
 						}
 						totalCount = totCount;
 						User
-							.count({
-								where: requestData.queryData.filter,
-							})
+							.count(countQueryFilters)
 							.then(function (fltCount) {
 								if (fltCount.isNaN) {
 									return reply(Boom.badRequest('Impossible to count'));
@@ -130,9 +125,7 @@ const UserFindAll =
 						}
 						totalCount = totCount;
 						User
-							.count({
-								where: requestData.queryData.filter,
-							})
+							.count(countQueryFilters)
 							.then(function (fltCount) {
 								if (fltCount.isNaN) {
 									return reply(Boom.badRequest('Impossible to count'));
@@ -167,77 +160,85 @@ const UserFindAll =
 							return reply(Boom.badRequest('Impossible to count'));
 						}
 						totalCount = totCount;
-						// User.findAll({
-						// 	// attributes: ['id','username'],
-						// 	include: [{
-						// 		association: 'RealmsRolesUsers',
-						// 		// attributes: ['id', 'realmId', 'roleId', 'userId'],
-						// 		include: [{
-						// 			association: 'Role',
-						// 			// attributes: ['id','name'],
-						// 		}, {
-						// 			association: 'Realm',
-						// 			// attributes: ['id','name'],
-						// 		}]
-						// 	}],
-						// })
-						// User.findAll({
-						// 	attributes: ['id','username'],
-						// 	include: [{
-						// 		model: DB.Role,
-						// 		attributes: ['id','name'],
-						// 	}, {
-						// 		model: DB.Realm,
-						// 		attributes: ['id','name'],
-						// 	}],
-						// })
-						// User.findAll({
-						// 	attributes: ['id', 'username'],
-						// 	// includeIgnoreAttributes: false,
-						// 	include: [{
-						// 		association: 'Roles',
-						// 		where: {name: 'SuperAdmin'}
-						// 	}],
-						// 	// group : ['User.id'],
-						// 	limit: 10,
-						// 	offset: 0,
-						// })
-						// User.findAll({
-						// 	attributes: attributes2,
-						// 	includeIgnoreAttributes: false,
-						// 	include: [{
-						// 		association: 'Roles',
-						// 		attributes: [],
-						// 		duplicating: false,
-						// 	}],
-						// 	group: ['User.id'],
-						// 	limit: 10,
-						// 	offset: 0,
-						// })
 						User
-							.findAll(queryFilters)
-							.then(function (result) {
-								// if (result.count.isNaN) {
-								// 	return reply(Boom.badRequest('Impossible to count'));
-								// }
-								// filteredCount = result.count;
-								if (!result) {
-									return reply(Boom.badRequest('No users'));
+							.count(countQueryFilters)
+							.then(function (fltCount) {
+								if (fltCount.isNaN) {
+									return reply(Boom.badRequest('Impossible to count'));
 								}
+								filteredCount = fltCount;
+								// User.findAll({
+								// 	// attributes: ['id','username'],
+								// 	include: [{
+								// 		association: 'RealmsRolesUsers',
+								// 		// attributes: ['id', 'realmId', 'roleId', 'userId'],
+								// 		include: [{
+								// 			association: 'Role',
+								// 			// attributes: ['id','name'],
+								// 		}, {
+								// 			association: 'Realm',
+								// 			// attributes: ['id','name'],
+								// 		}]
+								// 	}],
+								// })
+								// User.findAll({
+								// 	attributes: ['id','username'],
+								// 	include: [{
+								// 		model: DB.Role,
+								// 		attributes: ['id','name'],
+								// 	}, {
+								// 		model: DB.Realm,
+								// 		attributes: ['id','name'],
+								// 	}],
+								// })
+								// User.findAll({
+								// 	attributes: ['id', 'username'],
+								// 	// includeIgnoreAttributes: false,
+								// 	include: [{
+								// 		association: 'Roles',
+								// 		where: {name: 'SuperAdmin'}
+								// 	}],
+								// 	// group : ['User.id'],
+								// 	limit: 10,
+								// 	offset: 0,
+								// })
+								// User.findAll({
+								// 	attributes: attributes2,
+								// 	includeIgnoreAttributes: false,
+								// 	include: [{
+								// 		association: 'Roles',
+								// 		attributes: [],
+								// 		duplicating: false,
+								// 	}],
+								// 	group: ['User.id'],
+								// 	limit: 10,
+								// 	offset: 0,
+								// })
+								User
+									.findAll(queryFilters)
+									.then(function (result) {
+										// if (result.count.isNaN) {
+										// 	return reply(Boom.badRequest('Impossible to count'));
+										// }
+										// filteredCount = result.count;
+										if (!result) {
+											return reply(Boom.badRequest('No users'));
+										}
 
-								let mapper = {
-									meta: {
-										totalCount: totalCount,
-										filteredCount: filteredCount,
-										page: requestData.queryData.pagination.page,
-										pageCount: Math.floor(totalCount / requestData.queryData.pagination.pageSize) + 1,
-										pageSize: requestData.queryData.pagination.pageSize,
-										rowCount: result.length,
-									},
-									data: result,
-								};
-								return reply(mapper);
+										let mapper = {
+											meta: {
+												totalCount: totalCount,
+												filteredCount: filteredCount,
+												page: requestData.queryData.pagination.page,
+												pageCount: Math.floor(totalCount / requestData.queryData.pagination.pageSize) + 1,
+												pageSize: requestData.queryData.pagination.pageSize,
+												rowCount: result.length,
+											},
+											data: result,
+										};
+										return reply(mapper);
 
+									})
 							})
 					})
 					.catch(function (error) {

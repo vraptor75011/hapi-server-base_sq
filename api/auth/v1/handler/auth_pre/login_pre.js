@@ -1,6 +1,6 @@
 const Boom = require('boom');
 const Bcrypt = require('bcrypt');
-const Token = require('../../../../../utilities/token');
+const Token = require('../../../../../utilities/token/token');
 const DB = require('../../../../../config/sequelize');
 
 const Config = require('../../../../../config/config');
@@ -203,7 +203,7 @@ const LoginPre = [
 			let scope = [];
 
 			// Add Realm [id] to Scope
-			scope = scope.concat('Realm-'+realm.id);
+			scope = scope.concat(realm.name);
 
 			// Add Roles to Scope
 			roles.forEach(function (role){

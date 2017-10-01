@@ -12,7 +12,7 @@ module.exports.register = (server, options, next) => {
 		callback(
 			null,
 			Boolean(user),
-			{ user, scope: decodedToken.scope, roles: decodedToken.roles, realm: decodedToken.realm }
+			{ user, scope: decodedToken.scope, roles: decodedToken.roles, realms: decodedToken.realms }
 		);
 
 	};
