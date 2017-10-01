@@ -14,7 +14,7 @@ module.exports.register = (server, options, next) => {
 				handler: UserHandlers.userFindAll,
 				auth:
 					{
-						scope: ['GameApp', 'SuperAdmin', 'Admin'],
+						scope: ['GameApp-SuperAdmin', 'GameApp-Admin'],
 					},
 				tags: ['api', 'Users'],
 				description: 'Users List',

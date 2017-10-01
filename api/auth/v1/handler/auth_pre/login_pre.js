@@ -202,15 +202,12 @@ const LoginPre = [
 			let roles = request.pre.roles;
 			let scope = [];
 
-			// Add Realm [id] to Scope
-			scope = scope.concat(realm.name);
-
-			// Add Roles to Scope
+			// Add Realm-Roles to Scope
 			roles.forEach(function (role){
 				if (role.name.indexOf('User') !== -1) {
-					scope = scope.concat(role.name+'-'+request.pre.user.id)
+					scope = scope.concat(realm.name+'-'+role.name+'-'+request.pre.user.id)
 				} else {
-					scope = scope.concat(role.name);
+					scope = scope.concat(realm.name+'-'+role.name);
 				}
 			});
 
