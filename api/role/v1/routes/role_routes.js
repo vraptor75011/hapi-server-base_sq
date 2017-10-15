@@ -20,7 +20,7 @@ module.exports.register = (server, options, next) => {
 				validate: {
 					query: RoleValidations.query,
 					headers: HeaderValidation.header,
-				},
+				}
 			},
 		}
 	]);
