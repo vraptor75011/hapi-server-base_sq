@@ -1,6 +1,8 @@
+
+
 module.exports = function(sequelize, DataTypes) {
 
-	let User = sequelize.define('User', {
+	let <%= modelName %>  = sequelize.define('<%= modelName %>', {
 
 			// ATTRIBUTES
 			id: {
@@ -39,18 +41,18 @@ module.exports = function(sequelize, DataTypes) {
 			}
 		},
 		{
-			tableName: 'users',
+			tableName: '<%= tableName %>',
 			paranoid: true
 		},
 	);
 
 
 	// Model Relations
-	User.associate = function (models) {
-		User.belongsToMany(models.Role, { through: models.RealmsRolesUsers });
-		User.belongsToMany(models.Realm, { through: models.RealmsRolesUsers });
-		User.hasMany(models.RealmsRolesUsers);
-	};
+	//User.associate = function (models) {
+	//	User.belongsToMany(models.Role, { through: models.RealmsRolesUsers });
+	//	User.belongsToMany(models.Realm, { through: models.RealmsRolesUsers });
+	//	User.hasMany(models.RealmsRolesUsers);
+	//};
 
-	return User;
+	return <%= modelName %>;
 };
