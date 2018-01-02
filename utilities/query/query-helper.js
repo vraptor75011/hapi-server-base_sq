@@ -34,13 +34,13 @@ const Log = require('../logging/logging');
 
 module.exports = {
 	/**
-	 * Create a mongoose query based off of the request query
-	 * @param model: A mongoose model object.
+	 * Create a sequelize string for query based off of the request query
+	 * @param model: A sequelize model object.
 	 * @param query: The incoming request query.
-	 * @param sequelizeQuery: A mongoose query.
-	 * @returns {*}: A modified mongoose query.
+	 * @param sequelizeQuery: A string for sequelize query.
+	 * @returns {*}: A modified string for sequelize query.
 	 */
-	createSequelizeQuery: function (model, query, sequelizeQuery) {
+	createSequelizeFilter: function (model, query, sequelizeQuery) {
 		// validationHelper.validateModel(model, Log);
 		//(email == 'test@user.com' && (firstName == 'test2@user.com' || firstName == 'test4@user.com')) && (age < 15 || age > 30)
 		//LITERAL

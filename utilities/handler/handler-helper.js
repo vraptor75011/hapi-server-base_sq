@@ -152,12 +152,15 @@ function _list(model, query) {
 		if (query.$count) {
 			let totalCount = 0;
 			let filteredCount = 0;
-			sequelizeQuery = QueryHelper.createSequelizeQuery(model, {}, sequelizeQuery);
+			let queryInclude = {};
+			Object.keys(query).forEach(function(key) {
+				queryInclude[key] = query[key];
+			});
 			return model.count(sequelizeQuery)
 				.then(function (result) {
 					totalCount = result;
 					Log.apiLogger.info("Result: %s", JSON.stringify(result));
-					sequelizeQuery = QueryHelper.createSequelizeQuery(model, query, sequelizeQuery);
+					sequelizeQuery = QueryHelper.createSequelizeFilter(model, query, sequelizeQuery);
 					return model.count(sequelizeQuery)
 						.then(function (result) {
 							filteredCount = result;
