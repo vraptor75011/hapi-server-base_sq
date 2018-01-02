@@ -2,7 +2,6 @@ const DB = require('../../config/sequelize');
 const Pluralize = require('pluralize');
 const _ = require('lodash');
 
-
 //HELPER to get array of relations from a schema
 
 const SchemaUtility = {
