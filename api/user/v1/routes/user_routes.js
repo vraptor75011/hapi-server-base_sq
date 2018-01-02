@@ -3,8 +3,11 @@ const UserValidations = require('../../model/user_validations');
 const UserHandlers = require('../handler/user_handlers');
 const UserPre = require('../handler/user_pre/user_pre');
 const DB = require('../../../../config/sequelize');
+const Joi = require('joi');
 
 const User = DB.User;
+
+let t = Joi.compile(UserValidations.filters.id);
 
 module.exports.register = (server, options, next) => {
 
