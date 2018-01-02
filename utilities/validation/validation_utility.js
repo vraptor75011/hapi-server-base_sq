@@ -224,7 +224,7 @@ const ValidationBase = {
 		});
 		columns += ')';
 
-		let prefix = '(?:{' + schema.tableName + '})?';
+		let prefix = '(?:{' + schema.name + '})?';
 		let direction = '(?:(\\+|\\-))?';
 
 		result += "^" + prefix + direction + columns + "(," + direction + columns + ")*$";

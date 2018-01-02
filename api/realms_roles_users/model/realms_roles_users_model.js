@@ -12,11 +12,9 @@ module.exports = function(sequelize, DataTypes) {
 			},
 			realmId: {
 				type: DataTypes.INTEGER,
-
 				references: {
 					// This is a reference to another model
 					model: 'Realm',
-
 					// This is the column name of the referenced model
 					key: 'id',
 				}

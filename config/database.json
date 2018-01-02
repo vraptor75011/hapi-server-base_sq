@@ -1,0 +1,25 @@
+{
+  "development": {
+    "username": "userHapi",
+    "password": "webstorm",
+    "database": "hapi_development",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port": "3306"
+  },
+  "test": {
+    "username": "userHapi",
+    "password": "webstorm",
+    "database": "hapi_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port": "3306"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

@@ -41,8 +41,7 @@ const SchemaUtility = {
 	},
 
 	relationsFromSchema: (schema, startLevel, endLevel) => {
-		let firstLevel = [];
-		let secondLevel = [];
+		let relationsArray = [];
 		let relations = '';
 
 		Object.keys(schema.associations).map((rel) => {
@@ -56,7 +55,7 @@ const SchemaUtility = {
 			}
 
 			if (startLevel === 1) {
-				firstLevel.push(rel);
+				relationsArray.push(rel);
 			}
 
 			if (endLevel === 2) {
@@ -68,7 +67,7 @@ const SchemaUtility = {
 							relModel = DB.sequelize.models[relOfRel];
 						}
 
-						secondLevel.push(rel + '.' + relOfRel);
+						relationsArray.push(rel + '.' + relOfRel);
 
 					}
 				});
@@ -76,11 +75,8 @@ const SchemaUtility = {
 
 		});
 
-		firstLevel = _.sortedUniq(firstLevel);
-		secondLevel = _.sortedUniq(secondLevel);
-
-		relations += _.join(firstLevel, ', ');
-		relations += _.join(secondLevel, ', ');
+		relationsArray = _.sortedUniq(relationsArray);
+		relations += _.join(relationsArray, ', ');
 
 		return relations;
 	},

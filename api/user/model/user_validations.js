@@ -2,10 +2,13 @@ const Joi = require('joi');
 const DB = require('../../../config/sequelize');
 const ValidationBase = require('../../../utilities/validation/validation_utility');
 const SchemaUtility = require('../../../utilities/schema/schema_utility');
+const QueryHelper = require('../../../utilities/query/query-helper');
 
 const User = DB.User;
 const FLRelations = SchemaUtility.relationsFromSchema(User, 1, 1);
 const SLRelations = SchemaUtility.relationsFromSchema(User, 2, 2);
+const ALLRelations = SchemaUtility.relationsFromSchema(User, 1, 2);
+const Attributes = QueryHelper.createAttributesList(User);
 
 
 const filters = {
@@ -46,7 +49,26 @@ const filters = {
 	isActive: Joi.alternatives().try(
 		Joi.array().description('the user active: true, [true, false]')
 			.items(Joi.boolean().valid(true, false)),
-		Joi.boolean().description('the user active: true, [true, false]').valid(true, false)),
+		Joi.boolean().description('the user active: true, [true, false]').valid(true, false)
+	),
+	firstName: Joi.alternatives().try(
+		Joi.array().items(
+			Joi.string().min(3).regex(ValidationBase.filterRegExp())
+				.example('{like}luigi.rossi'),
+		).description('the username: name vs [{=}pippo1,{<>}pippo3,{like}pip]')
+			.example(['{like}rossi', '{like}bianchi']),
+		Joi.string().min(3).regex(ValidationBase.filterRegExp())
+			.example('{<>}luigi.rossi,marco.tardelli-gobbo'),
+	),
+	lastName: Joi.alternatives().try(
+		Joi.array().items(
+			Joi.string().min(3).regex(ValidationBase.filterRegExp())
+				.example('{like}luigi.rossi'),
+		).description('the username: name vs [{=}pippo1,{<>}pippo3,{like}pip]')
+			.example(['{like}rossi', '{like}bianchi']),
+		Joi.string().min(3).regex(ValidationBase.filterRegExp())
+			.example('{<>}luigi.rossi,marco.tardelli-gobbo'),
+	),
 	createdAt: Joi.alternatives().try(
 		Joi.array().description('the creation date: 2017-08-15[ 09:00:00] vs [{btw}2017-08-17 09:00:00,2017-08-17 23:30:00]')
 			.items(Joi.string().max(255)
@@ -76,44 +98,44 @@ const filters = {
 };
 
 const pagination = {
-	page: Joi.number().integer().min(1).description('page number')
+	$page: Joi.number().integer().min(1).description('page number')
 		.default(1),
-	pageSize: Joi.number().integer().min(5).max(100).description('rows per page')
+	$pageSize: Joi.number().integer().min(5).max(100).description('rows per page')
 		.default(10),
 };
 
 const sort = {
-	sort: Joi.alternatives().try(
-		Joi.array().description('sort column: [{users}][+,-]id,[{users}][+,-]username vs [-id, -username]')
+	$sort: Joi.alternatives().try(
+		Joi.array().description('sort column: [{User}][+,-]id,[{User}][+,-]username vs [-id, -username]')
 			.items(
 				Joi.string().max(255)
 					.regex(ValidationBase.sortRegExp(User))
 					.example('-createdAt'))
-			.example(['{users}-email','-username']),
+			.example(['{User}-email','-username']),
 		Joi.string().max(255)
 			.regex(ValidationBase.sortRegExp(User))
-			.example('{users}-email'),
+			.example('{User}-email'),
 	),
 };
 
 const math = {
-	min:
+	$min:
 		Joi.string().description('selected attribute MIN: {User}id vs updatedAt]').max(255)
 			.regex(ValidationBase.mathFieldRegExp(User))
 			.example('{User}id'),
-	max:
+	$max:
 		Joi.string().description('selected attribute MAX: {User}id vs updatedAt]').max(255)
 			.regex(ValidationBase.mathFieldRegExp(User))
 			.example('{User}id'),
-	sum:
+	$sum:
 		Joi.string().description('selected attribute SUM: {User}id vs updatedAt]').max(255)
 			.regex(ValidationBase.mathFieldRegExp(User))
 			.example('{User}id'),
 };
 
 const extra = {
-	count: Joi.boolean().description('only number of records found'),
-	fields: Joi.alternatives().try(
+	$count: Joi.boolean().description('only number of records found'),
+	$fields: Joi.alternatives().try(
 		Joi.array().description('selected attributes: [{User}id, [id, username, {User}email]')
 			.items(
 				Joi.string().max(255)
@@ -123,7 +145,7 @@ const extra = {
 			.regex(ValidationBase.fieldRegExp(User))
 			.example('{User}id')
 	),
-	withFilter: Joi.alternatives().try(
+	$withFilter: Joi.alternatives().try(
 		Joi.array().description('filter by relationships fields: {Roles}[{or|not}]{name}[{=}], [{Realms}{not}{name}{like}]')
 			.items(Joi.string().max(255)
 				.regex(ValidationBase.withFilterRegExp(User)))
@@ -132,7 +154,7 @@ const extra = {
 			.regex(ValidationBase.withFilterRegExp(User))
 			.example('{Roles.Users}{not}{username}{null}')
 	),
-	withCount: Joi.alternatives().try(
+	$withCount: Joi.alternatives().try(
 		Joi.array().description('count relationships occurrences: Roles, [Roles, Realms]')
 			.items(
 				Joi.string().max(255)
@@ -142,7 +164,7 @@ const extra = {
 			.regex(ValidationBase.withCountRegExp(User))
 			.example('Realms')
 	),
-	withRelated: Joi.alternatives().try(
+	$withRelated: Joi.alternatives().try(
 		Joi.array().description('includes relationships: Roles, [Roles.Users, Realms]')
 			.items(
 				Joi.string().max(255)
@@ -152,7 +174,7 @@ const extra = {
 			.regex(ValidationBase.withRelatedRegExp(User))
 			.example('Realms'),
 	),
-	withFields: Joi.alternatives().try(
+	$withFields: Joi.alternatives().try(
 		Joi.array().description('selects relationships fields: {Roles}name, [{Realms}name,description]')
 			.items(Joi.string().max(255)
 				.regex(ValidationBase.withRelatedFieldRegExp(User)))
@@ -161,7 +183,7 @@ const extra = {
 			.regex(ValidationBase.withRelatedFieldRegExp(User))
 			.example('{Realms.Roles}name,description'),
 	),
-	withSort: Joi.alternatives().try(
+	$withSort: Joi.alternatives().try(
 		Joi.array().description('sort related field: {Realms}[+,-]id vs [-id, -name]')
 			.items(Joi.string().max(255)
 				.regex(ValidationBase.withSortRegExp(User)))
@@ -183,6 +205,8 @@ const UserValidations = {
 	query: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, extra)),
 	FLRelations: FLRelations,
 	SLRelations: SLRelations,
+	ALLRelations: ALLRelations,
+	Attributes: Attributes,
 };
 
 

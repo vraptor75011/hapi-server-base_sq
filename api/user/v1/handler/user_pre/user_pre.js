@@ -44,7 +44,7 @@ const UserPre = [
 				if (!Object.keys(error).length > 0) {
 					// Filters
 					if (referenceModel.filters.hasOwnProperty(e)) {
-						if (_.isString(queryUrl[e]) || _.isBoolean(queryUrl[e])) {
+						if (!_.isArray(queryUrl[e])) {
 							let tmp = [];
 							tmp.push(queryUrl[e]);
 							queryUrl[e] = tmp;
