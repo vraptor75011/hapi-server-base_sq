@@ -28,7 +28,7 @@ module.exports = {
 		// Use a different table name. Default: SequelizeData
 		"seederStorageTableName": "sequelize_data",
 
-        "operatorsAliases": false,
+		"operatorsAliases": false,
 	},
 
 	"test": {
@@ -44,17 +44,17 @@ module.exports = {
 		}
 	},
 
-  "production": {
-    "hostname": process.env.DB_HOSTNAME,
-    "port": process.env.DB_PORT,
-	  "username": process.env.DATABASE_USER,
-	  "password": process.env.DATABASE_ACCESS_KEY,
-	  "database": process.env.DATABASE_NAME,
-	  "dialect": process.env.DATABASE_DIALECT,
-    "pool": {
-      "min": process.env.DATABASE_POOL_MIN,
-      "max": process.env.DATABASE_POOL_MAX,
-    }
-  },
+	"production": {
+		"hostname": process.env.DB_HOSTNAME,
+		"port": process.env.DB_PORT,
+		"username": process.env.DATABASE_USER,
+		"password": process.env.DATABASE_ACCESS_KEY,
+		"database": process.env.DATABASE_NAME,
+		"dialect": process.env.DATABASE_DIALECT,
+		"pool": {
+			"min": process.env.DATABASE_POOL_MIN,
+			"max": process.env.DATABASE_POOL_MAX,
+		}
+	},
 };
 
