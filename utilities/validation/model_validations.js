@@ -1,8 +1,8 @@
 const Joi = require('joi');
-const DB = require('../../../config/sequelize');
-const ValidationBase = require('../../../utilities/validation/validation_utility');
-const SchemaUtility = require('../../../utilities/schema/schema_utility');
-const QueryHelper = require('../../../utilities/query/query-helper');
+const DB = require('../../config/sequelize');
+const ValidationBase = require('../validation/validation_utility');
+const SchemaUtility = require('../schema/schema_utility');
+const QueryHelper = require('../query/query-helper');
 
 const User = DB.User;
 const FLRelations = SchemaUtility.relationsFromSchema(User, 1, 1);

@@ -10,29 +10,29 @@ module.exports = function(sequelize, DataTypes) {
 				autoIncrement: true,
 				comment: "Primary and auto incremented key of the table"
 			},
-			realmId: {
-				type: DataTypes.INTEGER,
-				references: {
-					// This is a reference to another model
-					model: 'Realm',
-					// This is the column name of the referenced model
-					key: 'id',
-				}
-			},
-			roleId: {
-				type: DataTypes.INTEGER,
-				references: {
-					model: 'Role',
-					key: 'id',
-				}
-			},
-			userId: {
-				type: DataTypes.INTEGER,
-				references: {
-					model: 'User',
-					key: 'id',
-				}
-			},
+			// realmId: {
+			// 	type: DataTypes.INTEGER,
+			// 	references: {
+			// 		// This is a reference to another model
+			// 		model: 'Realm',
+			// 		// This is the column name of the referenced model
+			// 		key: 'id',
+			// 	}
+			// },
+			// roleId: {
+			// 	type: DataTypes.INTEGER,
+			// 	references: {
+			// 		model: 'Role',
+			// 		key: 'id',
+			// 	}
+			// },
+			// userId: {
+			// 	type: DataTypes.INTEGER,
+			// 	references: {
+			// 		model: 'User',
+			// 		key: 'id',
+			// 	}
+			// },
 		},
 		{
 			tableName: 'realms_roles_users',

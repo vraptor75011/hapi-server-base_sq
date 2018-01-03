@@ -7,7 +7,6 @@ const Joi = require('joi');
 
 const User = DB.User;
 
-let t = Joi.compile(UserValidations.filters.id);
 
 module.exports.register = (server, options, next) => {
 

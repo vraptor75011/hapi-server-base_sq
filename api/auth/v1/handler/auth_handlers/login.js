@@ -6,9 +6,9 @@ const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
 
-const User = DB.sequelize.models.User;
-const Realm = DB.sequelize.models.Realm;
-const Role = DB.sequelize.models.Role;
+// const User = DB.sequelize.models.User;
+// const Realm = DB.sequelize.models.Realm;
+// const Role = DB.sequelize.models.Role;
 
 
 const Login =

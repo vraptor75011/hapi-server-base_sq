@@ -2,15 +2,18 @@ const Boom = require('boom');
 const Bcrypt = require('bcrypt');
 const Token = require('../../../../../utilities/token/token');
 const DB = require('../../../../../config/sequelize');
+const Sequelize = require('sequelize');
 
 const Config = require('../../../../../config/config');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
 
-const User = DB.sequelize.models.User;
-const Realm = DB.sequelize.models.Realm;
-const Role = DB.sequelize.models.Role;
+const Op = Sequelize.Op;
+
+// const User = DB.sequelize.models.User;
+// const Realm = DB.sequelize.models.Realm;
+// const Role = DB.sequelize.models.Role;
 
 
 const LoginPre = [
@@ -52,7 +55,7 @@ const LoginPre = [
 					user = await User
 						.findOne({where:
 							{
-								$or: [
+								[Op.or]: [
 									{	username: {$eq: param} },
 									{	email: {$eq: param}	}
 								]}

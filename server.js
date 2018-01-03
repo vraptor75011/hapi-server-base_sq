@@ -3,13 +3,12 @@ const Hapi = require('hapi');
 const Plugins = require('./plugins');
 const Routes = require('./routes');
 const Auth = require('./auth');
+const DB = require('./database');
 
 const Config = require('./config/config');
 
 const HOST = Config.get('/host');
 const PORT = Config.get('/port');
-
-
 
 // Create a server with a host and port
 const server = new Hapi.Server({
@@ -33,8 +32,13 @@ server.realm.modifiers.route.prefix = '/api';
 
 // Auth module
 server.register(Auth, (err) => {
+	if (err) {
+		server.log('error', 'Failed to register auth: ' + err);
+	}
+
+	server.register(DB, (err) => {
 		if (err) {
-			server.log('error', 'Failed to register auth: ' + err);
+			server.log('error', 'Failed to load Sequelize:' + err);
 		}
 
 		// Plugins
@@ -63,11 +67,8 @@ server.register(Auth, (err) => {
 				})
 			})
 		})
-	},
-);
-
-
-
+	})
+});
 
 //
 // //EXPORT

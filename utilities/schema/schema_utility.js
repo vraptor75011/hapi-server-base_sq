@@ -12,10 +12,10 @@ const SchemaUtility = {
 			let relModel = {};
 			let localExclusion = [rel];
 
-			if (DB.sequelize.models[Pluralize.singular(rel)]) {
-				relModel = DB.sequelize.models[Pluralize.singular(rel)];
-			} else if (DB.sequelize.models[rel]) {
-				relModel = DB.sequelize.models[rel];
+			if (schema.sequelize.models[Pluralize.singular(rel)]) {
+				relModel = schema.sequelize.models[Pluralize.singular(rel)];
+			} else if (schema.sequelize.models[rel]) {
+				relModel = schema.sequelize.models[rel];
 			}
 
 			relations.push({name: rel, model: relModel.name});
@@ -23,10 +23,10 @@ const SchemaUtility = {
 			if (level === 2) {
 				Object.keys(relModel.associations).map((relOfRel) => {
 					if (!_.includes(localExclusion, relOfRel)) {
-						if (DB.sequelize.models[Pluralize.singular(relOfRel)]) {
-							relModel = DB.sequelize.models[Pluralize.singular(relOfRel)];
-						} else if (DB.sequelize.models[relOfRel]) {
-							relModel = DB.sequelize.models[relOfRel];
+						if (schema.sequelize.models[Pluralize.singular(relOfRel)]) {
+							relModel = schema.sequelize.models[Pluralize.singular(relOfRel)];
+						} else if (schema.sequelize.models[relOfRel]) {
+							relModel = schema.sequelize.models[relOfRel];
 						}
 
 						relations.push({name: rel + '.' + relOfRel, model: relModel.name});
@@ -47,10 +47,10 @@ const SchemaUtility = {
 			let relModel = {};
 			let localExclusion = [rel];
 
-			if (DB.sequelize.models[Pluralize.singular(rel)]) {
-				relModel = DB.sequelize.models[Pluralize.singular(rel)];
-			} else if (DB.sequelize.models[rel]) {
-				relModel = DB.sequelize.models[rel];
+			if (schema.sequelize.models[Pluralize.singular(rel)]) {
+				relModel = schema.sequelize.models[Pluralize.singular(rel)];
+			} else if (schema.sequelize.models[rel]) {
+				relModel = schema.sequelize.models[rel];
 			}
 
 			if (startLevel === 1) {
@@ -60,10 +60,10 @@ const SchemaUtility = {
 			if (endLevel === 2) {
 				Object.keys(relModel.associations).map((relOfRel) => {
 					if (!_.includes(localExclusion, relOfRel)) {
-						if (DB.sequelize.models[Pluralize.singular(relOfRel)]) {
-							relModel = DB.sequelize.models[Pluralize.singular(relOfRel)];
-						} else if (DB.sequelize.models[relOfRel]) {
-							relModel = DB.sequelize.models[relOfRel];
+						if (schema.sequelize.models[Pluralize.singular(relOfRel)]) {
+							relModel = schema.sequelize.models[Pluralize.singular(relOfRel)];
+						} else if (schema.sequelize.models[relOfRel]) {
+							relModel = schema.sequelize.models[relOfRel];
 						}
 
 						relationsArray.push(rel + '.' + relOfRel);

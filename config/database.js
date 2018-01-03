@@ -5,8 +5,8 @@ Dotenv.config({ silent: true });
 module.exports = {
 
 	"development": {
-		"hostname": process.env.DB_HOSTNAME,
-		"port": process.env.DB_PORT,
+		"hostname": process.env.DATABASE_HOSTNAME,
+		"port": process.env.DATABASE_PORT,
 		"username": process.env.DATABASE_USER,
 		"password": process.env.DATABASE_ACCESS_KEY,
 		"database": process.env.DATABASE_NAME,

@@ -2,52 +2,55 @@ const _ = require('lodash');
 const Joi = require('joi');
 const SchemaUtility = require('../schema/schema_utility');
 const DB = require('../../config/sequelize');
+const Sequelize = require('sequelize');
+
+const Op = Sequelize.Op;
 
 // Only ONE element follows
 const Operator = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}', '{like}', '{%like}', '{like%}'];
 const SQOperators = {
-	'{=}': '$eq',
-	'{<}': '$lt',
-	'{<=}': '$lte',
-	'{>}': '$gt',
-	'{>=}': '$gte',
-	'{<>}': '$ne',
-	'{like}': '$like',
-	'{%like}': '$like',
-	'{like%}': '$like',
-	'{not}{like}': '$notLike',
-	'{not}{%like}': '$notLike',
-	'{not}{like%}': '$notLike',
+	'{=}': [Op.eq],
+	'{<}': [Op.lt],
+	'{<=}': [Op.lte],
+	'{>}': [Op.gt],
+	'{>=}': [Op.gte],
+	'{<>}': [Op.ne],
+	'{like}': [Op.like],
+	'{%like}': [Op.like],
+	'{like%}': [Op.like],
+	'{not}{like}': [Op.notLike],
+	'{not}{%like}': [Op.notLike],
+	'{not}{like%}': [Op.notLike],
 };
 
 
 // Array follows
 const InOperator = '{in}';
 const SQInOperator = {
-	'{in}': '$in',
-	'{not}{in}': '$notIn'
+	'{in}': [Op.in],
+	'{not}{in}': [Op.notIn],
 };
 // Array follows ONLY TWO elements
 const BtwOperator = '{btw}';
 const SQBtwOperator = {
-	'{btw}': '$between',
-	'{not}{btw}': '$notBetween',
+	'{btw}': [Op.between],
+	'{not}{btw}': [Op.notBetween],
 };
 // End condition
 const NullOperator = '{null}';
 const SQNullOperator = {
-	'{null}': '$eq',
-	'{not}{null}': '$ne',
+	'{null}': [Op.eq],
+	'{not}{null}': [Op.ne],
 };
 // Changes Where => OR Array with Where elements
 const OrOperator = '{or}';
 const SQOrOperator = {
-	'{or}': '$or',
+	'{or}': [Op.or],
 };
 // Changes Like, In, Between => notLike, notIn, notBetween
 const NotOperator = '{not}';
 const SQNotOperator = {
-	'{not}': '$not',
+	'{not}': [Op.not],
 };
 
 
