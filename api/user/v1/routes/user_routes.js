@@ -5,8 +5,8 @@ const UserPre = require('../handler/user_pre/user_pre');
 const DB = require('../../../../config/sequelize');
 const Joi = require('joi');
 
-const User = DB.User;
-
+let User = DB.User;
+let schema = User.schemaQuery();
 
 module.exports.register = (server, options, next) => {
 
@@ -27,6 +27,7 @@ module.exports.register = (server, options, next) => {
 								'User Second Level Relations: ' + UserValidations.SLRelations + '<br>' +
 								'Attributes: ' + UserValidations.Attributes + '<br>'],
 				validate: {
+					// query: User.schemaQuery.pippo,
 					query: UserValidations.query,
 					// headers: HeaderValidation.header,
 				},

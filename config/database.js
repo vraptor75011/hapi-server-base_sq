@@ -27,6 +27,8 @@ module.exports = {
 
 		// Use a different table name. Default: SequelizeData
 		"seederStorageTableName": "sequelize_data",
+
+        "operatorsAliases": false,
 	},
 
 	"test": {

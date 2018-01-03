@@ -10,8 +10,6 @@ const User = DB.User;
 const UserFindAll =
 	{
 		userFindAll: function (request, reply) {
-			const DB = request.getDb('hapiDB');
-			const User = DB.getModel('User');
 			// Calculating records total number
 			let totalCount = 0;
 			let filteredCount = 0;

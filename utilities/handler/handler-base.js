@@ -238,6 +238,7 @@ const PreHandlerBase = {
 	},
 
 	extraParser: function(response, op, value, schema) {
+		let models = schema.models;
 		let group = response.queryData.group;
 		let fields = response.queryData.fields;
 		let include = response.queryData.include;
@@ -271,7 +272,7 @@ const PreHandlerBase = {
 					tmp.association = el;
 					tmp.attributes = [];
 					tmp.duplicating = false;
-					fieldsLevel.push([DB.Sequelize.fn('COUNT', DB.Sequelize.col(el + '.' + 'id')), _.camelCase(el) + 'Count']);
+					fieldsLevel.push([Sequelize.fn('COUNT', Sequelize.col(el + '.' + 'id')), _.camelCase(el) + 'Count']);
 					includeLevel.push(tmp);
 				}
 
@@ -310,7 +311,7 @@ const PreHandlerBase = {
 									}
 								});
 							}
-							schemaClone = DB[rel.model];
+							schemaClone = models[rel.model];
 						}
 					});
 				});
@@ -363,7 +364,7 @@ const PreHandlerBase = {
 									}
 								});
 							}
-							schemaClone = DB[rel.model];
+							schemaClone = models[rel.model];
 						}
 					});
 				});
@@ -425,7 +426,7 @@ const PreHandlerBase = {
 									}
 								});
 							}
-							schemaClone = DB[rel.model];
+							schemaClone = models[rel.model];
 						}
 					});
 				});
@@ -467,7 +468,7 @@ const PreHandlerBase = {
 				associations.forEach(function(rel){
 					if (_.includes(el, '{' + rel.name + '}')) {
 						relation = rel.name;
-						model = DB.sequelize.models[rel.model];
+						model = models[rel.model];
 						prefix = '{' + rel.name + '}';
 						Object.keys(model.attributes).map((attr) => {
 							if (_.includes(el, '{' + attr + '}')) {
@@ -512,7 +513,7 @@ const PreHandlerBase = {
 									}
 								});
 							}
-							schemaClone = DB[rel.model];
+							schemaClone = models[rel.model];
 						}
 					});
 				});

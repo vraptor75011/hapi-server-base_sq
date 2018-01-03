@@ -6,16 +6,17 @@ const _ = require('lodash');
 
 const SchemaUtility = {
 	relationFromSchema: (schema, level) => {
+		let models = schema.sequelize.models;
 		let relations = [];
 
 		Object.keys(schema.associations).map((rel) => {
 			let relModel = {};
 			let localExclusion = [rel];
 
-			if (schema.sequelize.models[Pluralize.singular(rel)]) {
-				relModel = schema.sequelize.models[Pluralize.singular(rel)];
-			} else if (schema.sequelize.models[rel]) {
-				relModel = schema.sequelize.models[rel];
+			if (models[Pluralize.singular(rel)]) {
+				relModel = models[Pluralize.singular(rel)];
+			} else if (models[rel]) {
+				relModel = models[rel];
 			}
 
 			relations.push({name: rel, model: relModel.name});
@@ -23,10 +24,10 @@ const SchemaUtility = {
 			if (level === 2) {
 				Object.keys(relModel.associations).map((relOfRel) => {
 					if (!_.includes(localExclusion, relOfRel)) {
-						if (schema.sequelize.models[Pluralize.singular(relOfRel)]) {
-							relModel = schema.sequelize.models[Pluralize.singular(relOfRel)];
-						} else if (schema.sequelize.models[relOfRel]) {
-							relModel = schema.sequelize.models[relOfRel];
+						if (models[Pluralize.singular(relOfRel)]) {
+							relModel = models[Pluralize.singular(relOfRel)];
+						} else if (models[relOfRel]) {
+							relModel = models[relOfRel];
 						}
 
 						relations.push({name: rel + '.' + relOfRel, model: relModel.name});
@@ -40,6 +41,7 @@ const SchemaUtility = {
 	},
 
 	relationsFromSchema: (schema, startLevel, endLevel) => {
+		let models = schema.sequelize.models;
 		let relationsArray = [];
 		let relations = '';
 
@@ -47,10 +49,10 @@ const SchemaUtility = {
 			let relModel = {};
 			let localExclusion = [rel];
 
-			if (schema.sequelize.models[Pluralize.singular(rel)]) {
-				relModel = schema.sequelize.models[Pluralize.singular(rel)];
-			} else if (schema.sequelize.models[rel]) {
-				relModel = schema.sequelize.models[rel];
+			if (models[Pluralize.singular(rel)]) {
+				relModel = models[Pluralize.singular(rel)];
+			} else if (models[rel]) {
+				relModel = models[rel];
 			}
 
 			if (startLevel === 1) {
@@ -60,10 +62,10 @@ const SchemaUtility = {
 			if (endLevel === 2) {
 				Object.keys(relModel.associations).map((relOfRel) => {
 					if (!_.includes(localExclusion, relOfRel)) {
-						if (schema.sequelize.models[Pluralize.singular(relOfRel)]) {
-							relModel = schema.sequelize.models[Pluralize.singular(relOfRel)];
-						} else if (schema.sequelize.models[relOfRel]) {
-							relModel = schema.sequelize.models[relOfRel];
+						if (models[Pluralize.singular(relOfRel)]) {
+							relModel = models[Pluralize.singular(relOfRel)];
+						} else if (models[relOfRel]) {
+							relModel = models[relOfRel];
 						}
 
 						relationsArray.push(rel + '.' + relOfRel);

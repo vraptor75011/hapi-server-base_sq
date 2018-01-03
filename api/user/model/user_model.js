@@ -5,6 +5,7 @@ const pwdString = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
 const usrRegExp = new RegExp(usrString);
 const pwdRegExp = new RegExp(pwdString);
 
+const ModelValidation = require('../../../utilities/validation/model_validations');
 
 module.exports = function(sequelize, DataTypes) {
 
@@ -16,7 +17,29 @@ module.exports = function(sequelize, DataTypes) {
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: "Primary and auto incremented key of the table"
+				comment: "Primary and auto incremented key of the table",
+				query: {
+					array: {
+						items: {
+                            string: {
+                                example: '{<=}20',
+                            },
+                            integer: {
+                                example: 35,
+                            },
+						},
+                        description: 'the user ID PK increment: [{=}]1 vs [{>}1,{<>}20,{<=}100]',
+                        example: ['{>}35', '{<}50'],
+					},
+					string: {
+						example: '{in}35,40',
+					},
+					integer: {
+						min: 1,
+						example: 40,
+					}
+
+				}
 			},
 			username: {
 				type: DataTypes.STRING,
@@ -100,17 +123,22 @@ module.exports = function(sequelize, DataTypes) {
 	};
 
 	User.schemaQuery = () => {
-		return Joi.object().keys({
-			id: Joi.number().min(1),
-			username: Joi.string().min(1).max(64).regex(usrRegExp),
-			email: Joi.string(),
-			isActive: Joi.boolean().valid(true, false),
-			firstName: Joi.string().min(1).max(64),
-			lastName: Joi.string().min(1).max(64),
-			createdAt: Joi.date(),
-			updatedAt: Joi.date(),
-			deletedAt: Joi.date(),
-		})};
+        const modelValidations = {
+        	pippo: ModelValidation(User).pippo,
+            filters: filters,
+            pagination: pagination,
+            sort: sort,
+            math: math,
+            extra: extra,
+            query: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, extra)),
+            FLRelations: FLRelations,
+            SLRelations: SLRelations,
+            ALLRelations: ALLRelations,
+            Attributes: Attributes,
+        };
+
+		return modelValidations;
+		};
 
 	User.schemaPayload = () => {
 		return Joi.object().keys({
