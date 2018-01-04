@@ -1224,3 +1224,24 @@ function filterDeletedEmbeds(result, parent, parentkey, depth, Log) {
 		return true;
 	}
 }
+
+/**
+ * This function is called from handler helper to clean the query URL preparing it to
+ * the second sequelizeQuery for count (SQL query) count with filter and relations filter
+ * @param query: the query URL from the request
+ * @param model: the model to build the filter list
+ * @returns {string}: managed query URL to Sequelize query
+ * @private
+ */
+function queryFilteredCount(query, model) {
+	let filterList = model.schemaQuery().filters;
+	let extraList = model.schemaQuery().extra;
+	let queryResponse = {};
+
+	Object.keys(filterList).map((key) => {
+		if (_.hasOwnProperty(query, key)) {
+			_.set(queryResponse, key, query[key]);
+		}
+	})
+
+}
