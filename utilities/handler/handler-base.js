@@ -7,192 +7,236 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
 // Only ONE element follows
-const Operator = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}', '{like}', '{%like}', '{like%}'];
+const Operators = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}'];
 const SQOperators = {
-	'{=}': [Op.eq],
-	'{<}': [Op.lt],
-	'{<=}': [Op.lte],
-	'{>}': [Op.gt],
-	'{>=}': [Op.gte],
-	'{<>}': [Op.ne],
-	'{like}': [Op.like],
-	'{%like}': [Op.like],
-	'{like%}': [Op.like],
-	'{not}{like}': [Op.notLike],
-	'{not}{%like}': [Op.notLike],
-	'{not}{like%}': [Op.notLike],
+	'{=}': Op.eq,
+	'{<}': Op.lt,
+	'{<=}': Op.lte,
+	'{>}': Op.gt,
+	'{>=}': Op.gte,
+	'{<>}': Op.ne,
 };
 
+const LikeOperators = ['{like}', '{notlike}', '{like%}', '{notlike%}', '{%like}', '{not%like}'];
+const SQLikeOperators = {
+	'{like}': Op.like,
+	'{%like}': Op.like,
+	'{like%}': Op.like,
+	'{notlike}': Op.notLike,
+	'{not%like}': Op.notLike,
+	'{notlike%}': Op.notLike,
+};
 
 // Array follows
-const InOperator = '{in}';
-const SQInOperator = {
-	'{in}': [Op.in],
-	'{not}{in}': [Op.notIn],
+const InOperators = ['{in}', '{notin}'];
+const SQInOperators = {
+	'{in}': Op.in,
+	'{notin}': Op.notIn,
 };
 // Array follows ONLY TWO elements
-const BtwOperator = '{btw}';
-const SQBtwOperator = {
-	'{btw}': [Op.between],
-	'{not}{btw}': [Op.notBetween],
+const BtwOperators = ['{btw}', '{notbtw}'];
+const SQBtwOperators = {
+	'{btw}': Op.between,
+	'{notbtw}': Op.notBetween,
 };
 // End condition
-const NullOperator = '{null}';
-const SQNullOperator = {
-	'{null}': [Op.eq],
-	'{not}{null}': [Op.ne],
+const NullOperators = ['{NULL}', '{notNULL}', '{not}'];
+const SQNullOperators = {
+	'{NULL}': Op.eq,
+	'{notNULL}': Op.ne,
+	'{not}': Op.ne,
 };
 // Changes Where => OR Array with Where elements
-const OrOperator = '{or}';
-const SQOrOperator = {
-	'{or}': [Op.or],
-};
-// Changes Like, In, Between => notLike, notIn, notBetween
-const NotOperator = '{not}';
-const SQNotOperator = {
-	'{not}': [Op.not],
+const OrOperators = ['{or}'];
+const SQOrOperators = {
+	'{or}': Op.or,
+	// '{and}': Op.and,
 };
 
+const ALLOperators = _.union(Operators, LikeOperators, InOperators, BtwOperators, NullOperators, OrOperators);
 
 const PreHandlerBase = {
 	filterParser: function(response, key, value, schema) {
+		response['where'] = response.where || {};
+		let actualLevel = response.where;
 		value.forEach(function(el){
-			response['where'] = response.where || {};
-			let actualLevel = response.where;
+			actualLevel = response.where;
 			let dbAttribute = key;     // DB Attribute name (Camel Case);
 			let orPresent = '';
 			let notPresent = '';
 			let realValue = el;       // Final condition value;
+			let or = false;
+			let and = false;
+
+			//Least one operator. Always
+			let addEQ = true;
+			ALLOperators.forEach( (op) => {
+				if (!_.includes(realValue, op)) {
+					addEQ = false;
+				}
+			});
+			if (addEQ) {
+				realValue = '{=}'+realValue;
+			}
+
 			// OR operator
-			if (_.includes(realValue, OrOperator)) {
-				orPresent = SQOrOperator[OrOperator];
-				realValue = _.replace(realValue, OrOperator, '');
-			}
-			// NOT operator
-			if (_.includes(realValue, NotOperator)) {
-				notPresent = SQNotOperator[NotOperator];
-				realValue = _.replace(realValue, NotOperator, '');
-			}
-			if (orPresent) {
-				if (!_.has(actualLevel, [orPresent])) {
-					_.set(actualLevel, [orPresent], []);
+			OrOperators.forEach( (op) => {
+				if (_.includes(realValue, op) && op === '{or}') {
+					or = true;
+					realValue = _.replace(realValue, op, '');
+					if (!_.has(actualLevel, SQOrOperators[op])) {
+						_.set(actualLevel, SQOrOperators[op], []);
+					}
+					actualLevel = actualLevel[SQOrOperators[op]];
 				}
-				let tmp = {};
-				tmp[dbAttribute] = {};
-				actualLevel[orPresent].push(tmp);
-				actualLevel = tmp[dbAttribute];
-			} else {
-				if (!_.has(actualLevel, [dbAttribute])) {
-					_.set(actualLevel, [dbAttribute], {});
+			});
+
+			// BETWEEN operator
+			BtwOperators.forEach( (op) => {
+				if (_.includes(realValue, op)) {
+					if (or) {
+						let btw = {};
+						_.set(btw, key, {});
+						_.set(btw[key], SQBtwOperators[op], _.split(_.replace(realValue, op, ''), ','));
+						actualLevel.push(btw);
+					} else {
+						if (!_.has(actualLevel, dbAttribute)) {
+							_.set(actualLevel, dbAttribute, {});
+						}
+						actualLevel = actualLevel[dbAttribute];
+
+						let tmp = _.split(_.replace(realValue, op, ''), ',');
+						if (!_.has(actualLevel, SQBtwOperators[op])) {
+							_.set(actualLevel, SQBtwOperators[op], tmp);
+						}
+					}
 				}
-				actualLevel = actualLevel[dbAttribute];
-			}
+			});
+
+			// IN operator
+			InOperators.forEach( (op) => {
+				if (_.includes(realValue, op)) {
+					if (or) {
+						let btw = {};
+						_.set(btw, key, {});
+						_.set(btw[key], SQInOperators[op], _.split(_.replace(realValue, op, ''), ','));
+						actualLevel.push(btw);
+					} else {
+						if (!_.has(actualLevel, dbAttribute)) {
+							_.set(actualLevel, dbAttribute, {});
+						}
+						actualLevel = actualLevel[dbAttribute];
+
+						let tmp = _.split(_.replace(realValue, op, ''), ',');
+						if (!_.has(actualLevel, SQInOperators[op])) {
+							_.set(actualLevel, SQInOperators[op], tmp);
+						}
+					}
+				}
+			});
 
 			// NULL operator
-			if (_.includes(realValue, NullOperator)) {
-				realValue = _.replace(realValue, NullOperator, '');
-				if (!_.has(actualLevel, SQNullOperator[notPresent + NullOperator])) {
-					actualLevel[SQNullOperator[notPresent + NullOperator]] = null;
-				}
-			} else if (_.includes(realValue, BtwOperator)) {
-				// BETWEEN operator
-				realValue = _.replace(realValue, BtwOperator, '');
-				let tmp = _.split(realValue, ',');
-				tmp.forEach(function(value){
-					const result = Joi.validate({ [dbAttribute]: value }, schema.joiValid);
-					if (result.error) {
-						throw result.error.message;
-					}
-				});
-				if (!_.has(actualLevel, SQBtwOperator[notPresent + BtwOperator])) {
-					actualLevel[SQBtwOperator[notPresent + BtwOperator]] = {};
-					actualLevel[SQBtwOperator[notPresent + BtwOperator]] = tmp;
-				} else {
-					let found = false;
-					actualLevel[SQBtwOperator[notPresent + BtwOperator]].forEach(function(cond){
-						if (_.isEqual(cond.sort(), tmp.sort())) {
-							found = true;
+			NullOperators.forEach( (op) => {
+				if (_.includes(realValue, op)) {
+					if (or) {
+						let btw = {};
+						_.set(btw, key, {});
+						_.set(btw[key], SQNullOperators[op], _.split(_.replace(realValue, op, ''), ','));
+						actualLevel.push(btw);
+					} else {
+						if (!_.has(actualLevel, dbAttribute)) {
+							_.set(actualLevel, dbAttribute, {});
 						}
-					});
-					if (!found) {
-						actualLevel[SQBtwOperator[notPresent + BtwOperator]] = tmp;
-					}
-				}
-			} else if (_.includes(realValue, InOperator)) {
-				// IN operator
-				realValue = _.replace(realValue, InOperator, '');
-				let tmp = _.split(realValue, ',');
-				tmp.forEach(function(value){
-					const result = Joi.validate({ [dbAttribute]: value }, schema.joiValid);
-					if (result.error) {
-						throw result.error.message;
-					}
-				});
-				if (!_.has(actualLevel, SQInOperator[notPresent + InOperator])) {
-					actualLevel[SQInOperator[notPresent + InOperator]] = [];
-					actualLevel[SQInOperator[notPresent + InOperator]].push(tmp);
-				} else {
-					let found = false;
-					actualLevel[SQInOperator[notPresent + InOperator]].forEach(function(cond){
-						if (_.isEqual(cond.sort(), tmp.sort())) {
-							found = true;
-						}
-					});
-					if (!found) {
-						actualLevel[SQInOperator[notPresent + InOperator]].push(tmp);
-					}
-				}
-			} else {
-				// LOGICAL operator
-				let found = false;
-				Operator.some(function(op){
-					if (_.includes(realValue, op)){
-						found = true;
-						return true;
-					}
-				});
-				if (!found) {
-					realValue = '{=}'+realValue;
-				}
-				Operator.some(function (op) {
-					if (_.includes(realValue, op)) {
-						realValue = _.replace(realValue, op, '');
-						const result = Joi.validate({[dbAttribute]: realValue}, schema.joiValid);
-						if (result.error) {
-							throw result.error.message;
-						}
+						actualLevel = actualLevel[dbAttribute];
 
-						if (op === '{like}') {
-							realValue = '%' + realValue + '%'
-						} else if (op === '{%like}') {
-							realValue = '%' + realValue
-						} else if (op === '{like%}') {
-							realValue = realValue + '%'
+						let tmp = null;
+						if (op === '{not}') {
+							tmp = _.replace(realValue, op, '');
 						}
+						if (!_.has(actualLevel, SQNullOperators[op])) {
+							_.set(actualLevel, SQNullOperators[op], tmp);
+						}
+					}
+				}
+			});
 
-						let attr = schema.attributes[dbAttribute];
+			// NULL operator
+			LikeOperators.forEach( (op) => {
+				if (_.includes(realValue, op)) {
+					if (or) {
+						let btw = {};
+						_.set(btw, key, {});
+						_.set(btw[key], SQLikeOperators[op], _.split(_.replace(realValue, op, ''), ','));
+						actualLevel.push(btw);
+					} else {
+						if (!_.has(actualLevel, dbAttribute)) {
+							_.set(actualLevel, dbAttribute, {});
+						}
+						actualLevel = actualLevel[dbAttribute];
 
-						if (attr.type.key === 'BOOLEAN') {
-							if (realValue === 'true' || realValue === '1' || realValue === 1) {
-								realValue = true;
-							} else {
-								realValue = false;
+						let tmp = '';
+						switch (op) {
+							case '{%like}': {
+								tmp = '%' + _.replace(realValue, op, '');
+								break
 							}
-
+							case '{like}': {
+								tmp = '%' + _.replace(realValue, op, '') +'%';
+								break;
+							}
+							case '{like%}': {
+								tmp = _.replace(realValue, op, '') + '%';
+								break;
+							}
 						}
 
-						if (!_.has(actualLevel, SQOperators[notPresent + op])) {
-							actualLevel[SQOperators[notPresent + op]] = [];
-							actualLevel[SQOperators[notPresent + op]].push(realValue);
+						if (!_.has(actualLevel, SQLikeOperators[op])) {
+							_.set(actualLevel, SQLikeOperators[op], tmp);
+						}
+					}
+				}
+			});
+
+
+			// LOGICAL operator
+			Operators.forEach( (op) => {
+				if (_.includes(realValue, op)) {
+					realValue = _.replace(realValue, op, '');
+					const result = Joi.validate({[dbAttribute]: realValue}, schema.joiValid);
+					if (result.error) {
+						throw result.error.message;
+					}
+
+					let attr = schema.attributes[dbAttribute];
+
+					if (attr.type.key === 'BOOLEAN') {
+						if (realValue === 'true' || realValue === '1' || realValue === 1) {
+							realValue = true;
 						} else {
-							if (!_.includes(actualLevel[SQOperators[notPresent + op]], realValue)) {
-								actualLevel[SQOperators[notPresent + op]].push(realValue);
-							}
+							realValue = false;
 						}
-						return true;
+
 					}
-				});
-			}
+
+					if (or) {
+						let btw = {};
+						_.set(btw, key, {});
+						_.set(btw[key], SQOperators[op], realValue);
+						actualLevel.push(btw);
+					} else {
+
+						if (!_.has(actualLevel, dbAttribute)) {
+							_.set(actualLevel, dbAttribute, {});
+						}
+						actualLevel = actualLevel[dbAttribute];
+
+						if (!_.has(actualLevel, SQOperators[op])) {
+							_.set(actualLevel, SQOperators[op], realValue);
+						}
+					}
+				}
+			});
+
 
 		});
 		return response;
@@ -524,14 +568,14 @@ const PreHandlerBase = {
 				let actualLevel = includeLevel['where'];
 
 				// OR operator
-				if (_.includes(realValue, OrOperator)) {
-					orPresent = SQOrOperator[OrOperator];
-					realValue = _.replace(realValue, OrOperator, '');
+				if (_.includes(realValue, OrOperators)) {
+					orPresent = SQOrOperators[OrOperators];
+					realValue = _.replace(realValue, OrOperators, '');
 				}
 				// NOT operator
-				if (_.includes(realValue, NotOperator)) {
+				if (_.includes(realValue, NotOperators)) {
 					notPresent = '{not}';
-					realValue = _.replace(realValue, NotOperator, '');
+					realValue = _.replace(realValue, NotOperators, '');
 				}
 				if (orPresent) {
 					if (!_.has(actualLevel, [orPresent])) {
@@ -549,14 +593,14 @@ const PreHandlerBase = {
 				}
 
 				// NULL operator
-				if (_.includes(realValue, NullOperator)) {
-					realValue = _.replace(realValue, NullOperator, '');
-					if (!_.has(actualLevel, SQNullOperator[notPresent + NullOperator])) {
-						actualLevel[SQNullOperator[notPresent + NullOperator]] = null;
+				if (_.includes(realValue, NullOperators)) {
+					realValue = _.replace(realValue, NullOperators, '');
+					if (!_.has(actualLevel, SQNullOperators[notPresent + NullOperators])) {
+						actualLevel[SQNullOperators[notPresent + NullOperators]] = null;
 					}
-				} else if (_.includes(realValue, BtwOperator)) {
+				} else if (_.includes(realValue, BtwOperators)) {
 					// BETWEEN operator
-					realValue = _.replace(realValue, BtwOperator, '');
+					realValue = _.replace(realValue, BtwOperators, '');
 					let tmp = _.split(realValue, ',');
 					tmp.forEach(function(value){
 						const result = Joi.validate({ [dbAttribute]: value }, schemaClone.joiValid);
@@ -564,23 +608,23 @@ const PreHandlerBase = {
 							throw result.error.message;
 						}
 					});
-					if (!_.has(actualLevel, SQBtwOperator[notPresent + BtwOperator])) {
-						actualLevel[SQBtwOperator[notPresent + BtwOperator]] = {};
-						actualLevel[SQBtwOperator[notPresent + BtwOperator]] = tmp;
+					if (!_.has(actualLevel, SQBtwOperators[notPresent + BtwOperators])) {
+						actualLevel[SQBtwOperators[notPresent + BtwOperators]] = {};
+						actualLevel[SQBtwOperators[notPresent + BtwOperators]] = tmp;
 					} else {
 						let found = false;
-						actualLevel[SQBtwOperator[notPresent + BtwOperator]].forEach(function(cond){
+						actualLevel[SQBtwOperators[notPresent + BtwOperators]].forEach(function(cond){
 							if (_.isEqual(cond.sort(), tmp.sort())) {
 								found = true;
 							}
 						});
 						if (!found) {
-							actualLevel[SQBtwOperator[notPresent + BtwOperator]] = tmp;
+							actualLevel[SQBtwOperators[notPresent + BtwOperators]] = tmp;
 						}
 					}
-				} else if (_.includes(realValue, InOperator)) {
+				} else if (_.includes(realValue, InOperators)) {
 					// IN operator
-					realValue = _.replace(realValue, InOperator, '');
+					realValue = _.replace(realValue, InOperators, '');
 					let tmp = _.split(realValue, ',');
 					tmp.forEach(function(value){
 						const result = Joi.validate({ [dbAttribute]: value }, schemaClone.joiValid);
@@ -588,24 +632,24 @@ const PreHandlerBase = {
 							throw result.error.message;
 						}
 					});
-					if (!_.has(actualLevel, SQInOperator[notPresent + InOperator])) {
-						actualLevel[SQInOperator[notPresent + InOperator]] = [];
-						actualLevel[SQInOperator[notPresent + InOperator]].push(tmp);
+					if (!_.has(actualLevel, SQInOperators[notPresent + InOperators])) {
+						actualLevel[SQInOperators[notPresent + InOperators]] = [];
+						actualLevel[SQInOperators[notPresent + InOperators]].push(tmp);
 					} else {
 						let found = false;
-						actualLevel[SQInOperator[notPresent + InOperator]].forEach(function(cond){
+						actualLevel[SQInOperators[notPresent + InOperators]].forEach(function(cond){
 							if (_.isEqual(cond.sort(), tmp.sort())) {
 								found = true;
 							}
 						});
 						if (!found) {
-							actualLevel[SQInOperator[notPresent + InOperator]].push(tmp);
+							actualLevel[SQInOperators[notPresent + InOperators]].push(tmp);
 						}
 					}
 				} else {
 					// LOGICAL operator
 					let found = false;
-					Operator.some(function(op){
+					Operators.some(function(op){
 						if (_.includes(realValue, op)){
 							found = true;
 							return true;
@@ -614,7 +658,7 @@ const PreHandlerBase = {
 					if (!found) {
 						realValue = '{=}'+realValue;
 					}
-					Operator.some(function (op) {
+					Operators.some(function (op) {
 						if (_.includes(realValue, op)) {
 							realValue = _.replace(realValue, op, '');
 							const result = Joi.validate({[dbAttribute]: realValue}, schemaClone.joiValid);

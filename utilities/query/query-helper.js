@@ -81,7 +81,7 @@ module.exports = {
 
 		// requestData.queryData.fields = ['id'];
 
-		let attributesList = this.createAttributesList(model);
+		let attributesList = model.schemaQuery().Attributes;
 		let attributesArray = attributesList.split(', ');
 
 		Object.keys(query).map((e) => {

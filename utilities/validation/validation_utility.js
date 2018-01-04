@@ -9,10 +9,10 @@ const Pluralize = require('pluralize');
 const numberOperators = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}'];
 const stringOperators = ['{=}', '{like}'];
 const nestedOperators = ['{=}', '{<}', '{<=}', '{>}', '{>=}', '{<>}'];
-const likeOperators = ['{like}', '{%like}', '{like%}'];
-const inOperator = ['{in}'];
-const btwOperator = ['{btw}'];
-const nullOperator = ['{null}'];
+const likeOperators = ['{like}', '{notlike}', '{like%}', '{notlike%}', '{%like}', '{not%like}'];
+const inOperator = ['{in}', '{notin}'];
+const btwOperator = ['{btw}', '{notbtw}'];
+const nullOperator = ['{NULL}', '{notNULL}', '{not}'];
 
 // For the RegExp
 const OrOrNot = '(?:{not}|{or})?';
@@ -23,298 +23,298 @@ let username = "([a-zA-Z0-9]+[_.-]?)*[a-zA-Z0-9]";                   // alt(a-zA
 let password = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
 let pwdRegExp = new RegExp(password);
 let email = '(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"' +
-    '(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")' +
-    '@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|' +
-    '\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|' +
-    '[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]' +
-    '|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])';                        // Email
+	'(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")' +
+	'@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|' +
+	'\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|' +
+	'[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]' +
+	'|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])';                        // Email
 let datetime = '([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])(?:( [0-2][0-9]):([0-5][0-9]):([0-5][0-9]))?'; // Datetime for DB ex: 2017-08-15 10:00:00
 
 
 const ValidationBase = {
-    // STRING admitted in Filter. Filter is an Operation on Model Attributes
-    filterRegExp: () => {
-        let result = '';
+	// STRING admitted in Filter. Filter is an Operation on Model Attributes
+	filterRegExp: () => {
+		let result = '';
 
-        nestedOperators.forEach(function(operator, index){
-            if (index > 0) {
-                result += '|';
-            }
-            if (operator === '{=}') {
-                result += "^" + Or + "(?:" + operator + ")?.+$";
-            } else {
-                result += "^" + Or + operator + ".+$";
-            }
-        });
+		nestedOperators.forEach(function(operator, index){
+			if (index > 0) {
+				result += '|';
+			}
+			if (operator === '{=}') {
+				result += "^" + Or + "(?:" + operator + ")?.+$";
+			} else {
+				result += "^" + Or + operator + ".+$";
+			}
+		});
 
-        likeOperators.forEach(function(operator){
-            result += '|';
-            result += "^" + OrOrNot + operator + ".+$";
-        });
+		likeOperators.forEach(function(operator){
+			result += '|';
+			result += "^" + Or + operator + ".+$";
+		});
 
-        inOperator.forEach(function(operator){
-            result += '|';
-            result += "^" + OrOrNot + operator + ".+$";
-        });
+		inOperator.forEach(function(operator){
+			result += '|';
+			result += "^" + Or + operator + ".+$";
+		});
 
-        btwOperator.forEach(function(operator){
-            result += '|';
-            result += "^" + OrOrNot + operator + ".+$";
-        });
+		btwOperator.forEach(function(operator){
+			result += '|';
+			result += "^" + Or + operator + ".+$";
+		});
 
-        nullOperator.forEach(function(operator){
-            result += '|';
-            result += "^" + OrOrNot + operator + "$";
-        });
+		nullOperator.forEach(function(operator){
+			result += '|';
+			result += "^" + Or + operator + "$";
+		});
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 
-    // STRING admitted in Field for all Attributes. Model Fields to select
-    fieldRegExp: (schema) => {
-        let result = '';
-        let columns = '(';
+	// STRING admitted in Field for all Attributes. Model Fields to select
+	fieldRegExp: (schema) => {
+		let result = '';
+		let columns = '(';
 
-        Object.keys(schema.attributes).map((attr, index) => {
-            if (index > 0) {
-                columns += '|';
-            } else {
-                columns += '|'
-            }
-            columns += attr;
-        });
-        columns += ')';
+		Object.keys(schema.attributes).map((attr, index) => {
+			if (index > 0) {
+				columns += '|';
+			} else {
+				columns += '|'
+			}
+			columns += attr;
+		});
+		columns += ')';
 
-        let prefix = '(?:{' + schema.name + '})?';
+		let prefix = '(?:{' + schema.name + '})?';
 
-        result += "^" + prefix + columns + "(," + columns + ")*$";
+		result += "^" + prefix + columns + "(," + columns + ")*$";
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 
-    // Fields to apply sum, min & max. Model Fields to select
-    mathFieldRegExp: (schema) => {
-        let result = '';
-        let columns = '(';
+	// Fields to apply sum, min & max. Model Fields to select
+	mathFieldRegExp: (schema) => {
+		let result = '';
+		let columns = '(';
 
-        Object.keys(schema.attributes).map((attr, index) => {
-            let attribute = schema.attributes[attr];
-            let type = attribute.type.key;
+		Object.keys(schema.attributes).map((attr, index) => {
+			let attribute = schema.attributes[attr];
+			let type = attribute.type.key;
 
-            if (attribute.type.key === 'INTEGER' || attribute.type.key === 'FLOAT' ||
-                attribute.type.key === 'REAL' || attribute.type.key === 'DOUBLE' ||
-                attribute.type.key === 'DECIMAL' || attribute.type.key === 'DATE') {
+			if (attribute.type.key === 'INTEGER' || attribute.type.key === 'FLOAT' ||
+				attribute.type.key === 'REAL' || attribute.type.key === 'DOUBLE' ||
+				attribute.type.key === 'DECIMAL' || attribute.type.key === 'DATE') {
 
-                if (columns !== '(') {
-                    columns += '|';
-                }
-                columns += attr;
-            }
+				if (columns !== '(') {
+					columns += '|';
+				}
+				columns += attr;
+			}
 
-        });
-        columns += ')';
+		});
+		columns += ')';
 
-        let prefix = '(?:{' + schema.name + '})?';
+		let prefix = '(?:{' + schema.name + '})?';
 
-        result += "^" + prefix + columns + "$";
+		result += "^" + prefix + columns + "$";
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 
-    // STRING admitted in withRelated for relations. Possible Relations to include
-    withRelatedRegExp: (schema) => {
-    	let models = schema.sequelize.models;
-        let result = '';
-        let relations = '(';
-        let exclusion = [schema.name];
+	// STRING admitted in withRelated for relations. Possible Relations to include
+	withRelatedRegExp: (schema) => {
+		let models = schema.sequelize.models;
+		let result = '';
+		let relations = '(';
+		let exclusion = [schema.name];
 
-        let schemaRelations = schema.associations;
+		let schemaRelations = schema.associations;
 
-        Object.keys(schemaRelations).map((rel, index) => {
-            let localExclusion = [rel];
-            if (index > 0) {
-                relations += '|';
-            }
-            relations += rel;
+		Object.keys(schemaRelations).map((rel, index) => {
+			let localExclusion = [rel];
+			if (index > 0) {
+				relations += '|';
+			}
+			relations += rel;
 
-            let relModel = {};
+			let relModel = {};
 
-            if (models[Pluralize.singular(rel)]) {
-                relModel =models[Pluralize.singular(rel)];
-            } else if (models[rel]) {
-                relModel = models[rel];
-            }
+			if (models[Pluralize.singular(rel)]) {
+				relModel =models[Pluralize.singular(rel)];
+			} else if (models[rel]) {
+				relModel = models[rel];
+			}
 
-            if (Object.keys(relModel).length > 0) {
-                Object.keys(relModel.associations).map((relOfRel) => {
-                    if (!_.includes(exclusion, relOfRel) && !_.includes(localExclusion, relOfRel)) {
-                        relations += '|';
-                        relations += rel + '.' + relOfRel;
-                    }
-                });
-            }
-        });
-        relations += ')';
+			if (Object.keys(relModel).length > 0) {
+				Object.keys(relModel.associations).map((relOfRel) => {
+					if (!_.includes(exclusion, relOfRel) && !_.includes(localExclusion, relOfRel)) {
+						relations += '|';
+						relations += rel + '.' + relOfRel;
+					}
+				});
+			}
+		});
+		relations += ')';
 
-        result += "^" + relations + "$";
+		result += "^" + relations + "$";
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 
-    // STRING admitted in withCount for relations. Possible Relations to include (only ONE level)
-    withCountRegExp: (schema) => {
-        let result = '';
-        let relations = '(';
+	// STRING admitted in withCount for relations. Possible Relations to include (only ONE level)
+	withCountRegExp: (schema) => {
+		let result = '';
+		let relations = '(';
 
-        let schemaRelations = schema.associations;
+		let schemaRelations = schema.associations;
 
-        Object.keys(schemaRelations).map((rel, index) => {
-            if (index > 0) {
-                relations += '|';
-            }
+		Object.keys(schemaRelations).map((rel, index) => {
+			if (index > 0) {
+				relations += '|';
+			}
 
-            relations += rel;
+			relations += rel;
 
-        });
-        relations += ')';
+		});
+		relations += ')';
 
-        result += "^" + relations + "$";
+		result += "^" + relations + "$";
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 
-    // STRING admitted in with Related Field (related tables attributes) for all possible Relationships
-    withRelatedFieldRegExp: (schema) => {
-        let models = schema.sequelize.models;
-        let result = '';
-        let relations = SchemaUtility.relationFromSchema(schema, 2);
+	// STRING admitted in with Related Field (related tables attributes) for all possible Relationships
+	withRelatedFieldRegExp: (schema) => {
+		let models = schema.sequelize.models;
+		let result = '';
+		let relations = SchemaUtility.relationFromSchema(schema, 2);
 
-        relations.forEach(function(rel, index){
-            let columns = '(';
+		relations.forEach(function(rel, index){
+			let columns = '(';
 
-            let model = models[rel.model];
+			let model = models[rel.model];
 
-            Object.keys(model.attributes).map((attr, index) => {
-                if (index > 0) {
-                    columns += '|';
-                }
-                columns += attr;
-            });
+			Object.keys(model.attributes).map((attr, index) => {
+				if (index > 0) {
+					columns += '|';
+				}
+				columns += attr;
+			});
 
-            columns += ')';
+			columns += ')';
 
-            let prefix = '{' + rel.name + '}';
-            if (index > 0) {
-                result += '|';
-            }
-            result += "^" + prefix + columns + "(," + columns + ")*$";
-        });
+			let prefix = '{' + rel.name + '}';
+			if (index > 0) {
+				result += '|';
+			}
+			result += "^" + prefix + columns + "(," + columns + ")*$";
+		});
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 
-    // STRING admitted in Sort Attributes
-    sortRegExp: (schema) => {
-        let result = '';
-        let columns = '(';
+	// STRING admitted in Sort Attributes
+	sortRegExp: (schema) => {
+		let result = '';
+		let columns = '(';
 
-        Object.keys(schema.attributes).map((attr, index) => {
-            if (index > 0) {
-                columns += '|';
-            }
-            columns += attr;
-        });
-        columns += ')';
+		Object.keys(schema.attributes).map((attr, index) => {
+			if (index > 0) {
+				columns += '|';
+			}
+			columns += attr;
+		});
+		columns += ')';
 
-        let prefix = '(?:{' + schema.name + '})?';
-        let direction = '(?:(\\+|\\-))?';
+		let prefix = '(?:{' + schema.name + '})?';
+		let direction = '(?:(\\+|\\-))?';
 
-        result += "^" + prefix + direction + columns + "(," + direction + columns + ")*$";
+		result += "^" + prefix + direction + columns + "(," + direction + columns + ")*$";
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 
-    // STRING for with SORT
-    withSortRegExp: (schema) => {
-        let models = schema.sequelize.models;
-        let result = '';
-        let relations = SchemaUtility.relationFromSchema(schema, 2);
+	// STRING for with SORT
+	withSortRegExp: (schema) => {
+		let models = schema.sequelize.models;
+		let result = '';
+		let relations = SchemaUtility.relationFromSchema(schema, 2);
 
-        relations.forEach(function(rel, index){
-            let columns = '(';
-            let model = models[rel.model];
+		relations.forEach(function(rel, index){
+			let columns = '(';
+			let model = models[rel.model];
 
-            Object.keys(model.attributes).map((attr, index) => {
-                if (index > 0) {
-                    columns += '|';
-                }
-                columns += attr;
-            });
+			Object.keys(model.attributes).map((attr, index) => {
+				if (index > 0) {
+					columns += '|';
+				}
+				columns += attr;
+			});
 
-            columns += ')';
+			columns += ')';
 
-            let prefix = '{' + rel.name + '}';
-            let direction = '(?:(\\+|\\-))?';
-            if (index > 0) {
-                result += '|';
-            }
-            result += "^" + prefix + direction + columns + "(," + direction + columns + ")*$";
-        });
+			let prefix = '{' + rel.name + '}';
+			let direction = '(?:(\\+|\\-))?';
+			if (index > 0) {
+				result += '|';
+			}
+			result += "^" + prefix + direction + columns + "(," + direction + columns + ")*$";
+		});
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 
-    // STRING admitted in with FILTER Reletion Attributes filter
-    withFilterRegExp: (schema) => {
-        let models = schema.sequelize.models;
-        let result = '';
-        let attributes = '';
-        let relations = SchemaUtility.relationFromSchema(schema, 2);
+	// STRING admitted in with FILTER Reletion Attributes filter
+	withFilterRegExp: (schema) => {
+		let models = schema.sequelize.models;
+		let result = '';
+		let attributes = '';
+		let relations = SchemaUtility.relationFromSchema(schema, 2);
 
-        relations.forEach(function(rel, index){
-            let relation = '{' + rel.name + '}';
-            let model = models[rel.model];
+		relations.forEach(function(rel, index){
+			let relation = '{' + rel.name + '}';
+			let model = models[rel.model];
 
-            Object.keys(model.attributes).map((attr, index) => {
-                if (index > 0) {
-                    attributes += '|'
-                }
-                attributes += '{' + attr + '}';
-            });
+			Object.keys(model.attributes).map((attr, index) => {
+				if (index > 0) {
+					attributes += '|'
+				}
+				attributes += '{' + attr + '}';
+			});
 
-            if (index > 0) {
-                result += '|';
-            }
-            nestedOperators.forEach(function(operator, index){
-                if (index > 0) {
-                    result += '|';
-                }
-                result += "^" + relation + Or + "(" + attributes + ")" + operator + ".+$";
-            });
+			if (index > 0) {
+				result += '|';
+			}
+			nestedOperators.forEach(function(operator, index){
+				if (index > 0) {
+					result += '|';
+				}
+				result += "^" + relation + Or + "(" + attributes + ")" + operator + ".+$";
+			});
 
-            likeOperators.forEach(function(operator){
-                result += '|';
-                result += "^" + relation + OrOrNot + "(" + attributes + ")" + operator + ".+$";
-            });
+			likeOperators.forEach(function(operator){
+				result += '|';
+				result += "^" + relation + Or + "(" + attributes + ")" + operator + ".+$";
+			});
 
-            inOperator.forEach(function(operator){
-                result += '|';
-                result += "^" + relation + OrOrNot + "(" + attributes + ")" + operator + ".+$";
-            });
+			inOperator.forEach(function(operator){
+				result += '|';
+				result += "^" + relation + Or + "(" + attributes + ")" + operator + ".+$";
+			});
 
-            btwOperator.forEach(function(operator){
-                result += '|';
-                result += "^" + relation + OrOrNot + "(" + attributes + ")" + operator + ".+$";
-            });
+			btwOperator.forEach(function(operator){
+				result += '|';
+				result += "^" + relation + Or + "(" + attributes + ")" + operator + ".+$";
+			});
 
-            nullOperator.forEach(function(operator){
-                result += '|';
-                result += "^" + relation + OrOrNot + "(" + attributes + ")" + operator + "$";
-            });
-        });
+			nullOperator.forEach(function(operator){
+				result += '|';
+				result += "^" + relation + Or + "(" + attributes + ")" + operator + "$";
+			});
+		});
 
-        return new RegExp(result);
-    },
+		return new RegExp(result);
+	},
 };
 
 
