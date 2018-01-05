@@ -82,6 +82,7 @@ module.exports = {
 		// requestData.queryData.fields = ['id'];
 
 		let attributesList = model.schemaQuery().Attributes;
+		let extraQuery = model.schemaQuery().extra;
 		let attributesArray = attributesList.split(', ');
 
 		Object.keys(query).map((e) => {
@@ -114,21 +115,15 @@ module.exports = {
 			// 	}
 			// }
 			//
-			// if (!Object.keys(error).length > 0) {
-			// 	// Extra
-			// 	if (referenceModel.extra.hasOwnProperty(e)) {
-			// 		if (e === 'count') {
-			// 			requestData.queryData.count = queryUrl[e];
-			// 		} else if (_.isString(queryUrl[e])) {
-			// 			let tmp = [];
-			// 			tmp.push(queryUrl[e]);
-			// 			queryUrl[e] = tmp;
-			// 			requestData = PreHandlerBase.extraParser(requestData, e, queryUrl[e], User);
-			// 		} else {
-			// 			requestData = PreHandlerBase.extraParser(requestData, e, queryUrl[e], User);
-			// 		}
-			// 	}
-			// }
+			// Extra
+			if (_.has(extraQuery, e)) {
+				if (!_.isArray(query[e])) {
+					let tmp = [];
+					tmp.push(query[e]);
+					query[e] = tmp;
+				}
+				sequelizeQuery = HandlerBase.extraParser(sequelizeQuery, e, query[e], model);
+			}
 		});
 
 		// let found = false;

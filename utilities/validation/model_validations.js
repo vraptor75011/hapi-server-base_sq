@@ -255,6 +255,16 @@ module.exports = function(model) {
 				.regex(ValidationBase.fieldRegExp(model))
 				.example('{model}id')
 		),
+		$withRelated: Joi.alternatives().try(
+			Joi.array().description('includes relationships: Roles, [Roles.models, Realms]')
+				.items(
+					Joi.string().max(255)
+						.regex(ValidationBase.withRelatedRegExp(model)))
+				.example(['Realms','Roles']),
+			Joi.string().max(255)
+				.regex(ValidationBase.withRelatedRegExp(model))
+				.example('Realms'),
+		),
 		$withFilter: Joi.alternatives().try(
 			Joi.array().description('filter by relationships fields: {Roles}[{or|not}]{name}[{=}], [{Realms}{not}{name}{like}]')
 				.items(Joi.string().max(255)
@@ -273,16 +283,6 @@ module.exports = function(model) {
 			Joi.string().max(255).description('relationships: Roles, [Roles.models, Realms]')
 				.regex(ValidationBase.withCountRegExp(model))
 				.example('Realms')
-		),
-		$withRelated: Joi.alternatives().try(
-			Joi.array().description('includes relationships: Roles, [Roles.models, Realms]')
-				.items(
-					Joi.string().max(255)
-						.regex(ValidationBase.withRelatedRegExp(model)))
-				.example(['Realms','Roles']),
-			Joi.string().max(255)
-				.regex(ValidationBase.withRelatedRegExp(model))
-				.example('Realms'),
 		),
 		$withFields: Joi.alternatives().try(
 			Joi.array().description('selects relationships fields: {Roles}name, [{Realms}name,description]')

@@ -153,14 +153,13 @@ function _list(model, query) {
 			let totalCount = 0;
 			let filteredCount = 0;
 			let queryInclude = {};
-			Object.keys(query).forEach(function(key) {
-				queryInclude[key] = query[key];
-			});
+			// delete query.$count;
 			return model.count(sequelizeQuery)
 				.then(function (result) {
 					totalCount = result;
 					Log.apiLogger.info("Result: %s", JSON.stringify(result));
-					sequelizeQuery = QueryHelper.createSequelizeFilter(model, query, sequelizeQuery);
+					queryInclude = queryFilteredCount(query, model);
+					sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryInclude, sequelizeQuery);
 					return model.count(sequelizeQuery)
 						.then(function (result) {
 							filteredCount = result;
@@ -1235,13 +1234,16 @@ function filterDeletedEmbeds(result, parent, parentkey, depth, Log) {
  */
 function queryFilteredCount(query, model) {
 	let filterList = model.schemaQuery().filters;
-	let extraList = model.schemaQuery().extra;
 	let queryResponse = {};
 
 	Object.keys(filterList).map((key) => {
-		if (_.hasOwnProperty(query, key)) {
+		if (_.has(query, key)) {
 			_.set(queryResponse, key, query[key]);
 		}
-	})
+	});
+	if (_.has(query, '$withFilter')) {
+		_.set(queryResponse, '$withFilter', query['$withFilter']);
+	}
 
+	return queryResponse;
 }
