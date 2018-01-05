@@ -33,462 +33,461 @@ const Log = require('../logging/logging');
 //TODO: support field queries for "null" and "undefined"
 
 module.exports = {
-	/**
-	 * Create a sequelize string for query based off of the request query
-	 * @param model: A sequelize model object.
-	 * @param query: The incoming request query.
-	 * @param sequelizeQuery: A string for sequelize query.
-	 * @returns {*}: A modified string for sequelize query.
-	 */
-	createSequelizeFilter: function (model, query, sequelizeQuery) {
-		// validationHelper.validateModel(model, Log);
-		//(email == 'test@user.com' && (firstName == 'test2@user.com' || firstName == 'test4@user.com')) && (age < 15 || age > 30)
-		//LITERAL
-		//{
-		//  and: {
-		//    email: {
-		//      equal: 'test@user.com',
-		//    },
-		//    or: {
-		//      firstName: {
-		//        equal: ['test2@user.com', 'test4@user.com']
-		//      }
-		//    },
-		//    age: {
-		//      gt: '15',
-		//      lt: '30'
-		//    }
-		//  }
-		//{
-		// and[email][equal]=test@user.com&and[or][firstName][equal]=test2@user.com&and[or][firstName][equal]=test4@user.com&and[age][gt]=15
-		//ABBREVIATED
-		//{
-		//  email:'test@user.com',
-		//  firstName: ['test2@user.com', 'test4@user.com'],
-		//  age: {
-		//    $or: {
-		//      $gt: '15',
-		//      $lt: '30'
-		//    }
-		//  }
-		//}
-		// [email]=test@user.com&[firstName]=test2@user.com&[firstName]=test4@user.com&[age][gt]=15&[age][lt]=30
+    /**
+     * Create a sequelize string for query based off of the request query
+     * @param model: A sequelize model object.
+     * @param query: The incoming request query.
+     * @param sequelizeQuery: A string for sequelize query.
+     * @returns {*}: A modified string for sequelize query.
+     */
+    createSequelizeFilter: function (model, query, sequelizeQuery) {
+        // validationHelper.validateModel(model, Log);
+        //(email == 'test@user.com' && (firstName == 'test2@user.com' || firstName == 'test4@user.com')) && (age < 15 || age > 30)
+        //LITERAL
+        //{
+        //  and: {
+        //    email: {
+        //      equal: 'test@user.com',
+        //    },
+        //    or: {
+        //      firstName: {
+        //        equal: ['test2@user.com', 'test4@user.com']
+        //      }
+        //    },
+        //    age: {
+        //      gt: '15',
+        //      lt: '30'
+        //    }
+        //  }
+        //{
+        // and[email][equal]=test@user.com&and[or][firstName][equal]=test2@user.com&and[or][firstName][equal]=test4@user.com&and[age][gt]=15
+        //ABBREVIATED
+        //{
+        //  email:'test@user.com',
+        //  firstName: ['test2@user.com', 'test4@user.com'],
+        //  age: {
+        //    $or: {
+        //      $gt: '15',
+        //      $lt: '30'
+        //    }
+        //  }
+        //}
+        // [email]=test@user.com&[firstName]=test2@user.com&[firstName]=test4@user.com&[age][gt]=15&[age][lt]=30
 
 
-		delete query[""]; //EXPL: hack due to bug in hapi-swagger-docs
+        delete query[""]; //EXPL: hack due to bug in hapi-swagger-docs
 
-		delete query.$count;
+        delete query.$count;
 
-		// requestData.queryData.fields = ['id'];
+        // requestData.queryData.fields = ['id'];
 
-		let attributesList = model.schemaQuery().Attributes;
-		let extraQuery = model.schemaQuery().extra;
-		let attributesArray = attributesList.split(', ');
+        let attributesList = model.schemaQuery().Attributes;
+        let extraQuery = model.schemaQuery().extra;
+        let mathQuery = model.schemaQuery().math;
+        let sortQuery = model.schemaQuery().sort;
+        let attributesArray = attributesList.split(', ');
 
-		Object.keys(query).map((e) => {
-			// Filters
-			if (_.includes(attributesArray, e)) {
-				if (!_.isArray(query[e])) {
-					let tmp = [];
-					tmp.push(query[e]);
-					query[e] = tmp;
-				}
-				sequelizeQuery = HandlerBase.filterParser(sequelizeQuery, e, query[e], model);
-			}
+        Object.keys(query).map((e) => {
+            // Filters
+            if (_.includes(attributesArray, e)) {
+                if (!_.isArray(query[e])) {
+                    let tmp = [];
+                    tmp.push(query[e]);
+                    query[e] = tmp;
+                }
+                sequelizeQuery = HandlerBase.filterParser(sequelizeQuery, e, query[e], model);
+            }
 
-			// if (!Object.keys(error).length > 0) {
-			// 	// SORT
-			// 	if (referenceModel.sort.hasOwnProperty(e)) {
-			// 		if (_.isString(queryUrl[e])) {
-			// 			let tmp = [];
-			// 			tmp.push(queryUrl[e]);
-			// 			queryUrl[e] = tmp;
-			// 		}
-			// 		requestData = PreHandlerBase.sortParser(requestData, queryUrl[e], User);
-			// 	}
-			// }
-			//
-			// if (!Object.keys(error).length > 0) {
-			// 	// MATH Operations
-			// 	if (referenceModel.math.hasOwnProperty(e)) {
-			// 		requestData = PreHandlerBase.mathParser(requestData, e, queryUrl[e], User);
-			// 	}
-			// }
-			//
-			// Extra
-			if (_.has(extraQuery, e)) {
-				if (!_.isArray(query[e])) {
-					let tmp = [];
-					tmp.push(query[e]);
-					query[e] = tmp;
-				}
-				sequelizeQuery = HandlerBase.extraParser(sequelizeQuery, e, query[e], model);
-			}
-		});
+            if (_.has(sortQuery, e)) {
+                if (_.isString(query[e])) {
+                    let tmp = [];
+                    tmp.push(query[e]);
+                    query[e] = tmp;
+                }
+                sequelizeQuery = HandlerBase.sortParser(sequelizeQuery, query[e], model);
+            }
+            //
+            // MATH Operations
+            if (_.has(mathQuery, e)) {
+                sequelizeQuery = HandlerBase.mathParser(sequelizeQuery, e, query[e], model);
+            }
+            //
+            // Extra
+            if (_.has(extraQuery, e)) {
+                if (!_.isArray(query[e])) {
+                    let tmp = [];
+                    tmp.push(query[e]);
+                    query[e] = tmp;
+                }
+                sequelizeQuery = HandlerBase.extraParser(sequelizeQuery, e, query[e], model);
+            }
+        });
 
-		// let found = false;
-		// Object.keys(attributesList).map((attr) => {
-		// 	if (_.includes(sequelizeQuery.attributes, attr)) {
-		// 		found = true;
-		// 	}
-		// });
-		//
-		// if (found === false) {
-		// 	sequelizeQuery.attributes = attributesArray;
-		// }
-		//
-		//
-		// if (Object.keys(error).length > 0) {
-		// 	return reply(Boom.badRequest(requestData.queryData.error.message));
-		// } else {
-		// 	// Pagination
-		// 	let page = parseInt(query['$page']) || 1;
-		// 	let pageSize = parseInt(query['$pageSize']) || 10;
-		// 	sequelizeQuery.offset = pageSize * (page - 1);
-		// 	sequelizeQuery.limit = pageSize;
-		// 	Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
-		// 	return sequelizeQuery;
-		// }
+        // let found = false;
+        // Object.keys(attributesList).map((attr) => {
+        // 	if (_.includes(sequelizeQuery.attributes, attr)) {
+        // 		found = true;
+        // 	}
+        // });
+        //
+        // if (found === false) {
+        // 	sequelizeQuery.attributes = attributesArray;
+        // }
+        //
+        //
+        // if (Object.keys(error).length > 0) {
+        // 	return reply(Boom.badRequest(requestData.queryData.error.message));
+        // } else {
+        // 	// Pagination
+        if (query.$page && query.$pageSize) {
+            let page = parseInt(query['$page']) || 1;
+            let pageSize = parseInt(query['$pageSize']) || 10;
+            sequelizeQuery.offset = pageSize * (page - 1);
+            sequelizeQuery.limit = pageSize;
+            Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
+        }
 
-		return sequelizeQuery;
+        // }
 
-	},
+        return sequelizeQuery;
 
-	/**
-	 * Get a list of fields that can be returned as part of a query result.
-	 * @param model: A mongoose model object.
-	 * @param Log: A logging object.
-	 * @returns {Array}: A list of fields.
-	 */
-	getReadableFields: function (model, Log) {
-		validationHelper.validateModel(model, Log);
+    },
 
-		var readableFields = [];
+    /**
+     * Get a list of fields that can be returned as part of a query result.
+     * @param model: A mongoose model object.
+     * @param Log: A logging object.
+     * @returns {Array}: A list of fields.
+     */
+    getReadableFields: function (model, Log) {
+        validationHelper.validateModel(model, Log);
 
-		var fields = model.schema.paths;
+        var readableFields = [];
 
-		for (var fieldName in fields) {
-			var field = fields[fieldName].options;
-			if (!field.exclude && fieldName !== "__v") {
-				readableFields.push(fieldName);
-			}
-		}
+        var fields = model.schema.paths;
 
-		return readableFields;
-	},
+        for (var fieldName in fields) {
+            var field = fields[fieldName].options;
+            if (!field.exclude && fieldName !== "__v") {
+                readableFields.push(fieldName);
+            }
+        }
 
-	/**
-	 * Get a list of valid query sort inputs.
-	 * @param model: A mongoose model object.
-	 * @param Log: A logging object.
-	 * @returns {Array}: A list of fields.
-	 */
-	getSortableFields: function (model, Log) {
-		validationHelper.validateModel(model, Log);
+        return readableFields;
+    },
 
-		var sortableFields = this.getReadableFields(model, Log);
+    /**
+     * Get a list of valid query sort inputs.
+     * @param model: A mongoose model object.
+     * @param Log: A logging object.
+     * @returns {Array}: A list of fields.
+     */
+    getSortableFields: function (model, Log) {
+        validationHelper.validateModel(model, Log);
 
-		for (var i = sortableFields.length-1; i >= 0; i--) {
-			var descendingField = "-" + sortableFields[i];
-			sortableFields.splice(i,0,descendingField);
-		}
+        var sortableFields = this.getReadableFields(model, Log);
 
-		return sortableFields;
-	},
+        for (var i = sortableFields.length-1; i >= 0; i--) {
+            var descendingField = "-" + sortableFields[i];
+            sortableFields.splice(i,0,descendingField);
+        }
 
-	/**
-	 * Get a list of fields that can be queried against.
-	 * @param model: A mongoose model object.
-	 * @param Log: A logging object.
-	 * @returns {Array}: A list of fields.
-	 */
-	getQueryableFields: function (model, Log) {
-		validationHelper.validateModel(model, Log);
+        return sortableFields;
+    },
 
-		var queryableFields = [];
+    /**
+     * Get a list of fields that can be queried against.
+     * @param model: A mongoose model object.
+     * @param Log: A logging object.
+     * @returns {Array}: A list of fields.
+     */
+    getQueryableFields: function (model, Log) {
+        validationHelper.validateModel(model, Log);
 
-		var fields = model.schema.paths;
-		var fieldNames = Object.keys(fields);
+        var queryableFields = [];
 
-		var associations = model.routeOptions ? model.routeOptions.associations : null;
+        var fields = model.schema.paths;
+        var fieldNames = Object.keys(fields);
 
-		for (var i = 0; i < fieldNames.length; i++) {
-			var fieldName = fieldNames[i];
-			if (fields[fieldName] && fieldName !== "__v" && fieldName !== "__t") {
-				var field = fields[fieldName].options;
-				var association = associations ? (associations[fields[fieldName].path] || {}) : {};
+        var associations = model.routeOptions ? model.routeOptions.associations : null;
 
-				//EXPL: by default we don't include MANY_MANY array references
-				if (field.queryable !== false && !field.exclude && association.type !== "MANY_MANY") {
-					queryableFields.push(fieldName);
-				}
-			}
-		}
+        for (var i = 0; i < fieldNames.length; i++) {
+            var fieldName = fieldNames[i];
+            if (fields[fieldName] && fieldName !== "__v" && fieldName !== "__t") {
+                var field = fields[fieldName].options;
+                var association = associations ? (associations[fields[fieldName].path] || {}) : {};
 
-		return queryableFields;
-	},
+                //EXPL: by default we don't include MANY_MANY array references
+                if (field.queryable !== false && !field.exclude && association.type !== "MANY_MANY") {
+                    queryableFields.push(fieldName);
+                }
+            }
+        }
 
-	getStringFields: function (model, Log) {
-		validationHelper.validateModel(model, Log);
+        return queryableFields;
+    },
 
-		var stringFields = [];
+    getStringFields: function (model, Log) {
+        validationHelper.validateModel(model, Log);
 
-		var fields = model.schema.paths;
+        var stringFields = [];
 
-		for (var fieldName in fields) {
-			var field = fields[fieldName].options;
-			if (field.type.schemaName === "String") {
-				stringFields.push(fieldName);
-			}
-		}
+        var fields = model.schema.paths;
 
-		return stringFields;
-	},
+        for (var fieldName in fields) {
+            var field = fields[fieldName].options;
+            if (field.type.schemaName === "String") {
+                stringFields.push(fieldName);
+            }
+        }
 
-	/**
-	 * Handle pagination for the query if needed.
-	 * @param query: The incoming request query.
-	 * @param mongooseQuery: A mongoose query.
-	 * @returns {*}: The updated mongoose query.
-	 */
-	paginate: function(query, mongooseQuery) {
-		if (query.$page) {
-			mongooseQuery = this.setPage(query, mongooseQuery);
-		}
-		else {
-			mongooseQuery = this.setSkip(query, mongooseQuery);
-		}
+        return stringFields;
+    },
 
-		mongooseQuery = this.setLimit(query, mongooseQuery);
+    /**
+     * Handle pagination for the query if needed.
+     * @param query: The incoming request query.
+     * @param mongooseQuery: A mongoose query.
+     * @returns {*}: The updated mongoose query.
+     */
+    paginate: function(query, mongooseQuery) {
+        if (query.$page) {
+            mongooseQuery = this.setPage(query, mongooseQuery);
+        }
+        else {
+            mongooseQuery = this.setSkip(query, mongooseQuery);
+        }
 
-		return mongooseQuery;
-	},
+        mongooseQuery = this.setLimit(query, mongooseQuery);
 
-	/**
-	 * Set the skip amount for the mongoose query. Typically used for paging.
-	 * @param query: The incoming request query.
-	 * @param mongooseQuery: A mongoose query.
-	 * @param Log: A logging object.
-	 * @returns {*}: The updated mongoose query.
-	 */
-	setSkip: function (query, mongooseQuery) {
-		if (query.skip) {
-			mongooseQuery.skip(query.$skip);
-		}
-		return mongooseQuery;
-	},
+        return mongooseQuery;
+    },
 
-	/**
-	 * Set the page for the mongoose query. Typically used for paging.
-	 * @param query: The incoming request query.
-	 * @param mongooseQuery: A mongoose query.
-	 * @returns {*}: The updated mongoose query.
-	 */
-	setPage: function (query, mongooseQuery) {
-		if (query.$page) {
-			mongooseQuery.skip((query.$page - 1) * query.$pageSize);
-		}
-		return mongooseQuery;
-	},
+    /**
+     * Set the skip amount for the mongoose query. Typically used for paging.
+     * @param query: The incoming request query.
+     * @param mongooseQuery: A mongoose query.
+     * @param Log: A logging object.
+     * @returns {*}: The updated mongoose query.
+     */
+    setSkip: function (query, mongooseQuery) {
+        if (query.skip) {
+            mongooseQuery.skip(query.$skip);
+        }
+        return mongooseQuery;
+    },
 
-	/**
-	 * Set the limit amount for the mongoose query. Typically used for paging.
-	 * @param query: The incoming request query.
-	 * @param mongooseQuery: A mongoose query.
-	 * @returns {*}: The updated mongoose query.
-	 */
-	setLimit: function (query, mongooseQuery) {
-		//TODO: possible default limit of 20?
-		if (query.$pageSize) {
-			mongooseQuery.limit(query.$pageSize);
-		}
-		return mongooseQuery;
-	},
+    /**
+     * Set the page for the mongoose query. Typically used for paging.
+     * @param query: The incoming request query.
+     * @param mongooseQuery: A mongoose query.
+     * @returns {*}: The updated mongoose query.
+     */
+    setPage: function (query, mongooseQuery) {
+        if (query.$page) {
+            mongooseQuery.skip((query.$page - 1) * query.$pageSize);
+        }
+        return mongooseQuery;
+    },
 
-	/**
-	 * Set the list of objectIds to exclude.
-	 * @param query: The incoming request query.
-	 * @param mongooseQuery: A mongoose query.
-	 * @returns {*}: The updated mongoose query.
-	 */
-	setExclude: function (query, mongooseQuery) {
-		if (query.$exclude) {
+    /**
+     * Set the limit amount for the mongoose query. Typically used for paging.
+     * @param query: The incoming request query.
+     * @param mongooseQuery: A mongoose query.
+     * @returns {*}: The updated mongoose query.
+     */
+    setLimit: function (query, mongooseQuery) {
+        //TODO: possible default limit of 20?
+        if (query.$pageSize) {
+            mongooseQuery.limit(query.$pageSize);
+        }
+        return mongooseQuery;
+    },
 
-			if (!Array.isArray(query.$exclude)) {
-				query.$exclude = query.$exclude.split(",");
-			}
+    /**
+     * Set the list of objectIds to exclude.
+     * @param query: The incoming request query.
+     * @param mongooseQuery: A mongoose query.
+     * @returns {*}: The updated mongoose query.
+     */
+    setExclude: function (query, mongooseQuery) {
+        if (query.$exclude) {
 
-			mongooseQuery.where({'_id': { $nin: query.$exclude}});
-			delete query.$exclude;
-		}
-		return mongooseQuery;
-	},
+            if (!Array.isArray(query.$exclude)) {
+                query.$exclude = query.$exclude.split(",");
+            }
 
-	/**
-	 * Perform a regex search on the models immediate fields
-	 * @param query:The incoming request query.
-	 * @param model: A mongoose model object
-	 */
-	setTermSearch: function(query, model) {
-		if (query.$term) {
-			query.$or = [];//TODO: allow option to choose ANDing or ORing of searchFields/queryableFields
-			var queryableFields = this.getQueryableFields(model, Log);
-			var stringFields = this.getStringFields(model, Log);
+            mongooseQuery.where({'_id': { $nin: query.$exclude}});
+            delete query.$exclude;
+        }
+        return mongooseQuery;
+    },
 
-			//EXPL: we can only search fields that are a string type
-			queryableFields = queryableFields.filter(function(field) {
-				return stringFields.indexOf(field) > -1;
-			});
+    /**
+     * Perform a regex search on the models immediate fields
+     * @param query:The incoming request query.
+     * @param model: A mongoose model object
+     */
+    setTermSearch: function(query, model) {
+        if (query.$term) {
+            query.$or = [];//TODO: allow option to choose ANDing or ORing of searchFields/queryableFields
+            var queryableFields = this.getQueryableFields(model, Log);
+            var stringFields = this.getStringFields(model, Log);
 
-			//EXPL: search only specified fields if included
-			if (query.$searchFields) {
-				if (!Array.isArray(query.$searchFields)) {
-					query.$searchFields = query.$searchFields.split(",");
-				}
+            //EXPL: we can only search fields that are a string type
+            queryableFields = queryableFields.filter(function(field) {
+                return stringFields.indexOf(field) > -1;
+            });
 
-				//EXPL: we can only search fields that are a string type
-				query.$searchFields = query.$searchFields.filter(function(field) {
-					return stringFields.indexOf(field) > -1;
-				});
+            //EXPL: search only specified fields if included
+            if (query.$searchFields) {
+                if (!Array.isArray(query.$searchFields)) {
+                    query.$searchFields = query.$searchFields.split(",");
+                }
 
-				query.$searchFields.forEach(function(field) {
-					var obj = {};
-					obj[field] = new RegExp(query.$term, "i");
-					query.$or.push(obj);
-				});
-			}
-			else {
-				queryableFields.forEach(function(field) {
-					var obj = {};
-					obj[field] = new RegExp(query.$term, "i");
-					query.$or.push(obj);
-				});
-			}
-		}
+                //EXPL: we can only search fields that are a string type
+                query.$searchFields = query.$searchFields.filter(function(field) {
+                    return stringFields.indexOf(field) > -1;
+                });
 
-		delete query.$searchFields;
-		delete query.$term;
-	},
+                query.$searchFields.forEach(function(field) {
+                    var obj = {};
+                    obj[field] = new RegExp(query.$term, "i");
+                    query.$or.push(obj);
+                });
+            }
+            else {
+                queryableFields.forEach(function(field) {
+                    var obj = {};
+                    obj[field] = new RegExp(query.$term, "i");
+                    query.$or.push(obj);
+                });
+            }
+        }
 
-	/**
-	 * Converts the query "$embed" parameter into a mongoose populate object.
-	 * Relies heavily on the recursive "nestPopulate" method.
-	 * @param query: The incoming request query.
-	 * @param mongooseQuery: A mongoose query.
-	 * @param attributesFilter: A filter that lists the fields to be returned.
-	 * Must be updated to include the newly embedded fields.
-	 * @param model: A Mongoose model.
-	 * @returns {{mongooseQuery: *, attributesFilter: *}}: The updated mongooseQuery and attributesFilter.
-	 */
-	populateEmbeddedDocs: function (query, mongooseQuery, attributesFilter, model) {
-		if (query.$withRelated) {
-			if (!Array.isArray(query.$withRelated)) {
-				query.$withRelated = query.$withRelated.split(",");
-			}
-			query.$withRelated.forEach(function(embed) {
-				let embeds = embed.split(".");
-				let populate = {};
+        delete query.$searchFields;
+        delete query.$term;
+    },
 
-				populate = nestPopulate(query, populate, 0, embeds, model);
+    /**
+     * Converts the query "$embed" parameter into a mongoose populate object.
+     * Relies heavily on the recursive "nestPopulate" method.
+     * @param query: The incoming request query.
+     * @param mongooseQuery: A mongoose query.
+     * @param attributesFilter: A filter that lists the fields to be returned.
+     * Must be updated to include the newly embedded fields.
+     * @param model: A Mongoose model.
+     * @returns {{mongooseQuery: *, attributesFilter: *}}: The updated mongooseQuery and attributesFilter.
+     */
+    populateEmbeddedDocs: function (query, mongooseQuery, attributesFilter, model) {
+        if (query.$withRelated) {
+            if (!Array.isArray(query.$withRelated)) {
+                query.$withRelated = query.$withRelated.split(",");
+            }
+            query.$withRelated.forEach(function(embed) {
+                let embeds = embed.split(".");
+                let populate = {};
 
-				mongooseQuery.populate(populate);
+                populate = nestPopulate(query, populate, 0, embeds, model);
 
-				attributesFilter = attributesFilter + ' ' + embeds[0];
-			});
-			delete query.$withRelated;
-			delete query.$populateSelect;
-		}
-		return { mongooseQuery: mongooseQuery, attributesFilter: attributesFilter };
-	},
+                mongooseQuery.populate(populate);
 
-	/**
-	 * Set the sort priority for the mongoose query.
-	 * @param query: The incoming request query.
-	 * @param mongooseQuery: A mongoose query.
-	 * @returns {*}: The updated mongoose query.
-	 */
-	setSort: function (query, mongooseQuery) {
-		if (query.$sort) {
-			if (Array.isArray(query.$sort)) {
-				query.$sort = query.$sort.join(' ');
-			}
-			mongooseQuery.sort(query.$sort);
-			delete query.$sort;
-		}
-		return mongooseQuery;
-	},
+                attributesFilter = attributesFilter + ' ' + embeds[0];
+            });
+            delete query.$withRelated;
+            delete query.$populateSelect;
+        }
+        return { mongooseQuery: mongooseQuery, attributesFilter: attributesFilter };
+    },
 
-	/**
-	 * Create a list of selected fields to be returned based on the '$select' query property.
-	 * @param query: The incoming request query.
-	 * @param model: A mongoose model object.
-	 * @returns {string}
-	 */
-	createAttributesFilter: function (query, model) {
-		let attributesFilter = [];
-		let fields = model.attributes;
-		let fieldNames = [];
+    /**
+     * Set the sort priority for the mongoose query.
+     * @param query: The incoming request query.
+     * @param mongooseQuery: A mongoose query.
+     * @returns {*}: The updated mongoose query.
+     */
+    setSort: function (query, mongooseQuery) {
+        if (query.$sort) {
+            if (Array.isArray(query.$sort)) {
+                query.$sort = query.$sort.join(' ');
+            }
+            mongooseQuery.sort(query.$sort);
+            delete query.$sort;
+        }
+        return mongooseQuery;
+    },
 
-		if (query.$select) {
-			if (!Array.isArray(query.$select)) {
-				query.$select = query.$select.split(",");
-			}
-			fieldNames = query.$select;
-		} else {
-			fieldNames = Object.keys(fields)
-		}
+    /**
+     * Create a list of selected fields to be returned based on the '$select' query property.
+     * @param query: The incoming request query.
+     * @param model: A mongoose model object.
+     * @returns {string}
+     */
+    createAttributesFilter: function (query, model) {
+        let attributesFilter = [];
+        let fields = model.attributes;
+        let fieldNames = [];
 
-		let relations = SchemaUtility.relationsFromSchema(model, 1, 2);
+        if (query.$select) {
+            if (!Array.isArray(query.$select)) {
+                query.$select = query.$select.split(",");
+            }
+            fieldNames = query.$select;
+        } else {
+            fieldNames = Object.keys(fields)
+        }
 
-		fieldNames.forEach((attr) => {
-			let attribute = fields[attr];
-			let skip = attribute.exclude || false;
-			if (!skip) {
-				attributesFilter.push(attr);
-			}
-		});
+        let relations = SchemaUtility.relationsFromSchema(model, 1, 2);
 
-		// for (let i = 0; i < fieldNames.length; i++) {
-		// 	let fieldName = fieldNames[i];
-		// 	if (fields[fieldName] && fieldName !== "__v") {
-		// 		let field = fields[fieldName];
-		// 		let association = _.includes(relations, fieldName);
-		//
-		// 		//EXPL: by default we don't include MANY_MANY array references
-		// 		if (!field.exclude && (!association || query.$select)) {
-		// 			attributesFilter.push(fieldName);
-		// 		}
-		// 	}
-		// }
+        fieldNames.forEach((attr) => {
+            let attribute = fields[attr];
+            let skip = attribute.exclude || false;
+            if (!skip) {
+                attributesFilter.push(attr);
+            }
+        });
 
-		delete query.$select;
-		return attributesFilter.toString().replace(/,/g,' ');
-	},
+        // for (let i = 0; i < fieldNames.length; i++) {
+        // 	let fieldName = fieldNames[i];
+        // 	if (fields[fieldName] && fieldName !== "__v") {
+        // 		let field = fields[fieldName];
+        // 		let association = _.includes(relations, fieldName);
+        //
+        // 		//EXPL: by default we don't include MANY_MANY array references
+        // 		if (!field.exclude && (!association || query.$select)) {
+        // 			attributesFilter.push(fieldName);
+        // 		}
+        // 	}
+        // }
 
-	/**
-	 * Create a list of selected fields to be returned based on the '$select' query property.
-	 * @param query: The incoming request query.
-	 * @param model: A mongoose model object.
-	 * @returns {string}
-	 */
-	createAttributesList: function (model) {
-		let attributesFilter = [];
-		let fields = model.attributes;
+        delete query.$select;
+        return attributesFilter.toString().replace(/,/g,' ');
+    },
 
-		let fieldNames = Object.keys(fields);
+    /**
+     * Create a list of selected fields to be returned based on the '$select' query property.
+     * @param query: The incoming request query.
+     * @param model: A mongoose model object.
+     * @returns {string}
+     */
+    createAttributesList: function (model) {
+        let attributesFilter = [];
+        let fields = model.attributes;
 
-		let relations = SchemaUtility.relationsFromSchema(model, 1, 2);
+        let fieldNames = Object.keys(fields);
 
-		fieldNames.forEach((attr) => {
-			let attribute = fields[attr];
-			let skip = attribute.exclude || false;
-			if (!skip) {
-				attributesFilter.push(attr);
-			}
-		});
+        let relations = SchemaUtility.relationsFromSchema(model, 1, 2);
 
-		return _.join(attributesFilter, ', ');
-	}
+        fieldNames.forEach((attr) => {
+            let attribute = fields[attr];
+            let skip = attribute.exclude || false;
+            if (!skip) {
+                attributesFilter.push(attr);
+            }
+        });
+
+        return _.join(attributesFilter, ', ');
+    }
 };
 
 /**
@@ -502,66 +501,66 @@ module.exports = {
  * @returns {*}: The updated populate object.
  */
 function nestPopulate(query, populate, index, embeds, model) {
-	let embed = embeds[index];
-	let associations = SchemaUtility.relationFromSchema(model, 2);
-	let association = {};
+    let embed = embeds[index];
+    let associations = SchemaUtility.relationFromSchema(model, 2);
+    let association = {};
 
-	associations.forEach(function(rel){
-		if (rel.name === embed) {
-			association = rel;
-		}
-	});
+    associations.forEach(function(rel){
+        if (rel.name === embed) {
+            association = rel;
+        }
+    });
 
 
-	if (!association) {
-		association = getReference(model, embed);
-		if (!association) {
-			throw "Association not found.";
-		}
-	}
+    if (!association) {
+        association = getReference(model, embed);
+        if (!association) {
+            throw "Association not found.";
+        }
+    }
 
-	let populatePath = "";
-	let select = "";
-	if (query.$populateSelect) {
-		select = query.$populateSelect.replace(/,/g,' ') + " _id";
-	}
-	else {
-		select = module.exports.createAttributesFilter({}, DB.models[association.model]);
-	}
+    let populatePath = "";
+    let select = "";
+    if (query.$populateSelect) {
+        select = query.$populateSelect.replace(/,/g,' ') + " _id";
+    }
+    else {
+        select = module.exports.createAttributesFilter({}, DB.models[association.model]);
+    }
 
-	if (association.type === "MANY_MANY") {
-		populatePath = embed + '.' + association.model;
-	}
-	else {
-		populatePath = embed;
-	}
+    if (association.type === "MANY_MANY") {
+        populatePath = embed + '.' + association.model;
+    }
+    else {
+        populatePath = embed;
+    }
 
-	if (index < embeds.length - 1) {
+    if (index < embeds.length - 1) {
 
-		// associations = association.include.model.routeOptions.associations;
-		populate = nestPopulate(query, populate, index + 1, embeds, DB.models[association.model]);
-		populate.populate = Extend({}, populate);//EXPL: prevent circular reference
-		populate.path = populatePath;
+        // associations = association.include.model.routeOptions.associations;
+        populate = nestPopulate(query, populate, index + 1, embeds, DB.models[association.model]);
+        populate.populate = Extend({}, populate);//EXPL: prevent circular reference
+        populate.path = populatePath;
 
-		if (associations[embeds[index + 1]] && associations[embeds[index + 1]].type === "MANY_MANY") {
-			populate.select = select + " " + populate.populate.path + ' ' + embeds[index + 1];//EXPL: have to add the path and the next embed to the select to include nested MANY_MANY embeds
-		}
-		else {
-			populate.select = select + " " + populate.populate.path;//EXPL: have to add the path to the select to include nested ONE_MANY embeds
-		}
+        if (associations[embeds[index + 1]] && associations[embeds[index + 1]].type === "MANY_MANY") {
+            populate.select = select + " " + populate.populate.path + ' ' + embeds[index + 1];//EXPL: have to add the path and the next embed to the select to include nested MANY_MANY embeds
+        }
+        else {
+            populate.select = select + " " + populate.populate.path;//EXPL: have to add the path to the select to include nested ONE_MANY embeds
+        }
 
-		populate.model = association.model;
+        populate.model = association.model;
 
-		return populate;
-	}
-	else {
+        return populate;
+    }
+    else {
 
-		populate.path = populatePath;
-		populate.select = select;
-		populate.model = association.model;
+        populate.path = populatePath;
+        populate.select = select;
+        populate.model = association.model;
 
-		return populate;
-	}
+        return populate;
+    }
 }
 
 /**
@@ -572,27 +571,27 @@ function nestPopulate(query, populate, index, embeds, model) {
  * @returns {*} The association object or null if no reference is found
  */
 function getReference(model, embed, Log) {
-	let property = model.schema.obj[embed];
-	while (_.isArray(property)) {
-		property = property[0];
-	}
-	if (property && property.ref) {
-		return { model: property.ref, include: { model: globals.mongoose.model(property.ref), as: embed }  }
-	}
-	else {
-		return null;
-	}
+    let property = model.schema.obj[embed];
+    while (_.isArray(property)) {
+        property = property[0];
+    }
+    if (property && property.ref) {
+        return { model: property.ref, include: { model: globals.mongoose.model(property.ref), as: embed }  }
+    }
+    else {
+        return null;
+    }
 }
 
 function tryParseJSON(jsonString) {
-	try {
-		var o = JSON.parse(jsonString);
+    try {
+        var o = JSON.parse(jsonString);
 
-		if (o && typeof o === "object") {
-			return o;
-		}
-	}
-	catch (e) { }
+        if (o && typeof o === "object") {
+            return o;
+        }
+    }
+    catch (e) { }
 
-	return false;
+    return false;
 }
