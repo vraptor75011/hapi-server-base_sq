@@ -407,64 +407,17 @@ function _update(model, id, payload) {
 		let sequelizeQuery = {where: {id: id}};
 
 		return model.update(payload, sequelizeQuery)
-			.then(function (oldDoc) {
-
-				if (config.enableUpdatedAt) {
-					payload.updatedAt = new Date();
-				}
-
-				//TODO: support eventLogs and log all property updates in one document rather than one document per property update
-				return model.findByIdAndUpdate(_id, payload)
-					.then(function (result) {
-						if (result) {
-							//TODO: log all updated/added associations
-							var attributes = QueryHelper.createAttributesFilter({}, model, Log);
-
-							return model.findOne({'_id': result._id}, attributes).lean()
-								.then(function (result) {
-									// result = result.toJSON();
-
-									if (model.routeOptions && model.routeOptions.update && model.routeOptions.update.post) {
-										promise = model.routeOptions.update.post(payload, result, Log);
-									}
-									else {
-										promise = Q.when(result);
-									}
-
-									return promise
-										.then(function (result) {
-											result._id = result._id.toString();//TODO: handle this with preware
-											return result;
-										})
-										.catch(function (error) {
-											const message = "There was a postprocessing error updating the resource.";
-											errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log);
-										});
-								})
-						}
-						else {
-							const message = "No resource was found with that id.";
-							errorHelper.handleError(message, message, errorHelper.types.NOT_FOUND, Log);
-						}
-					})
-					.catch(function (error) {
-						const message = "There was an error updating the resource.";
-						errorHelper.handleError(error, message, errorHelper.types.SERVER_TIMEOUT, Log);
-					});
+			.then(function (result) {
+				return result;
 			})
 			.catch(function (error) {
-				const message = "There was a preprocessing error updating the resource.";
-				errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log);
+				const message = "There was a postprocessing error updating the resource.";
+				ErrorHelper.handleError(error, message, ErrorHelper.types.BAD_REQUEST);
 			});
 	}
 	catch(error) {
 		const message = "There was an error processing the request.";
-		try {
-			errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log)
-		}
-		catch(error) {
-			return Q.reject(error);
-		}
+			ErrorHelper.handleError(error, message, ErrorHelper.types.BAD_REQUEST, Log)
 	}
 }
 

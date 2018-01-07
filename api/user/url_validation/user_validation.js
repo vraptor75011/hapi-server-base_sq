@@ -58,6 +58,16 @@ const UserValidation = {
 			RealmsRolesUsersValidation.postRelationPayload),
 	}),
 
+	//PUT
+	putPayload:  Joi.object().keys({
+		username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
+		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
+		email: Joi.string().email().required(),
+		isActive: Joi.boolean().valid(true, false).default(false),
+		firstName: Joi.string().min(1).max(64).required(),
+		lastName: Joi.string().min(1).max(64).required(),
+	}),
+
 };
 
 module.exports = UserValidation;

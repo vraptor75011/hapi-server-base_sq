@@ -40,7 +40,7 @@ module.exports.register = (server, options, next) => {
 				auth:
 				// false,
 					{
-						scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'WebApp-User-1'],
+						scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'WebApp-User-{userId}'],
 					},
 				tags: ['api', 'Users'],
 				description: 'GET One User',
@@ -64,10 +64,29 @@ module.exports.register = (server, options, next) => {
 						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 					},
 				tags: ['api', 'Users'],
-				description: 'POST a new User',
+				description: 'POST a New User',
 				notes: ['Save a new User with params in payload <br>'],
 				validate: {
 					payload: UserValidation.postPayload,
+					headers: HeaderValidation.headerRequired,
+				},
+			},
+		},
+		{
+			method: 'PUT',
+			path: '/v1/users/{userId}',
+			config: {
+				handler: UserHandler.update,
+				auth:
+					{
+						scope: ['WebApp-SuperAdmin', 'WebApp-Admin', 'WebApp-User-{userId}'],
+					},
+				tags: ['api', 'Users'],
+				description: 'PUT un Updated User',
+				notes: ['Save an updated User with params in payload <br>'],
+				validate: {
+					params: UserValidation.paramOne,
+					payload: UserValidation.putPayload,
 					headers: HeaderValidation.headerRequired,
 				},
 			},

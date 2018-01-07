@@ -47,6 +47,20 @@ const Handler =
 					let errorMsg = error.message || 'An error occurred';
 					return reply(Boom.gatewayTimeout(errorMsg));
 				});
+		},
+
+		update: function (request, reply) {
+			// Admin adn User can update an User, but User can't change his roles and realms
+
+			// call CREATE Handler for CRUD function valid for all present models
+			HandlerHelper.update(User, request.params.userId, request.payload)
+				.then(function(result){
+					return reply(result);
+				})
+				.catch(function (error) {
+					let errorMsg = error.message || 'An error occurred';
+					return reply(Boom.gatewayTimeout(errorMsg));
+				});
 		}
 	};
 
