@@ -357,7 +357,7 @@ function _find(model, id, query) {
 /**
  * Creates a model document in DB
  * @param model: A sequelize model.
- * @param payload: Data used to create the document pre validated.
+ * @param payload: Data (single or array) used to create the document pre validated.
  * @returns {object} A promise for the resulting model document.
  * @private
  */
