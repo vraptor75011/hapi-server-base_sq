@@ -8,6 +8,8 @@ const Config = require('../../../../../config/config');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
+const Log = require('../../../../../utilities/logging/logging');
+const Chalk = require('chalk');
 
 const Op = Sequelize.Op;
 
@@ -41,10 +43,11 @@ const LoginPre = [
 		assign: 'user',
 		method: function (request, reply) {
 
-			const db = DB;
 			const email = request.payload.email;
 			const username = request.payload.username;
 			const password = request.payload.password;
+			let userLogging = email || username;
+			Log.session.info(Chalk.grey('User: ' + userLogging + ' try to logging in'));
 
 			const usernameReq = async (param) => {
 				let user = {};
@@ -150,6 +153,7 @@ const LoginPre = [
 			else {
 				Session.createInstance(request.pre.user)
 					.then(function (session) {
+						Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
 						return reply(session);
 					})
 					.catch(function (error) {

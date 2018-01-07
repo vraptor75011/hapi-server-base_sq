@@ -1,4 +1,6 @@
 const Boom = require('boom');
+const Log = require('../../../../../utilities/logging/logging');
+const Chalk = require('chalk');
 const DB = require('../../../../../config/sequelize');
 
 const Config = require('../../../../../config/config');
@@ -55,6 +57,7 @@ const Login =
 				.then(function (result) {
 					user = result;
 					delete user.dataValues.password;
+					Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' has logged in'));
 					const mapperOptions = {
 						meta: {
 							authHeader,
