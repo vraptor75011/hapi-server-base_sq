@@ -354,81 +354,44 @@ function _find(model, id, query) {
 
 }
 
-//TODO: make sure errors are catching in correct order
 /**
- * Creates a model document
- * @param model: A mongoose model.
- * @param payload: Data used to create the model document.
- * @param Log: A logging object.
+ * Creates a model document in DB
+ * @param model: A sequelize model.
+ * @param payload: Data used to create the document pre validated.
  * @returns {object} A promise for the resulting model document.
  * @private
  */
 function _create(model, payload) {
 	try {
-		let isArray = true;
-
+		let query = {$withRelated: []};
+		let payloadOption = {};
 		if (!_.isArray(payload)) {
 			payload = [payload];
-			isArray = false;
 		}
 
-		let promises = Q.when(payload);
+		payload.forEach((instance) => {
+			Object.keys(model.associations).map((rel) => {
+				if (_.has(instance, rel)) {
+					query.$withRelated.push(rel);
+				}
+			});
+			payloadOption = QueryHelper.createSequelizeFilter(model, query, {});
+		});
 
-		return Q.all(promises)
-			.then(function (payload) {
+		Log.sequelizeLogger.info(Chalk.green(payload));
 
-				return model.create(payload)
-					.then(function (data) {
-						data = data.map(function(item) {
-							return item._id;
-						});
-
-						let attributes = QueryHelper.createAttributesFilter({}, model);
-
-						return model.find().where({'_id': { $in: data } }).select(attributes).exec()
-							.then(function(result) {
-								Log.mongooseLogger.info(Chalk.cyan(model.modelName + ' save: ' + result));
-								result = result.map(function(item) {
-									return item.toJSON();
-								});
-
-								let promises = Q.when(result);
-
-								return Q.all(promises)
-									.then(function (result) {
-										result = result.map(function(item) {
-											return item;
-										});
-										if (isArray) {
-											return result;
-										} else {
-											return result[0];
-										}
-									})
-									.catch(function (error) {
-										const message = "There was a postprocessing error creating the resource.";
-										ErrorHelper.handleError(error, message, ErrorHelper.types.BAD_REQUEST);
-									});
-							})
-					})
-					.catch(function (error) {
-						const message = "There was an error creating the resource.";
-						ErrorHelper.handleError(error, message, ErrorHelper.types.SERVER_TIMEOUT);
-					});
+		return model.create(payload, payloadOption)
+			.then(function (data) {
+				return data;
 			})
 			.catch(function (error) {
-				const message = "There was a preprocessing error creating the resource.";
-				ErrorHelper.handleError(error, message, ErrorHelper.types.BAD_REQUEST);
+				const message = "There was an error creating the resource.";
+				ErrorHelper.handleError(error, message, ErrorHelper.types.SERVER_TIMEOUT);
 			});
 	}
 	catch(error) {
 		const message = "There was an error processing the request.";
-		try {
-			ErrorHelper.handleError(error, message, ErrorHelper.types.BAD_REQUEST)
-		}
-		catch(error) {
-			return Q.reject(error);
-		}
+		ErrorHelper.handleError(error, message, ErrorHelper.types.BAD_REQUEST)
 	}
 }
 

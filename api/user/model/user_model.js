@@ -1,5 +1,5 @@
 const Joi = require('joi');
-
+const Bcrypt = require('bcrypt');
 
 
 const ModelValidation = require('../../../utilities/validation/model_validations');
@@ -216,21 +216,12 @@ module.exports = function(sequelize, DataTypes) {
 		User.hasMany(models.Session);
 	};
 
-
-
-	User.schemaPayload = () => {
-		return Joi.object().keys({
-			id: Joi.number().min(1),
-			username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
-			password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
-			email: Joi.string().email().required(),
-			isActive: Joi.boolean().valid(true, false).required(),
-			firstName: Joi.string().min(1).max(64),
-			lastName: Joi.string().min(1).max(64),
-			createdAt: Joi.date(),
-			updatedAt: Joi.date(),
-			deletedAt: Joi.date(),
-		})};
+	// Model Utilities
+	User.hashPassword = (password) => {
+		const SaltRounds = 10;
+		let salt = Bcrypt.genSaltSync(SaltRounds);
+		return Bcrypt.hashSync(password, salt);
+	};
 
 	return User;
 };

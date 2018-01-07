@@ -1,7 +1,8 @@
 const Joi = require('joi');
-const ModelValidation = require('../../../utilities/validation/model_validations');
-const DB = require('../../../config/sequelize');
 const _ = require('lodash');
+const DB = require('../../../config/sequelize');
+const ModelValidation = require('../../../utilities/validation/model_validations');
+const RealmsRolesUsersValidation = require('../../realms_roles_users/url_validation/realms_roles_users_validation');
 
 const usrString = "^([a-zA-Z0-9]+[\_\.\-]?)*[a-zA-Z0-9]$";                   // alt(a-zA-Z0-9||_.-) always ends with a-zA-Z0-9 no max length
 const pwdString = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
@@ -26,6 +27,7 @@ let SLRelations = ModelValidation(User).SLRelations;
 let ALLRelations = ModelValidation(User).ALLRelations;
 let Attributes = ModelValidation(User).Attributes;
 
+
 const UserValidation = {
 	FLRelations: FLRelations,
 	SLRelations: SLRelations,
@@ -43,16 +45,17 @@ const UserValidation = {
 
 	//POST
 	postPayload:  Joi.object().keys({
-		id: Joi.number().min(1),
 		username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
 		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
 		email: Joi.string().email().required(),
-		isActive: Joi.boolean().valid(true, false).required(),
-		firstName: Joi.string().min(1).max(64),
-		lastName: Joi.string().min(1).max(64),
-		createdAt: Joi.date(),
-		updatedAt: Joi.date(),
-		deletedAt: Joi.date(),
+		isActive: Joi.boolean().valid(true, false).default(false),
+		firstName: Joi.string().min(1).max(64).required(),
+		lastName: Joi.string().min(1).max(64).required(),
+		realmsRolesUsers: Joi.alternatives().try(
+			Joi.array()
+				.items(
+					RealmsRolesUsersValidation.postRelationPayload),
+			RealmsRolesUsersValidation.postRelationPayload),
 	}),
 
 };

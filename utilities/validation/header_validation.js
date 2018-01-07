@@ -5,11 +5,16 @@ const auth = {
 	authorization: Joi.string().required(),
 };
 
-
+const authOptional = {
+	authorization: Joi.string(),
+};
 
 const HeaderValidations = {
-	header: Joi.object().keys(Object.assign({}, auth)).options({ allowUnknown: true }),
+	headerRequired: Joi.object().keys(Object.assign({}, auth)).options({ allowUnknown: true }),
+	headerOptional: Joi.object().keys(Object.assign({}, authOptional)).options({ allowUnknown: true }),
 };
+
+
 
 
 module.exports = HeaderValidations;
