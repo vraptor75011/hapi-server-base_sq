@@ -153,8 +153,7 @@ function _list(model, query) {
 
 		let totalCount = 0;
 		let filteredCount = 0;
-		let queryInclude = {};
-		// delete query.$count;
+
 		return model.count(sequelizeQuery)
 			.then(function (result) {
 				totalCount = result;
