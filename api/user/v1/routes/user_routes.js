@@ -82,11 +82,30 @@ module.exports.register = (server, options, next) => {
 						scope: ['WebApp-SuperAdmin', 'WebApp-Admin', 'WebApp-User-{userId}'],
 					},
 				tags: ['api', 'Users'],
-				description: 'PUT un Updated User',
+				description: 'PUT an Updated User',
 				notes: ['Save an updated User with params in payload <br>'],
 				validate: {
 					params: UserValidation.paramOne,
 					payload: UserValidation.putPayload,
+					headers: HeaderValidation.headerRequired,
+				},
+			},
+		},
+		{
+			method: 'DELETE',
+			path: '/v1/users/{userId}',
+			config: {
+				handler: UserHandler.update,
+				auth:
+					{
+						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
+					},
+				tags: ['api', 'Users'],
+				description: 'DELETE an User',
+				notes: ['Delete un User <br>'],
+				validate: {
+					params: UserValidation.paramOne,
+					// payload: UserValidation.putPayload,
 					headers: HeaderValidation.headerRequired,
 				},
 			},

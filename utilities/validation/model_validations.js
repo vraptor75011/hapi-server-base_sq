@@ -243,11 +243,11 @@ module.exports = function(model) {
 	};
 
 	const softDeleted = {
-		$softDeleted: Joi.boolean().description('includes soft deleted record').default(false),
+		$withDeleted: Joi.boolean().description('includes soft deleted record').default(false),
 	};
 
 	const exludedFields = {
-		$excludedFields: Joi.boolean().description('includes soft deleted record').default(false),
+		$withExcludedFields: Joi.boolean().description('includes soft deleted record').default(false),
 	};
 
 	const count = {

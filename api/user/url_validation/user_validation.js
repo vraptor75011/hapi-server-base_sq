@@ -2,6 +2,8 @@ const Joi = require('joi');
 const _ = require('lodash');
 const DB = require('../../../config/sequelize');
 const ModelValidation = require('../../../utilities/validation/model_validations');
+
+// Model validation to integrate new User POST...with Related Object
 const RealmsRolesUsersValidation = require('../../realms_roles_users/url_validation/realms_roles_users_validation');
 
 const usrString = "^([a-zA-Z0-9]+[\_\.\-]?)*[a-zA-Z0-9]$";                   // alt(a-zA-Z0-9||_.-) always ends with a-zA-Z0-9 no max length
