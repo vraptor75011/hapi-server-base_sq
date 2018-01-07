@@ -242,8 +242,11 @@ module.exports = function(model) {
 				.example('{model}id'),
 	};
 
-	const extra = {
+	const count = {
 		$count: Joi.boolean().description('only number of records found'),
+	};
+
+	const fields = {
 		$fields: Joi.alternatives().try(
 			Joi.array().description('selected attributes: [{model}id, [id, username, {model}email]')
 				.items(
@@ -254,6 +257,9 @@ module.exports = function(model) {
 				.regex(ValidationHelper.fieldRegExp(model))
 				.example('{model}id')
 		),
+	};
+
+	const related = {
 		$withRelated: Joi.alternatives().try(
 			Joi.array().description('includes relationships: Roles, [Roles.models, Realms]')
 				.items(
@@ -264,6 +270,18 @@ module.exports = function(model) {
 				.regex(ValidationHelper.withRelatedRegExp(model))
 				.example('Realms'),
 		),
+		$withFields: Joi.alternatives().try(
+			Joi.array().description('selects relationships fields: {Roles}name, [{Realms}name,description]')
+				.items(Joi.string().max(255)
+					.regex(ValidationHelper.withRelatedFieldRegExp(model)))
+				.example(['{Realms}name','{Roles}id']),
+			Joi.string().max(255)
+				.regex(ValidationHelper.withRelatedFieldRegExp(model))
+				.example('{Realms.Roles}name,description'),
+		),
+	};
+
+	const extra = {
 		$withFilter: Joi.alternatives().try(
 			Joi.array().description('filter by relationships fields: {Roles}[{or|not}]{name}[{=}], [{Realms}{not}{name}{like}]')
 				.items(Joi.string().max(255)
@@ -283,15 +301,6 @@ module.exports = function(model) {
 				.regex(ValidationHelper.withCountRegExp(model))
 				.example('Realms')
 		),
-		$withFields: Joi.alternatives().try(
-			Joi.array().description('selects relationships fields: {Roles}name, [{Realms}name,description]')
-				.items(Joi.string().max(255)
-					.regex(ValidationHelper.withRelatedFieldRegExp(model)))
-				.example(['{Realms}name','{Roles}id']),
-			Joi.string().max(255)
-				.regex(ValidationHelper.withRelatedFieldRegExp(model))
-				.example('{Realms.Roles}name,description'),
-		),
 		$withSort: Joi.alternatives().try(
 			Joi.array().description('sort related field: {Realms}[+,-]id vs [-id, -name]')
 				.items(Joi.string().max(255)
@@ -308,8 +317,11 @@ module.exports = function(model) {
 		pagination: pagination,
 		sort: sort,
 		math: math,
+		count: count,
+		fields: fields,
+		related: related,
 		extra: extra,
-		query: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, extra)),
+
 		FLRelations: FLRelations,
 		SLRelations: SLRelations,
 		ALLRelations: ALLRelations,

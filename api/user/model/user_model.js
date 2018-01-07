@@ -1,9 +1,6 @@
 const Joi = require('joi');
 
-const usrString = "^([a-zA-Z0-9]+[\_\.\-]?)*[a-zA-Z0-9]$";                   // alt(a-zA-Z0-9||_.-) always ends with a-zA-Z0-9 no max length
-const pwdString = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
-const usrRegExp = new RegExp(usrString);
-const pwdRegExp = new RegExp(pwdString);
+
 
 const ModelValidation = require('../../../utilities/validation/model_validations');
 
@@ -219,11 +216,7 @@ module.exports = function(sequelize, DataTypes) {
 		User.hasMany(models.Session);
 	};
 
-	User.schemaQuery = () => {
-		const modelValidations = ModelValidation(User);
 
-		return modelValidations;
-	};
 
 	User.schemaPayload = () => {
 		return Joi.object().keys({

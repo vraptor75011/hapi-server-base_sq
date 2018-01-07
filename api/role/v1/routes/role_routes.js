@@ -2,8 +2,6 @@ const HeaderValidation = require('../../../../utilities/validation/header_valida
 const RoleHandlers = require('../handler/role_handlers');
 const DB = require('../../../../config/sequelize');
 
-let Role = DB.User;
-let schemaQuery = Role.schemaQuery();
 
 module.exports.register = (server, options, next) => {
 
@@ -20,7 +18,7 @@ module.exports.register = (server, options, next) => {
 				description: 'Roles List',
 				notes: ['Returns Roles list filtered by query (url), paginated and sorted. Default pageSize: 10'],
 				validate: {
-					query: schemaQuery.query,
+					// query: schemaQuery.query,
 					headers: HeaderValidation.header,
 				}
 			},
