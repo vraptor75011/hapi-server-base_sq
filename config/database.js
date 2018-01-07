@@ -5,7 +5,7 @@ Dotenv.config({ silent: true });
 module.exports = {
 
 	"development": {
-		"hostname": process.env.DATABASE_HOSTNAME,
+		"host": process.env.DATABASE_HOSTNAME,
 		"port": process.env.DATABASE_PORT,
 		"username": process.env.DATABASE_USER,
 		"password": process.env.DATABASE_ACCESS_KEY,
@@ -32,7 +32,7 @@ module.exports = {
 	},
 
 	"test": {
-		"hostname": process.env.DB_HOSTNAME,
+		"host": process.env.DB_HOSTNAME,
 		"port": process.env.DB_PORT,
 		"username": process.env.DATABASE_USER,
 		"password": process.env.DATABASE_ACCESS_KEY,
@@ -45,7 +45,7 @@ module.exports = {
 	},
 
 	"production": {
-		"hostname": process.env.DB_HOSTNAME,
+		"host": process.env.DB_HOSTNAME,
 		"port": process.env.DB_PORT,
 		"username": process.env.DATABASE_USER,
 		"password": process.env.DATABASE_ACCESS_KEY,

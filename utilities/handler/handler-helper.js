@@ -396,25 +396,18 @@ function _create(model, payload) {
 
 /**
  * Updates a model document
- * @param model: A mongoose model.
- * @param _id: The document id.
+ * @param model: A sequelize model.
+ * @param id: The document id.
  * @param payload: Data used to update the model document.
- * @param Log: A logging object.
- * @returns {object} A promise for the resulting model document.
+ * @returns {object} A promise for the resulting model document updated.
  * @private
  */
-function _update(model, _id, payload, Log) {
+function _update(model, id, payload) {
 	try {
-		var promise =  {};
-		if (model.routeOptions && model.routeOptions.update && model.routeOptions.update.pre){
-			promise = model.routeOptions.update.pre(_id, payload, Log);
-		}
-		else {
-			promise = Q.when(payload);
-		}
+		let sequelizeQuery = {where: {id: id}};
 
-		return promise
-			.then(function (payload) {
+		return model.update(payload, sequelizeQuery)
+			.then(function (oldDoc) {
 
 				if (config.enableUpdatedAt) {
 					payload.updatedAt = new Date();
