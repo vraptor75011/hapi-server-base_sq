@@ -95,7 +95,7 @@ module.exports.register = (server, options, next) => {
 			method: 'DELETE',
 			path: '/v1/users/{userId}',
 			config: {
-				handler: UserHandler.update,
+				handler: UserHandler.delete,
 				auth:
 					{
 						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
