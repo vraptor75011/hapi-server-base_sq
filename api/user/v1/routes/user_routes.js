@@ -21,8 +21,8 @@ module.exports.register = (server, options, next) => {
 				tags: ['api', 'Users'],
 				description: 'Users List',
 				notes: ['Returns Users list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
-								'User First Level Relations: ' + UserValidations.FLRelations + '<br>' +
-								'User Second Level Relations: ' + UserValidations.SLRelations + '<br>' +
+								'User First Level Relations: ' + schemaQuery.FLRelations + '<br>' +
+								'User Second Level Relations: ' + schemaQuery.SLRelations + '<br>' +
 								'Attributes: ' + schemaQuery.Attributes + '<br>'],
 				validate: {
 					query: schemaQuery.query,
