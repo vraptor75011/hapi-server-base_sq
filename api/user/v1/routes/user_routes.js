@@ -1,5 +1,5 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
-const UserHandlers = require('../handler/user_handlers');
+const UserFindAll = require('../handler/user_handlers/user_find_all');
 const DB = require('../../../../config/sequelize');
 
 let User = DB.User;
@@ -12,7 +12,7 @@ module.exports.register = (server, options, next) => {
 			method: 'GET',
 			path: '/v1/users',
 			config: {
-				handler: UserHandlers.userFindAll,
+				handler: UserFindAll.userFindAll,
 				auth:
 					// false,
 					{

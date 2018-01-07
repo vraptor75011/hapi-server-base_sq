@@ -1,4 +1,4 @@
-const AuthHandlers = require('../handler/auth_handlers');
+const AuthLogin = require('../handler/auth_handlers/login');
 const AuthValidations = require('../../model/auth_validations');
 
 const LoginPre = require('../handler/auth_pre/login_pre');
@@ -11,7 +11,7 @@ module.exports.register = (server, options, next) => {
 			method: 'POST',
 			path: '/v1/login',
 			config: {
-				handler: AuthHandlers.login,
+				handler: AuthLogin.login,
 				auth: false,
 				tags: ['Login', 'api', 'v1'],
 				description: 'User login.',
