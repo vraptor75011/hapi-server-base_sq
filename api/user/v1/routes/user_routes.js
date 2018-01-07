@@ -12,7 +12,7 @@ module.exports.register = (server, options, next) => {
 			method: 'GET',
 			path: '/v1/users',
 			config: {
-				handler: UserFindAll.userFindAll,
+				handler: UserFindAll.findAll,
 				auth:
 					// false,
 					{

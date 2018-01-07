@@ -95,18 +95,19 @@ const PreHandlerBase = {
 				response['include'] = response.include || [];
 				response['group'] = response.group || [];
 				response['attributes'] = response.attributes || [];
+				response['includeIgnoreAttributes'] = false;
+				response.group.push(schema.name + '.id');
 				let includeLevel = response.include;
 				let fieldsLevel = response.attributes;
-				response.group.push(schema.name + '.id');
-				response['includeIgnoreAttributes'] = false;
-				if (!_.some(includeLevel, {association: el})) {
-					let association = schema.associations[el];
-					let column = association.foreignIdentifierField;
+				let targetAssociation = schema.associations[el];
+				let targetModel = targetAssociation.target;
+				if (!_.some(includeLevel, {model: targetModel})) {
+					let column = targetAssociation.foreignIdentifierField;
 					let tmp = {};
-					tmp.association = el;
+					tmp.model = targetModel;
 					tmp.attributes = [];
 					tmp.duplicating = false;
-					fieldsLevel.push([Sequelize.fn('COUNT', Sequelize.col(column)), association.as + 'Count']);
+					fieldsLevel.push([Sequelize.fn('COUNT', Sequelize.col(column)), targetAssociation.as + 'Count']);
 					includeLevel.push(tmp);
 				}
 
@@ -119,36 +120,34 @@ const PreHandlerBase = {
 				let schemaClone = _.clone(schema);
 				let relTree = _.split(el,'.');
 				relTree.forEach(function(levelRel, level){
-					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 2);
-					firstLevelRelations.forEach(function(rel){
-						if (levelRel === rel.name) {
-							if (!_.some(includeLevel, {association: rel.name})) {
-								if (level === 0) {
-									let tmp = {};
-									tmp.association = rel.name;
-									includeLevel.push(tmp);
-									includeLevel = tmp;
-								} else if (level > 0) {
-									if (!_.has(includeLevel, 'include')) {
-										includeLevel['include'] = [];
-									}
-									if (!_.some(includeLevel['include'], {association: rel.name})) {
-										let tmp = {};
-										tmp.association = rel.name;
-										includeLevel['include'].push(tmp);
-										includeLevel = tmp;
-									}
-								}
-							} else {
-								includeLevel.forEach(function(elInclude){
-									if (_.includes(elInclude.association, rel.name)) {
-										includeLevel = elInclude;
-									}
-								});
+					let targetAssociation = schemaClone.associations[levelRel];
+					let targetModel = targetAssociation.target;
+
+					if (!_.some(includeLevel, {model: targetModel})) {
+						if (level === 0) {
+							let tmp = {};
+							tmp.model = targetModel;
+							includeLevel.push(tmp);
+							includeLevel = tmp;
+						} else if (level > 0) {
+							if (!_.has(includeLevel, 'include')) {
+								includeLevel['include'] = [];
 							}
-							schemaClone = models[rel.model];
+							if (!_.some(includeLevel['include'], {model: targetModel})) {
+								let tmp = {};
+								tmp.model = targetModel;
+								includeLevel['include'].push(tmp);
+								includeLevel = tmp;
+							}
 						}
-					});
+					} else {
+						includeLevel.forEach(function(elInclude){
+							if (_.includes(elInclude.model, targetModel)) {
+								includeLevel = elInclude;
+							}
+						});
+					}
+					schemaClone = targetModel;
 				});
 
 				responseChanged = true;
@@ -173,36 +172,34 @@ const PreHandlerBase = {
 				let schemaClone = _.clone(schema);
 				let relTree = _.split(relation,'.');
 				relTree.forEach(function(levelRel, level){
-					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 2);
-					firstLevelRelations.forEach(function(rel){
-						if (levelRel === rel.name) {
-							if (!_.some(includeLevel, {association: rel.name})) {
-								if (level === 0) {
-									let tmp = {};
-									tmp.association = rel.name;
-									includeLevel.push(tmp);
-									includeLevel = tmp;
-								} else if (level > 0) {
-									if (!_.has(includeLevel, 'include')) {
-										includeLevel['include'] = [];
-									}
-									if (!_.some(includeLevel['include'], {association: rel.name})) {
-										let tmp = {};
-										tmp.association = rel.name;
-										includeLevel['include'].push(tmp);
-										includeLevel = tmp;
-									}
-								}
-							} else {
-								includeLevel.forEach(function(elInclude){
-									if (_.includes(elInclude.association, rel.name)) {
-										includeLevel = elInclude;
-									}
-								});
+					let targetAssociation = schemaClone.associations[levelRel];
+					let targetModel = targetAssociation.target;
+
+					if (!_.some(includeLevel, {model: targetModel})) {
+						if (level === 0) {
+							let tmp = {};
+							tmp.model = targetModel;
+							includeLevel.push(tmp);
+							includeLevel = tmp;
+						} else if (level > 0) {
+							if (!_.has(includeLevel, 'include')) {
+								includeLevel['include'] = [];
 							}
-							schemaClone = models[rel.model];
+							if (!_.some(includeLevel['include'], {model: targetModel})) {
+								let tmp = {};
+								tmp.model = targetModel;
+								includeLevel['include'].push(tmp);
+								includeLevel = tmp;
+							}
 						}
-					});
+					} else {
+						includeLevel.forEach(function(elInclude){
+							if (_.includes(elInclude.model, targetModel)) {
+								includeLevel = elInclude;
+							}
+						});
+					}
+					schemaClone = targetModel;
 				});
 
 				let columns = _.split(realValue, ',');
@@ -237,36 +234,34 @@ const PreHandlerBase = {
 				let schemaClone = _.clone(schema);
 				let relTree = _.split(relation,'.');
 				relTree.forEach(function(levelRel, level){
-					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 2);
-					firstLevelRelations.forEach(function(rel){
-						if (levelRel === rel.name) {
-							if (!_.some(includeLevel, {association: rel.name})) {
-								if (level === 0) {
-									let tmp = {};
-									tmp.association = rel.name;
-									includeLevel.push(tmp);
-									includeLevel = tmp;
-								} else if (level > 0) {
-									if (!_.has(includeLevel, 'include')) {
-										includeLevel['include'] = [];
-									}
-									if (!_.some(includeLevel['include'], {association: rel.name})) {
-										let tmp = {};
-										tmp.association = rel.name;
-										includeLevel['include'].push(tmp);
-										includeLevel = tmp;
-									}
-								}
-							} else {
-								includeLevel.forEach(function(elInclude){
-									if (_.includes(elInclude.association, rel.name)) {
-										includeLevel = elInclude;
-									}
-								});
+					let targetAssociation = schemaClone.associations[levelRel];
+					let targetModel = targetAssociation.target;
+
+					if (!_.some(includeLevel, {model: targetModel})) {
+						if (level === 0) {
+							let tmp = {};
+							tmp.model = targetModel;
+							includeLevel.push(tmp);
+							includeLevel = tmp;
+						} else if (level > 0) {
+							if (!_.has(includeLevel, 'include')) {
+								includeLevel['include'] = [];
 							}
-							schemaClone = models[rel.model];
+							if (!_.some(includeLevel['include'], {model: targetModel})) {
+								let tmp = {};
+								tmp.model = targetModel;
+								includeLevel['include'].push(tmp);
+								includeLevel = tmp;
+							}
 						}
-					});
+					} else {
+						includeLevel.forEach(function(elInclude){
+							if (_.includes(elInclude.model, targetModel)) {
+								includeLevel = elInclude;
+							}
+						});
+					}
+					schemaClone = targetModel;
 				});
 
 				let columns = _.split(realValue, ',');
@@ -301,20 +296,17 @@ const PreHandlerBase = {
 				let realValue = '';       // Final condition value;
 
 				// relation and attribute
-				let associations = SchemaUtility.relationFromSchema(schema, 2);
+				let targetAssociation = schemaClone.associations[levelRel];
+				let targetModel = targetAssociation.target;
 
-				associations.forEach(function(rel){
-					if (_.includes(el, '{' + rel.name + '}')) {
-						relation = rel.name;
-						model = models[rel.model];
-						prefix = '{' + rel.name + '}';
-						Object.keys(model.attributes).map((attr) => {
-							if (_.includes(el, '{' + attr + '}')) {
-								attribute = attr;
-								dbAttribute = attribute;
-								suffix = '{' + attribute + '}';
-							}
-						});
+				relation = targetAssociation;
+				model = targetModel;
+				prefix = '{' + targetAssociation + '}';
+				Object.keys(model.attributes).map((attr) => {
+					if (_.includes(el, '{' + attr + '}')) {
+						attribute = attr;
+						dbAttribute = attribute;
+						suffix = '{' + attribute + '}';
 					}
 				});
 
@@ -324,36 +316,34 @@ const PreHandlerBase = {
 				let schemaClone = schema;
 				let relTree = _.split(relation,'.');
 				relTree.forEach(function(levelRel, level){
-					let firstLevelRelations = SchemaUtility.relationFromSchema(schemaClone, 2);
-					firstLevelRelations.forEach(function(rel){
-						if (levelRel === rel.name) {
-							if (!_.some(includeLevel, {association: rel.name})) {
-								if (level === 0) {
-									let tmp = {};
-									tmp.association = rel.name;
-									includeLevel.push(tmp);
-									includeLevel = tmp;
-								} else if (level > 0) {
-									if (!_.has(includeLevel, 'include')) {
-										includeLevel['include'] = [];
-									}
-									if (!_.some(includeLevel['include'], {association: rel.name})) {
-										let tmp = {};
-										tmp.association = rel.name;
-										includeLevel['include'].push(tmp);
-										includeLevel = tmp;
-									}
-								}
-							} else {
-								includeLevel.forEach(function(elInclude){
-									if (_.includes(elInclude.association, rel.name)) {
-										includeLevel = elInclude;
-									}
-								});
+					let targetAssociation = schemaClone.associations[levelRel];
+					let targetModel = targetAssociation.target;
+
+					if (!_.some(includeLevel, {model: targetModel})) {
+						if (level === 0) {
+							let tmp = {};
+							tmp.model = targetModel;
+							includeLevel.push(tmp);
+							includeLevel = tmp;
+						} else if (level > 0) {
+							if (!_.has(includeLevel, 'include')) {
+								includeLevel['include'] = [];
 							}
-							schemaClone = models[rel.model];
+							if (!_.some(includeLevel['include'], {model: targetModel})) {
+								let tmp = {};
+								tmp.model = targetModel;
+								includeLevel['include'].push(tmp);
+								includeLevel = tmp;
+							}
 						}
-					});
+					} else {
+						includeLevel.forEach(function(elInclude){
+							if (_.includes(elInclude.model, targetModel)) {
+								includeLevel = elInclude;
+							}
+						});
+					}
+					schemaClone = targetModel;
 				});
 
 				// let newInclude = includeLevel['through'] = {};
