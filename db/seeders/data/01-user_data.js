@@ -1,19 +1,8 @@
-const Bcrypt = require('bcrypt');
-
-const utility = {
-	passwordHash: function (password) {
-		let salt = Bcrypt.genSaltSync(10),
-				hash = Bcrypt.hashSync(password, salt);
-
-		return hash;
-	}
-};
-
 
 const array = [
 	{ id: 1,
 		username: 'g.piazzesi',
-		password: utility.passwordHash('Pippone72.;'),
+		password: '$2a$10$2bOxnTMxpuUw7QrHvqo5POTsXVpc/A2MUFGOa9H2OSJseFqfrcQde',
 		email: 'giapiazze@gmail.com',
 		firstName: 'Giacomo',
 		lastName: 'Piazzesi',
@@ -23,7 +12,7 @@ const array = [
 	},
 	{ id: 2,
 		username: 'm.vernaccini',
-		password: utility.passwordHash('natasha1978'),
+		password: '$2a$10$N2T/YADOu96ig5sSxibaB.rHQQeQaO/WqjCq1qCYo9r6AEmAMQaHq',
 		email: 'goriverna@gmail.com',
 		firstName: 'Marco',
 		lastName: 'Vernaccini',
@@ -33,7 +22,7 @@ const array = [
 	},
 	{ id: 3,
 		username: 'a.moschella',
-		password: utility.passwordHash('natasha1978'),
+		password: '$2a$10$Z.L2k4U5vgbthUwOJCndy.MU8.i9AvOgs.svrLAGGm36jxijSCBZK',
 		email: 'andrea.moschella@exatek.it',
 		firstName: 'Andrea',
 		lastName: 'Moschella',
