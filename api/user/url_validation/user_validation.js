@@ -24,7 +24,7 @@ let SLRelations = ModelValidation(User).SLRelations;
 let ALLRelations = ModelValidation(User).ALLRelations;
 let Attributes = ModelValidation(User).Attributes;
 
-const UrlValidation = {
+const UserValidation = {
 	FLRelations: FLRelations,
 	SLRelations: SLRelations,
 	AllRelations: ALLRelations,
@@ -55,4 +55,4 @@ const UrlValidation = {
 
 };
 
-module.exports = UrlValidation;
+module.exports = UserValidation;

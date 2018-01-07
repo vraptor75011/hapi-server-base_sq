@@ -1,5 +1,5 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
-const UrlValidation = require('../../user_validation/url_validation');
+const UserValidation = require('../../url_validation/user_validation');
 const UserFindAll = require('../handler/user_handlers/user_find_all');
 const DB = require('../../../../config/sequelize');
 
@@ -22,11 +22,11 @@ module.exports.register = (server, options, next) => {
 				tags: ['api', 'Users'],
 				description: 'Users List',
 				notes: ['Returns Users list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
-								'User First Level Relations: ' + UrlValidation.FLRelations + '<br>' +
-								'User Second Level Relations: ' + UrlValidation.SLRelations + '<br>' +
-								'Attributes: ' + UrlValidation.Attributes + '<br>'],
+								'User First Level Relations: ' + UserValidation.FLRelations + '<br>' +
+								'User Second Level Relations: ' + UserValidation.SLRelations + '<br>' +
+								'Attributes: ' + UserValidation.Attributes + '<br>'],
 				validate: {
-					query: UrlValidation.queryAll,
+					query: UserValidation.queryAll,
 					// query: UserValidations.query,
 					headers: HeaderValidation.header,
 				},
@@ -45,10 +45,10 @@ module.exports.register = (server, options, next) => {
 				tags: ['api', 'Users'],
 				description: 'One User',
 				notes: ['Returns a User identified by the params {userId} <br>' +
-				'Attributes: ' + UrlValidation.Attributes + '<br>'],
+				'Attributes: ' + UserValidation.Attributes + '<br>'],
 				validate: {
-					params: UrlValidation.paramOne,
-					query: UrlValidation.queryOne,
+					params: UserValidation.paramOne,
+					query: UserValidation.queryOne,
 					// query: UserValidations.query,
 					headers: HeaderValidation.header,
 				},
