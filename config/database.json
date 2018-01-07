@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "userHapi",
-    "password": "webstorm",
-    "database": "hapi_development",
-    "host": "127.0.0.1",
+    "username": "spectreAdmin",
+    "password": "Fre5610;029!",
+    "database": "meltdown",
+    "host": "spectre.cbdxp71cic7i.us-west-2.rds.amazonaws.com",
     "dialect": "mysql",
     "port": "3306"
   },
