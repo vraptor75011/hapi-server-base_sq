@@ -33,6 +33,9 @@ module.exports = {
 			.then(() => queryInterface.addIndex('realms_roles_users', ['realmId']))
 			.then(() => queryInterface.addIndex('realms_roles_users', ['roleId']))
 			.then(() => queryInterface.addIndex('realms_roles_users', ['userId']))
+			.then(() => queryInterface.addConstraint('realms_roles_users', ['realmId', 'roleId', 'userId'], {
+				type: 'unique',
+			}))
 	},
 
 	down: (queryInterface, Sequelize) => {
