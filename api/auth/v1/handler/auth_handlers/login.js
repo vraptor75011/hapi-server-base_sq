@@ -6,9 +6,9 @@ const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
 
-// const User = DB.sequelize.models.User;
-// const Realm = DB.sequelize.models.Realm;
-// const Role = DB.sequelize.models.Role;
+const User = DB.User;
+const Realm = DB.Realm;
+const Role = DB.Role;
 
 
 const Login =
@@ -22,7 +22,7 @@ const Login =
 			let realm = request.pre.realm;
 
 			switch (authStrategy) {
-				case AUTH_STRATEGIES.PURE_TOKEN:
+				case AUTH_STRATEGIES.REFRESH_TOKEN:
 					authHeader = 'Bearer ' + request.pre.standardToken;
 					refreshToken = request.pre.refreshToken;
 					scope = request.pre.scope;
@@ -61,11 +61,15 @@ const Login =
 							refreshToken,
 							scope,
 						},
-						data: {
+						item: {
 							user
 						},
 					};
 					return reply(mapperOptions);
+				})
+				.catch(function (error) {
+					let errorMsg = error.message || 'Unauthorized User';
+					return reply(Boom.unauthorized('No roles'));
 				});
 		}
 	};

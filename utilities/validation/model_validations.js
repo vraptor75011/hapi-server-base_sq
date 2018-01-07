@@ -1,8 +1,7 @@
 const Joi = require('joi');
 const DB = require('../../config/sequelize');
-const ValidationBase = require('../validation/validation_utility');
-const SchemaUtility = require('../schema/schema_utility');
-const QueryHelper = require('../query/query-helper');
+const ValidationHelper = require('./validation_helper');
+const SchemaHelper = require('../schema/schema_helper');
 const Sequelize = require('sequelize');
 const _ = require('lodash');
 
@@ -38,9 +37,9 @@ let getFilters = (model) => {
 			schema = Joi.alternatives().try(
 				Joi.array().description('the date: 2017-08-15 09:00:00] vs [{or}{btw}2017-08-17 09:00:00,2017-08-17 23:30:00, {or}{btw}2017-12-25 09:00:00,2018-01-06 23:30:00]')
 					.items(Joi.string().max(255)
-						.regex(ValidationBase.filterRegExp('date')))
+						.regex(ValidationHelper.filterRegExp('date')))
 					.example(['{>=}2017-08-01', '{<}2017-09-01']),
-				Joi.string().max(255).regex(ValidationBase.filterRegExp())
+				Joi.string().max(255).regex(ValidationHelper.filterRegExp())
 					.example('{=}2017-08-17 10:00:00'),
 			);
 			filtersSchema[attr] = schema;
@@ -92,7 +91,7 @@ let joiCompile = (key, element, model) => {
 			let element02 = element01[key];
 
 			if (key === 'regex') {
-				schema = schema.regex(ValidationBase.filterRegExp(model));
+				schema = schema.regex(ValidationHelper.filterRegExp(model));
 			}
 
 			if (key === 'description') {
@@ -200,10 +199,10 @@ let addJoiAnyValid = (schema, value) => {
 
 
 module.exports = function(model) {
-	const FLRelations = SchemaUtility.relationsFromSchema(model, 1, 1);
-	const SLRelations = SchemaUtility.relationsFromSchema(model, 2, 2);
-	const ALLRelations = SchemaUtility.relationsFromSchema(model, 1, 2);
-	const Attributes = QueryHelper.createAttributesList(model);
+	const FLRelations = SchemaHelper.relationsFromSchema(model, 1, 1);
+	const SLRelations = SchemaHelper.relationsFromSchema(model, 2, 2);
+	const ALLRelations = SchemaHelper.relationsFromSchema(model, 1, 2);
+	const Attributes = SchemaHelper.createAttributesList(model);
 
 	const filters = getFilters(model);
 
@@ -219,11 +218,11 @@ module.exports = function(model) {
 			Joi.array().description('sort column: [{model}][+,-]id,[{model}][+,-]username vs [-id, -username]')
 				.items(
 					Joi.string().max(255)
-						.regex(ValidationBase.sortRegExp(model))
+						.regex(ValidationHelper.sortRegExp(model))
 						.example('-createdAt'))
 				.example(['{model}-email','-username']),
 			Joi.string().max(255)
-				.regex(ValidationBase.sortRegExp(model))
+				.regex(ValidationHelper.sortRegExp(model))
 				.example('{model}-email'),
 		),
 	};
@@ -231,15 +230,15 @@ module.exports = function(model) {
 	const math = {
 		$min:
 			Joi.string().description('selected attribute MIN: {model}id vs updatedAt]').max(255)
-				.regex(ValidationBase.mathFieldRegExp(model))
+				.regex(ValidationHelper.mathFieldRegExp(model))
 				.example('{model}id'),
 		$max:
 			Joi.string().description('selected attribute MAX: {model}id vs updatedAt]').max(255)
-				.regex(ValidationBase.mathFieldRegExp(model))
+				.regex(ValidationHelper.mathFieldRegExp(model))
 				.example('{model}id'),
 		$sum:
 			Joi.string().description('selected attribute SUM: {model}id vs updatedAt]').max(255)
-				.regex(ValidationBase.mathFieldRegExp(model))
+				.regex(ValidationHelper.mathFieldRegExp(model))
 				.example('{model}id'),
 	};
 
@@ -249,57 +248,57 @@ module.exports = function(model) {
 			Joi.array().description('selected attributes: [{model}id, [id, username, {model}email]')
 				.items(
 					Joi.string().max(255)
-						.regex(ValidationBase.fieldRegExp(model)))
+						.regex(ValidationHelper.fieldRegExp(model)))
 				.example(['{model}id','{model}username']),
 			Joi.string().max(255)
-				.regex(ValidationBase.fieldRegExp(model))
+				.regex(ValidationHelper.fieldRegExp(model))
 				.example('{model}id')
 		),
 		$withRelated: Joi.alternatives().try(
 			Joi.array().description('includes relationships: Roles, [Roles.models, Realms]')
 				.items(
 					Joi.string().max(255)
-						.regex(ValidationBase.withRelatedRegExp(model)))
+						.regex(ValidationHelper.withRelatedRegExp(model)))
 				.example(['Realms','Roles']),
 			Joi.string().max(255)
-				.regex(ValidationBase.withRelatedRegExp(model))
+				.regex(ValidationHelper.withRelatedRegExp(model))
 				.example('Realms'),
 		),
 		$withFilter: Joi.alternatives().try(
 			Joi.array().description('filter by relationships fields: {Roles}[{or|not}]{name}[{=}], [{Realms}{not}{name}{like}]')
 				.items(Joi.string().max(255)
-					.regex(ValidationBase.withFilterRegExp(model)))
+					.regex(ValidationHelper.withFilterRegExp(model)))
 				.example(['{Roles}{id}{=}3','{Realms}{name}{like}App']),
 			Joi.string().max(255)
-				.regex(ValidationBase.withFilterRegExp(model))
+				.regex(ValidationHelper.withFilterRegExp(model))
 				.example('{Roles.models}{not}{username}{null}')
 		),
 		$withCount: Joi.alternatives().try(
 			Joi.array().description('count relationships occurrences: Roles, [Roles, Realms]')
 				.items(
 					Joi.string().max(255)
-						.regex(ValidationBase.withCountRegExp(model)))
+						.regex(ValidationHelper.withCountRegExp(model)))
 				.example(['Realms','Roles']),
 			Joi.string().max(255).description('relationships: Roles, [Roles.models, Realms]')
-				.regex(ValidationBase.withCountRegExp(model))
+				.regex(ValidationHelper.withCountRegExp(model))
 				.example('Realms')
 		),
 		$withFields: Joi.alternatives().try(
 			Joi.array().description('selects relationships fields: {Roles}name, [{Realms}name,description]')
 				.items(Joi.string().max(255)
-					.regex(ValidationBase.withRelatedFieldRegExp(model)))
+					.regex(ValidationHelper.withRelatedFieldRegExp(model)))
 				.example(['{Realms}name','{Roles}id']),
 			Joi.string().max(255)
-				.regex(ValidationBase.withRelatedFieldRegExp(model))
+				.regex(ValidationHelper.withRelatedFieldRegExp(model))
 				.example('{Realms.Roles}name,description'),
 		),
 		$withSort: Joi.alternatives().try(
 			Joi.array().description('sort related field: {Realms}[+,-]id vs [-id, -name]')
 				.items(Joi.string().max(255)
-					.regex(ValidationBase.withSortRegExp(model)))
+					.regex(ValidationHelper.withSortRegExp(model)))
 				.example(['{Roles}+name','{Roles.models}-username']),
 			Joi.string().max(255)
-				.regex(ValidationBase.withSortRegExp(model))
+				.regex(ValidationHelper.withSortRegExp(model))
 				.example('{Realms}description')
 		),
 	};

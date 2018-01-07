@@ -81,6 +81,50 @@ const SchemaUtility = {
 
 		return relations;
 	},
+
+	/**
+	 * Create a list of model attributes.
+	 * @param model: A mongoose model object.
+	 * @returns {string}
+	 */
+	createAttributesList: (model) => {
+		let attributesFilter = [];
+		let fields = model.attributes;
+
+		let fieldNames = Object.keys(fields);
+
+		fieldNames.forEach((attr) => {
+			let attribute = fields[attr];
+			let skip = attribute.exclude || false;
+			if (!skip) {
+				attributesFilter.push(attr);
+			}
+		});
+
+		return _.join(attributesFilter, ', ');
+	},
+
+	/**
+	 * Create a array of model attributes.
+	 * @param model: A mongoose model object.
+	 * @returns {Array}
+	 */
+	createAttributesArray: (model) => {
+		let attributesFilter = [];
+		let fields = model.attributes;
+
+		let fieldNames = Object.keys(fields);
+
+		fieldNames.forEach((attr) => {
+			let attribute = fields[attr];
+			let skip = attribute.exclude || false;
+			if (!skip) {
+				attributesFilter.push(attr);
+			}
+		});
+
+		return attributesFilter;
+	}
 };
 
 module.exports = SchemaUtility;

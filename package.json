@@ -33,6 +33,7 @@
     "loggin": "^3.0.1",
     "minimatch": "^3.0.4",
     "mysql2": "^1.5.1",
+    "node-uuid": "^1.4.8",
     "pluralize": "^7.0.0",
     "q": "^1.5.1",
     "sequelize": "^4.28.6",

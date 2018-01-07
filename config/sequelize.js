@@ -16,11 +16,9 @@ let getFiles = function(dir, fileList = []) {
 			getFiles(dir + '/' + file, fileList);
 		}
 		else if (_.includes(file, '_model.js')) {
-			let schema = _.replace(file, '_model.js', '_schema.js');
 			let tmp = {};
 			tmp.name = _.upperFirst(_.camelCase(_.replace(file, '_model.js', '')));
 			tmp.path = '../' + dir + '/' + file;
-			tmp.schema = '../' + dir + '/' + schema;
 			fileList.push(tmp);
 		}
 	});
@@ -66,8 +64,6 @@ let modelFiles = getFiles('api');
 //
 modelFiles.forEach(function(model){
 	DB[model.name] = DB.sequelize.import(model.path);
-	let schema = require(model.schema);
-	DB[model.name].joiValid = schema.schemaQuery();
 });
 //
 Object.keys(DB).forEach(function(modelName) {
@@ -76,7 +72,6 @@ Object.keys(DB).forEach(function(modelName) {
 	}
 });
 //
-//DB.Sequelize.sync;
 //
 //
 //

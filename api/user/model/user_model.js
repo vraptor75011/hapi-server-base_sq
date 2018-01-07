@@ -9,7 +9,7 @@ const ModelValidation = require('../../../utilities/validation/model_validations
 
 module.exports = function(sequelize, DataTypes) {
 
-	let User = sequelize.define('User', {
+	let User = sequelize.define('user', {
 
 			// ATTRIBUTES
 			id: {
@@ -205,7 +205,8 @@ module.exports = function(sequelize, DataTypes) {
 		},
 		{
 			tableName: 'users',
-			paranoid: true
+			paranoid: true,
+			timestamps: true,
 		},
 	);
 
@@ -215,6 +216,7 @@ module.exports = function(sequelize, DataTypes) {
 		User.belongsToMany(models.Role, { through: models.RealmsRolesUsers });
 		User.belongsToMany(models.Realm, { through: models.RealmsRolesUsers });
 		User.hasMany(models.RealmsRolesUsers);
+		User.hasMany(models.Session);
 	};
 
 	User.schemaQuery = () => {

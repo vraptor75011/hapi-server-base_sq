@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const DB = require('../../config/sequelize');
-const SchemaUtility = require('../schema/schema_utility');
+const SchemaUtility = require('../schema/schema_helper');
 const Pluralize = require('pluralize');
 
 

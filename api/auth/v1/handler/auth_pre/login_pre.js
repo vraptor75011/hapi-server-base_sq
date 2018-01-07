@@ -11,10 +11,10 @@ const authStrategy = Config.get('/serverHapiConfig/authStrategy');
 
 const Op = Sequelize.Op;
 
-// const User = DB.sequelize.models.User;
-// const Realm = DB.sequelize.models.Realm;
-// const Role = DB.sequelize.models.Role;
-
+const User = DB.User;
+const Realm = DB.Realm;
+const Role = DB.Role;
+const Session = DB.Session;
 
 const LoginPre = [
 	// {
@@ -45,21 +45,20 @@ const LoginPre = [
 			const email = request.payload.email;
 			const username = request.payload.username;
 			const password = request.payload.password;
-			let v = db.models;
-
-			let user = {};
 
 			const usernameReq = async (param) => {
 				let user = {};
 				try {
 					user = await User
-						.findOne({where:
-							{
-								[Op.or]: [
-									{	username: {$eq: param} },
-									{	email: {$eq: param}	}
-								]}
-						});
+						.findOne(
+							{where:
+									{
+										[Op.or]: [
+											{	username: {[Op.eq]: param} },
+											{	email: {[Op.eq]: param}	}
+										]
+									}
+							});
 					if (!user) {
 						return reply(Boom.unauthorized('Invalid username or password'));
 					}
@@ -92,7 +91,7 @@ const LoginPre = [
 
 			Realm
 				.findOne({where:
-					{name: realmName}})
+						{name: realmName}})
 				.then(function(result){
 					let realm = result;
 					if (!realm) {
@@ -142,24 +141,23 @@ const LoginPre = [
 			}
 		}
 	},
-	// {
-	// 	assign: 'session',
-	// 	method: function (request, reply) {
-	// 		if (authStrategy === AUTH_STRATEGIES.TOKEN) {
-	// 			reply(null);
-	// 		}
-	// 		else {
-	// 			Session.createInstance(request.pre.user)
-	// 				.then(function (session) {
-	// 					return reply(session);
-	// 				})
-	// 				.catch(function (error) {
-	// 					Log.error(error);
-	// 					return reply(Boom.gatewayTimeout('An error occurred.'));
-	// 				});
-	// 		}
-	// 	}
-	// },
+	{
+		assign: 'session',
+		method: function (request, reply) {
+			if (authStrategy === AUTH_STRATEGIES.TOKEN) {
+				reply(null);
+			}
+			else {
+				Session.createInstance(request.pre.user)
+					.then(function (session) {
+						return reply(session);
+					})
+					.catch(function (error) {
+						return reply(Boom.gatewayTimeout('An error occurred.'));
+					});
+			}
+		}
+	},
 	{
 		assign: 'roles',
 		method: function (request, reply) {
@@ -179,7 +177,7 @@ const LoginPre = [
 					}]
 				})
 				.then(function(result){
-					roles = result.Roles;
+					roles = result.roles;
 					if(roles && roles.length){
 						return reply(roles);
 					} else {
@@ -228,16 +226,20 @@ const LoginPre = [
 		method: function (request, reply) {
 
 			let user = request.pre.user;
-			let realm = request.pre.realm;
-			let roles = request.pre.roles;
+			let roles = [];
 			let scope = request.pre.scope;
+			let realms = [];
+			realms.push(request.pre.realm.name);
+			request.pre.roles.forEach(function(role){
+				roles.push(role.name);
+			});
 
 			switch (authStrategy) {
-				case AUTH_STRATEGIES.PURE_TOKEN:
-					reply(Token(user, null, scope, roles, realm, expirationPeriod.short));
+				case AUTH_STRATEGIES.REFRESH_TOKEN:
+					reply(Token(user, null, scope, roles, realms, expirationPeriod.short));
 					break;
 				case AUTH_STRATEGIES.SESSION_TOKEN:
-					reply(Token(user, null, scope, roles, realm, expirationPeriod.short));
+					reply(Token(user, null, scope, roles, realms, expirationPeriod.short));
 					break;
 				default:
 					break;
@@ -266,17 +268,21 @@ const LoginPre = [
 		assign: 'refreshToken',
 		method: function (request, reply) {
 
-			let user = request.pre.user;
-			let realm = request.pre.realm;
-			let roles = request.pre.roles;
+			let roles = [];
 			let scope = request.pre.scope;
+			let session = request.pre.session;
+			let realms = [];
+			realms.push(request.pre.realm.name);
+			request.pre.roles.forEach(function(role){
+				roles.push(role.name);
+			});
 
 			switch (authStrategy) {
-				case AUTH_STRATEGIES.PURE_TOKEN:
-					reply(Token(null, user, scope, roles, realm, expirationPeriod.long));
+				case AUTH_STRATEGIES.REFRESH_TOKEN:
+					reply(Token(null, session, scope, roles, realms, expirationPeriod.long));
 					break;
 				case AUTH_STRATEGIES.SESSION_TOKEN:
-					reply(Token(null, user, scope, roles, realm, expirationPeriod.long));
+					reply(Token(null, session, scope, roles, realms, expirationPeriod.long));
 					break;
 				default:
 					break;

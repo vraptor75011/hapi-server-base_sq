@@ -13,20 +13,25 @@ module.exports = {
 			},
 			username: {
 				type: Sequelize.STRING(64),
+				allowNull: false,
 				unique: true,
 			},
 			email: {
 				type: Sequelize.STRING,
+				allowNull: false,
 				unique: true,
 			},
 			password: {
 				type: Sequelize.STRING(128),
+				allowNull: false,
 			},
 			firstName: {
 				type: Sequelize.STRING(64),
+				allowNull: false,
 			},
 			lastName: {
 				type: Sequelize.STRING(64),
+				allowNull: false,
 			},
 			isActive: {
 				type: Sequelize.BOOLEAN,
@@ -56,6 +61,6 @@ module.exports = {
 		});
 	},
 	down: (queryInterface, Sequelize) => {
-		return queryInterface.dropTable('groups');
+		return queryInterface.dropTable('users');
 	}
 };

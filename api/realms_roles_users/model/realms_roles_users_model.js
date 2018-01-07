@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 
-	let RealmsRolesUsers = sequelize.define('RealmsRolesUsers', {
+	let RealmsRolesUsers = sequelize.define('realmsRolesUsers', {
 
 			// ATTRIBUTES
 			id: {
@@ -35,6 +35,7 @@ module.exports = function(sequelize, DataTypes) {
 			// },
 		},
 		{
+			timestamps: false,
 			tableName: 'realms_roles_users',
 			paranoid: true,
 		},

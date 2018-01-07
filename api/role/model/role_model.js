@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 
-	let Role = sequelize.define('Role', {
+	let Role = sequelize.define('role', {
 
 	// ATTRIBUTES
 	name: {
@@ -19,6 +19,7 @@ module.exports = function(sequelize, DataTypes) {
 		{
 			tableName: 'roles',
 			paranoid: true,
+			timestamps: true,
 		},
 	);
 

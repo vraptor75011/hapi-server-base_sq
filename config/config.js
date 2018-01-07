@@ -14,7 +14,8 @@ const constants = {
     SUPER_ADMIN: 'SuperAdmin',
   },
   AUTH_STRATEGIES: {
-    PURE_TOKEN: 'standard-jwt-with-refresh',
+    TOKEN: 'standard-jwt-access-token',
+    REFRESH_TOKEN: 'standard-jwt-with-refresh',
     SESSION_TOKEN: 'jwt-with-session-for-refresh-token'
   },
 	HOST: '127.0.0.1',
@@ -113,8 +114,8 @@ const config = {
     apiPath: __dirname + '/server/api',
     authStrategy: {
       $filter: 'env',
-      local: constants.AUTH_STRATEGIES.PURE_TOKEN,
-      $default: constants.AUTH_STRATEGIES.PURE_TOKEN
+      local: constants.AUTH_STRATEGIES.REFRESH_TOKEN,
+      $default: constants.AUTH_STRATEGIES.REFRESH_TOKEN
     },
     enableQueryValidation: {
       $filter: 'env',

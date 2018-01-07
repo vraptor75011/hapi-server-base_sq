@@ -1,9 +1,6 @@
-const HeaderValidation = require('../../../header_validation');
-const UserValidations = require('../../model/user_validations');
+const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const UserHandlers = require('../handler/user_handlers');
-const UserPre = require('../handler/user_pre/user_pre');
 const DB = require('../../../../config/sequelize');
-const Joi = require('joi');
 
 let User = DB.User;
 let schemaQuery = User.schemaQuery();
@@ -16,22 +13,22 @@ module.exports.register = (server, options, next) => {
 			path: '/v1/users',
 			config: {
 				handler: UserHandlers.userFindAll,
-				auth: false,
-					// {
-					// 	scope: ['GameApp-SuperAdmin', 'GameApp-Admin'],
-					// },
+				auth:
+					// false,
+					{
+						scope: ['GameApp-SuperAdmin', 'WebApp-Admin'],
+					},
 				tags: ['api', 'Users'],
 				description: 'Users List',
 				notes: ['Returns Users list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
 								'User First Level Relations: ' + UserValidations.FLRelations + '<br>' +
 								'User Second Level Relations: ' + UserValidations.SLRelations + '<br>' +
-								'Attributes: ' + UserValidations.Attributes + '<br>'],
+								'Attributes: ' + schemaQuery.Attributes + '<br>'],
 				validate: {
 					query: schemaQuery.query,
 					// query: UserValidations.query,
-					// headers: HeaderValidation.header,
+					headers: HeaderValidation.header,
 				},
-				// pre: UserPre,
 			},
 		}
 	]);
