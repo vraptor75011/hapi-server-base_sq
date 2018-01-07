@@ -296,17 +296,19 @@ const PreHandlerBase = {
 				let realValue = '';       // Final condition value;
 
 				// relation and attribute
-				let targetAssociation = schemaClone.associations[levelRel];
-				let targetModel = targetAssociation.target;
-
-				relation = targetAssociation;
-				model = targetModel;
-				prefix = '{' + targetAssociation + '}';
-				Object.keys(model.attributes).map((attr) => {
-					if (_.includes(el, '{' + attr + '}')) {
-						attribute = attr;
-						dbAttribute = attribute;
-						suffix = '{' + attribute + '}';
+				let associations = SchemaUtility.relationFromSchema(schema, 2);
+				associations.forEach(function(rel){
+					if (_.includes(el, '{' + rel.name + '}')) {
+						relation = rel.name;
+						model = models[rel.model];
+						prefix = '{' + rel.name + '}';
+						Object.keys(model.attributes).map((attr) => {
+							if (_.includes(el, '{' + attr + '}')) {
+								attribute = attr;
+								dbAttribute = attribute;
+								suffix = '{' + attribute + '}';
+							}
+						});
 					}
 				});
 
