@@ -8,6 +8,7 @@ const Chalk = require('chalk');
 const ErrorHelper = require('../error/error-helper');
 const Log = require('../logging/logging');
 const QueryHelper = require('../query/query-helper');
+const ModelValidation = require('../validation/model_validations');
 
 //TODO: add a "clean" method that clears out all soft-deleted docs
 //TODO: add an optional TTL config setting that determines how long soft-deleted docs remain in the system
@@ -266,6 +267,8 @@ function _list(model, query) {
 						let queryRest = queryFilteredRest(query, model);
 						let queryInclude = _.assign({}, queryPagination, querySort, queryRest);
 						sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryInclude, sequelizeQuery);
+						sequelizeQuery = querySoftDeleted(query, sequelizeQuery, model);
+						sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
 						return model.findAll(sequelizeQuery)
 							.then(function (result) {
 								Log.apiLogger.info("Result: %s", JSON.stringify(result));
@@ -315,74 +318,38 @@ function _list(model, query) {
 
 /**
  * Finds a model document
- * @param model: A mongoose model.
- * @param _id: The document id.
- * @param query: rest-hapi query parameters to be converted to a mongoose query.
- * @param Log: A logging object.
+ * @param model: A sequelize model.
+ * @param id: The document id.
+ * @param query: A URL query string to building a Sequelize query.
  * @returns {object} A promise for the resulting model document.
  * @private
  */
-function _find(model, _id, query, Log) {
+function _find(model, id, query) {
 	try {
-		var mongooseQuery = model.findOne({ '_id': _id });
-		mongooseQuery = QueryHelper.createMongooseQuery(model, query, mongooseQuery, Log).lean();
-		return mongooseQuery.exec()
+		let sequelizeQuery = {where: {id: id}};
+		sequelizeQuery = QueryHelper.createSequelizeFilter(model, query, sequelizeQuery);
+		sequelizeQuery = querySoftDeleted(query, sequelizeQuery, model);
+		sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
+		return model.findOne(sequelizeQuery)
 			.then(function (result) {
-				if (result) {
-					var promise = {};
-					if (model.routeOptions && model.routeOptions.find && model.routeOptions.find.post) {
-						promise = model.routeOptions.find.post(query, result, Log);
-					} else {
-						promise = Q.when(result);
-					}
-
-					return promise
-						.then(function(data) {
-							if (model.routeOptions) {
-								var associations = model.routeOptions.associations;
-								for (var associationKey in associations) {
-									var association = associations[associationKey];
-									if (association.type === "ONE_MANY" && data[associationKey]) {//EXPL: we have to manually populate the return value for virtual (e.g. ONE_MANY) associations
-										result[associationKey] = data[associationKey];
-									}
-								}
-							}
-
-							if (config.enableSoftDelete && config.filterDeletedEmbeds) {//EXPL: remove soft deleted documents from populated properties
-								filterDeletedEmbeds(result, {}, "", 0, Log);
-							}
-
-							if (result._id) {//TODO: handle this with mongoose/global preware
-								result._id = result._id.toString();//EXPL: _id must be a string to pass validation
-							}
-
-							Log.log("Result: %s", JSON.stringify(result));
-
-							return result;
-						})
-						.catch(function (error) {
-							const message = "There was a postprocessing error.";
-							errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log);
-						});
+				if (result){
+					return {doc: result}
+				} else {
+					let error = {type: ErrorHelper.types.NOT_FOUND };
+					error.message = model.name + ' id: ' + id + ' not present';
+					return ErrorHelper.formatResponse(error);
 				}
-				else {
-					const message = "No resource was found with that id.";
-					errorHelper.handleError(message, message, errorHelper.types.NOT_FOUND, Log);
-				}
+
 			})
 			.catch(function (error) {
-				const message = "There was an error accessing the database.";
-				errorHelper.handleError(error, message, errorHelper.types.SERVER_TIMEOUT, Log);
-			});
+				const message = "There was an error in findOne.";
+				ErrorHelper.handleError(error, message, ErrorHelper.types.BAD_REQUEST);
+			})
 	}
+
 	catch(error) {
 		const message = "There was an error processing the request.";
-		try {
-			errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log)
-		}
-		catch(error) {
-			return Q.reject(error);
-		}
+		ErrorHelper.handleError(error, message, ErrorHelper.types.BAD_REQUEST)
 	}
 
 }
@@ -1265,10 +1232,10 @@ function filterDeletedEmbeds(result, parent, parentkey, depth, Log) {
  * @private
  */
 function queryFilteredCount(query, model) {
-	let filterList = model.schemaQuery().filters;
+	let filtersList = ModelValidation(model).filters;
 	let queryResponse = {};
 
-	Object.keys(filterList).map((key) => {
+	Object.keys(filtersList).map((key) => {
 		if (_.has(query, key)) {
 			_.set(queryResponse, key, query[key]);
 		}
@@ -1289,7 +1256,7 @@ function queryFilteredCount(query, model) {
  * @private
  */
 function queryFilteredMath(query, model) {
-	let mathList = model.schemaQuery().math;
+	let mathList = ModelValidation(model).math;
 	let queryResponse = {};
 
 	Object.keys(mathList).map((key) => {
@@ -1310,7 +1277,7 @@ function queryFilteredMath(query, model) {
  * @private
  */
 function queryFilteredPagination(query, model) {
-	let paginationList = model.schemaQuery().pagination;
+	let paginationList = ModelValidation(model).pagination;
 	let queryResponse = {};
 
 	Object.keys(paginationList).map((key) => {
@@ -1331,7 +1298,7 @@ function queryFilteredPagination(query, model) {
  * @private
  */
 function queryFilteredSort(query, model) {
-	let sortList = model.schemaQuery().sort;
+	let sortList = ModelValidation(model).sort;
 	let queryResponse = {};
 
 	Object.keys(sortList).map((key) => {
@@ -1352,8 +1319,11 @@ function queryFilteredSort(query, model) {
  * @private
  */
 function queryFilteredRest(query, model) {
-	let extraList = model.schemaQuery().extra;
-	let filtersList = model.schemaQuery().filters;
+	let filtersList = ModelValidation(model).filters;
+	let extraList = ModelValidation(model).extra;
+	let relatedList = ModelValidation(model).related;
+	let fieldsList = ModelValidation(model).fields;
+
 	let queryResponse = {};
 
 	Object.keys(filtersList).map((key) => {
@@ -1366,6 +1336,68 @@ function queryFilteredRest(query, model) {
 			_.set(queryResponse, key, query[key]);
 		}
 	});
+	Object.keys(relatedList).map((key) => {
+		if (_.has(query, key)) {
+			_.set(queryResponse, key, query[key]);
+		}
+	});
+	Object.keys(fieldsList).map((key) => {
+		if (_.has(query, key)) {
+			_.set(queryResponse, key, query[key]);
+		}
+	});
 
 	return queryResponse;
+}
+
+/**
+ * This function is called from handler helper include the soft deleted records,
+ * add paranoid option if required
+ * @param query: the query URL from the request
+ * @param sequelizeQuery: the sequelize query string
+ * @param model: the model to build the filter list
+ * @returns {string}: managed sequelize query string
+ * @private
+ */
+function querySoftDeleted(query, sequelizeQuery, model) {
+	if (query.$softDeleted === true) {
+		sequelizeQuery['paranoid'] = false;
+	}
+
+	return sequelizeQuery;
+}
+
+/**
+ * This function is called from handler helper include to manage the attributes return by query
+ * add attributes if none is selected or added the excluded fields if request by query
+ * @param query: the query URL from the request
+ * @param sequelizeQuery: the sequelize query string
+ * @param model: the model to build the filter list
+ * @returns {string}: managed sequelize query string
+ * @private
+ */
+function queryAttributes(query, sequelizeQuery, model) {
+	let attributesList = ModelValidation(model).Attributes;
+	let attributesArray = attributesList.split(', ');
+	let excludedArray = [];
+
+	if (!_.has(sequelizeQuery, 'attributes') ||
+		(_.isArray(sequelizeQuery['attributes']) && sequelizeQuery['attributes'].length === 0)) {
+		sequelizeQuery['attributes'] = attributesArray;
+	} else if (sequelizeQuery['attributes'].length === 1 && _.isArray(sequelizeQuery['attributes'][0])) {
+		sequelizeQuery['attributes'] = _.concat(attributesArray, sequelizeQuery['attributes']);
+	}
+
+	if (query.$excludedFields === true) {
+		let fields = model.attributes;
+		Object.keys(fields).map((attr) => {
+			let attribute = fields[attr];
+			if (attribute.exclude === true) {
+				excludedArray.push(attr);
+			}
+		});
+		sequelizeQuery.attributes = _.concat(sequelizeQuery.attributes, excludedArray);
+	}
+
+	return sequelizeQuery;
 }

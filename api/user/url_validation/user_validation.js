@@ -14,6 +14,8 @@ let filters = ModelValidation(User).filters;
 let pagination = ModelValidation(User).pagination;
 let sort = ModelValidation(User).sort;
 let math = ModelValidation(User).math;
+let softDeleted = ModelValidation(User).softDeleted;
+let excludedFields = ModelValidation(User).excludedFields;
 let count = ModelValidation(User).sort;
 let fields = ModelValidation(User).fields;
 let related = ModelValidation(User).related;
@@ -31,10 +33,10 @@ const UserValidation = {
 	Attributes: Attributes,
 
 	//FindAll
-	queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, count, fields, related, extra)),
+	queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields, related, extra)),
 
 	//FindOne
-	queryOne: Joi.object().keys(_.assign({}, fields, related)),
+	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
 	paramOne:  Joi.object().keys({
 		userId: Joi.number().min(1).required(),
 	}),

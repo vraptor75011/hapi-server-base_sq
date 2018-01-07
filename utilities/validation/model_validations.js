@@ -242,6 +242,14 @@ module.exports = function(model) {
 				.example('{model}id'),
 	};
 
+	const softDeleted = {
+		$softDeleted: Joi.boolean().description('includes soft deleted record').default(false),
+	};
+
+	const exludedFields = {
+		$excludedFields: Joi.boolean().description('includes soft deleted record').default(false),
+	};
+
 	const count = {
 		$count: Joi.boolean().description('only number of records found'),
 	};
@@ -317,6 +325,8 @@ module.exports = function(model) {
 		pagination: pagination,
 		sort: sort,
 		math: math,
+		softDeleted: softDeleted,
+		excludedFields: exludedFields,
 		count: count,
 		fields: fields,
 		related: related,

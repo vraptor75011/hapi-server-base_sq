@@ -8,6 +8,7 @@ const DB = require('../../config/sequelize');
 const SchemaUtility = require('../schema/schema_helper');
 const HandlerBase = require('../handler/handler-base');
 const Log = require('../logging/logging');
+const ModelValidation = require('../validation/model_validations');
 
 //TODO-DONE: mulit-level/multi-priority sorting (i.e. sort first by lastName, then by firstName) implemented via comma seperated sort list
 //TODO: sorting through populate fields (Ex: sort users through role.name)
@@ -81,15 +82,16 @@ module.exports = {
 
 		// requestData.queryData.fields = ['id'];
 
-		let attributesList = model.schemaQuery().Attributes;
-		let extraQuery = model.schemaQuery().extra;
-		let mathQuery = model.schemaQuery().math;
-		let sortQuery = model.schemaQuery().sort;
-		let attributesArray = attributesList.split(', ');
+		let filtersQuery = ModelValidation(model).filters;
+		let sortQuery = ModelValidation(model).sort;
+		let mathQuery = ModelValidation(model).math;
+		let fieldsQuery = ModelValidation(model).fields;
+		let relatedQuery = ModelValidation(model).related;
+		let extraQuery = _.assign({}, ModelValidation(model).extra, fieldsQuery, relatedQuery);
 
 		Object.keys(query).map((e) => {
 			// Filters
-			if (_.includes(attributesArray, e)) {
+			if (_.has(filtersQuery, e)) {
 				if (!_.isArray(query[e])) {
 					let tmp = [];
 					tmp.push(query[e]);
