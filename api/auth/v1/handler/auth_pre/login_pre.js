@@ -1,7 +1,6 @@
 const Boom = require('boom');
 const Bcrypt = require('bcrypt');
-const Token = require('../../../../../utilities/token/token');
-const DB = require('../../../../../config/sequelize');
+const Chalk = require('chalk');
 const Sequelize = require('sequelize');
 
 const Config = require('../../../../../config/config');
@@ -9,7 +8,8 @@ const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
 const Log = require('../../../../../utilities/logging/logging');
-const Chalk = require('chalk');
+const Token = require('../../../../../utilities/token/token');
+const DB = require('../../../../../config/sequelize');
 
 const Op = Sequelize.Op;
 
@@ -41,72 +41,60 @@ const LoginPre = [
 	// },
 	{
 		assign: 'user',
-		method: function (request, reply) {
-
+		method: async function (request, reply) {
 			const email = request.payload.email;
 			const username = request.payload.username;
 			const password = request.payload.password;
 			let userLogging = email || username;
 			Log.session.info(Chalk.grey('User: ' + userLogging + ' try to logging in'));
 
-			const usernameReq = async (param) => {
-				let user = {};
-				try {
-					user = await User
-						.findOne(
-							{where:
-									{
-										[Op.or]: [
-											{	username: {[Op.eq]: param} },
-											{	email: {[Op.eq]: param}	}
-										]
-									}
-							});
-					if (!user) {
-						return reply(Boom.unauthorized('Invalid username or password'));
-					}
-					let match = Bcrypt.compareSync(password, user.password);
-					if (match) {
-						return reply(user);
-					}
+			let user = {};
+			try {
+				user = await User.findOne(
+					{where:
+							{
+								[Op.or]: [
+									{	username: {[Op.eq]: username} },
+									{	email: {[Op.eq]: email}	}
+								]
+							}
+					});
+				if (!user) {
 					return reply(Boom.unauthorized('Invalid username or password'));
 				}
-				catch (error) {
-					let errorMsg = error.message || 'An error occurred';
-					return reply(Boom.gatewayTimeout(errorMsg));
+				let match = Bcrypt.compareSync(password, user.password);
+				if (match) {
+					return reply(user);
 				}
-			};
-
-
-			if (username) {
-				usernameReq(username);
-			} else if (email) {
-				usernameReq(email);
+				return reply(Boom.unauthorized('Invalid username or password'));
+			}	catch(error) {
+				Log.apiLogger.error(Chalk.red(error));
+				let errorMsg = error.message || 'An error occurred';
+				return reply(Boom.gatewayTimeout(errorMsg));
 			}
-
 		}
 	},
 	{
 		assign: 'realm',
-		method: function (request, reply) {
-
+		method: async function (request, reply) {
 			let realmName = request.payload.realm || 'WebApp';
+			let realm = {};
 
-			Realm
-				.findOne({where:
-						{name: realmName}})
-				.then(function(result){
-					let realm = result;
-					if (!realm) {
-						return reply(Boom.unauthorized('Invalid realm'));
-					} else {
-						return reply(realm);
-					}
+			try {
+				realm = await Realm.findOne({
+					where:
+						{name: realmName}
 				});
-			// .catch(function (error) {
-			// 	let errorMsg = error.message || 'An error occurred';
-			// 	return reply(Boom.gatewayTimeout(errorMsg));
-			// });
+				if (!realm) {
+					return reply(Boom.unauthorized('Invalid realm'));
+				} else {
+					return reply(realm);
+				}
+			} catch(error) {
+				Log.apiLogger.error(Chalk.red(error));
+				let errorMsg = error.message || 'An error occurred';
+				return reply(Boom.gatewayTimeout(errorMsg));
+			}
 		}
 	},
 // {
@@ -132,46 +120,46 @@ const LoginPre = [
 // },
 	{
 		assign: 'isActive',
-		method: function (request, reply) {
-
-			let user = request.pre.user;
+		method: async function (request, reply) {
+			let user = await request.pre.user;
 
 			if (user.isActive) {
 				return reply();
 			}
 			else {
-				return reply(Boom.badRequest('Account is inactive.'));
+				return reply(Boom.unauthorized('Account is inactive.'));
 			}
 		}
 	},
 	{
 		assign: 'session',
-		method: function (request, reply) {
-			if (authStrategy === AUTH_STRATEGIES.TOKEN) {
-				reply(null);
-			}
-			else {
-				Session.createInstance(request.pre.user)
-					.then(function (session) {
-						Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
-						return reply(session);
-					})
-					.catch(function (error) {
-						return reply(Boom.gatewayTimeout('An error occurred.'));
-					});
+		method: async function (request, reply) {
+			let session = {};
+			try {
+				if (authStrategy === AUTH_STRATEGIES.TOKEN) {
+					reply(null);
+				} else {
+					session = await Session.createInstance(request.pre.user);
+					Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
+					return reply(session);
+				}
+			} catch(error) {
+				Log.apiLogger.error(Chalk.red(error));
+				let errorMsg = error.message || 'An error occurred';
+				return reply(Boom.gatewayTimeout(errorMsg));
 			}
 		}
 	},
 	{
 		assign: 'roles',
-		method: function (request, reply) {
-
+		method: async function (request, reply) {
 			let user = request.pre.user;
 			let realm = request.pre.realm;
+			let result;
 			let roles = [];
 
-			User
-				.findOne({
+			try {
+				result = await User.findOne({
 					where: {id: user.id},
 					include: [{
 						model: Role,
@@ -179,30 +167,23 @@ const LoginPre = [
 							where: {realmId: realm.id}
 						}
 					}]
-				})
-				.then(function(result){
-					roles = result.roles;
-					if(roles && roles.length){
-						return reply(roles);
-					} else {
-						return reply(Boom.unauthorized('No roles'));
-					}
-				})
-				.catch(function (error) {
-					let errorMsg = error.message || 'An error occurred';
-					return reply(Boom.gatewayTimeout(errorMsg));
 				});
-
-			// return Permission.getScope(request.pre.user, Log)
-			// 	.then(function (scope) {
-			// 		return reply(scope);
-			// 	});
+				roles = result.roles;
+				if(roles && roles.length){
+					return reply(roles);
+				} else {
+					return reply(Boom.unauthorized('No roles'));
+				}
+			} catch(error) {
+				Log.apiLogger.error(Chalk.red(error));
+				let errorMsg = error.message || 'An error occurred';
+				return reply(Boom.gatewayTimeout(errorMsg));
+			}
 		}
 	},
 	{
 		assign: 'scope',
-		method: function (request, reply) {
-
+		method: async function (request, reply) {
 			let realm = request.pre.realm;
 			let roles = request.pre.roles;
 			let scope = [];
@@ -217,11 +198,6 @@ const LoginPre = [
 			});
 
 			return reply(scope);
-
-			// return Permission.getScope(request.pre.user, Log)
-			// 	.then(function (scope) {
-			// 		return reply(scope);
-			// 	});
 
 		}
 	},
