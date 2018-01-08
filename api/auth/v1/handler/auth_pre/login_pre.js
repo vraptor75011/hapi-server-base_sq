@@ -1,7 +1,6 @@
 const Boom = require('boom');
 const Bcrypt = require('bcrypt');
-const Token = require('../../../../../utilities/token/token');
-const DB = require('../../../../../config/sequelize');
+const Chalk = require('chalk');
 const Sequelize = require('sequelize');
 
 const Config = require('../../../../../config/config');
@@ -9,7 +8,8 @@ const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
 const Log = require('../../../../../utilities/logging/logging');
-const Chalk = require('chalk');
+const Token = require('../../../../../utilities/token/token');
+const DB = require('../../../../../config/sequelize');
 
 const Op = Sequelize.Op;
 
