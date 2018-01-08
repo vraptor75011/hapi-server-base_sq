@@ -42,13 +42,11 @@ const LoginPre = [
 	{
 		assign: 'user',
 		method: function (request, reply) {
-
 			const email = request.payload.email;
 			const username = request.payload.username;
 			const password = request.payload.password;
 			let userLogging = email || username;
 			Log.session.info(Chalk.grey('User: ' + userLogging + ' try to logging in'));
-
 			const usernameReq = async (param) => {
 				let user = {};
 				try {

@@ -23,6 +23,7 @@ const Login =
 			let user = request.pre.user;
 			let realm = request.pre.realm;
 
+
 			switch (authStrategy) {
 				case AUTH_STRATEGIES.REFRESH_TOKEN:
 					authHeader = 'Bearer ' + request.pre.standardToken;
