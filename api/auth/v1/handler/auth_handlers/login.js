@@ -62,7 +62,7 @@ const Login =
 						refreshToken,
 						scope,
 					},
-					item: {
+					doc: {
 						user
 					},
 				};

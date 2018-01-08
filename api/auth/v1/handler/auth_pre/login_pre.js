@@ -42,7 +42,7 @@ const LoginPre = [
 	{
 		assign: 'user',
 		method: async function (request, reply) {
-			const email = request.payload.email;
+			const email = request.payload.email || request.payload.username;
 			const username = request.payload.username;
 			const password = request.payload.password;
 			let userLogging = email || username;
