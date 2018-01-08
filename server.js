@@ -29,7 +29,6 @@ server.connection({
   host: HOST,
   port: PORT,
 });
-
 server.realm.modifiers.route.prefix = '/api';
 
 let db = createDB();
