@@ -5,7 +5,6 @@ const DB = require('../../../../../config/sequelize');
 
 const Config = require('../../../../../config/config');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
-const expirationPeriod = Config.get('/expirationPeriod');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
 
 const User = DB.User;
@@ -15,7 +14,7 @@ const Role = DB.Role;
 
 const Login =
 	{
-		login: function (request, reply) {
+		login: async function (request, reply) {
 
 			let authHeader = "";
 			let refreshToken = "";
@@ -39,8 +38,8 @@ const Login =
 					break;
 			}
 
-			User
-				.findOne({
+			try {
+				user = await User.findOne({
 					where: {id: user.id},
 					include: [{
 						model: Role,
@@ -53,27 +52,26 @@ const Login =
 							where: {realmId: realm.id}
 						}
 					}],
-				})
-				.then(function (result) {
-					user = result;
-					delete user.dataValues.password;
-					Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' has logged in'));
-					const mapperOptions = {
-						meta: {
-							authHeader,
-							refreshToken,
-							scope,
-						},
-						item: {
-							user
-						},
-					};
-					return reply(mapperOptions);
-				})
-				.catch(function (error) {
-					let errorMsg = error.message || 'Unauthorized User';
-					return reply(Boom.unauthorized('No roles'));
 				});
+				delete user.dataValues.password;
+				Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' has logged in'));
+				const mapperOptions = {
+					meta: {
+						authHeader,
+						refreshToken,
+						scope,
+					},
+					item: {
+						user
+					},
+				};
+				return reply(mapperOptions);
+			} catch(error) {
+				Log.apiLogger.error(Chalk.red(error));
+				let errorMsg = error.message || 'An error occurred';
+				return reply(Boom.gatewayTimeout(errorMsg));
+			}
+
 		}
 	};
 
