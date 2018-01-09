@@ -39,7 +39,7 @@ export function signInUser(fields) {
                 ///save the jwt token
 
                 localStorage.setItem('token', response.data.refreshToken);
-                localStorage.setItem('profile', JSON.stringify(response.data.user));
+                localStorage.setItem('profile', JSON.stringify(response.data.doc.user));
                 console.log(response.data.user)
 
 
