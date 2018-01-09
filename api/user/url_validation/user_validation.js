@@ -85,7 +85,7 @@ const UserValidation = {
     ),
 
     //DELETE_MANY
-    deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDeleted, subModels())),
+    deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDeleted)),
 
 	//ADD_MANY
 	addOnePayload:  Joi.object().keys({
