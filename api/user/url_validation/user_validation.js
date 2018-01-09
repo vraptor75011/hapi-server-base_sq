@@ -13,9 +13,8 @@ const RealmsRolesUsersValidation = require('../../realms_roles_users/url_validat
 const relationUrl = Joi.string().required().valid('realmsRolesUsers');
 
 let addManyRRU = Joi.alternatives().try(
-			Joi.array().items(
+			Joi.array().min(1).items(
 					RealmsRolesUsersValidation.postRelationPayload),
-			RealmsRolesUsersValidation.postRelationPayload,
 );
 
 // ^To add all relations to create or add from USER form (with User Object)
