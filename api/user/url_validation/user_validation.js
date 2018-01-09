@@ -11,73 +11,92 @@ const pwdString = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
 const usrRegExp = new RegExp(usrString);
 const pwdRegExp = new RegExp(pwdString);
 
-const User = DB.User;
+const Validations = ModelValidation(DB.User);
 
-let filters = ModelValidation(User).filters;
-let ids = ModelValidation(User).ids;
-let pagination = ModelValidation(User).pagination;
-let sort = ModelValidation(User).sort;
-let math = ModelValidation(User).math;
-let softDeleted = ModelValidation(User).softDeleted;
-let hardDeleted = ModelValidation(User).hardDeleted;
-let excludedFields = ModelValidation(User).excludedFields;
-let count = ModelValidation(User).sort;
-let fields = ModelValidation(User).fields;
-let related = ModelValidation(User).related;
-let extra = ModelValidation(User).extra;
+let filters = Validations.filters;
+let ids = Validations.ids;
+let pagination = Validations.pagination;
+let sort = Validations.sort;
+let math = Validations.math;
+let softDeleted = Validations.softDeleted;
+let hardDeleted = Validations.hardDeleted;
+let excludedFields = Validations.excludedFields;
+let count = Validations.sort;
+let fields = Validations.fields;
+let related = Validations.related;
+let extra = Validations.extra;
 
-let FLRelations = ModelValidation(User).FLRelations;
-let SLRelations = ModelValidation(User).SLRelations;
-let ALLRelations = ModelValidation(User).ALLRelations;
-let Attributes = ModelValidation(User).Attributes;
-
+let FLRelations = Validations.FLRelations;
+let SLRelations = Validations.SLRelations;
+let ALLRelations = Validations.ALLRelations;
+let Attributes = Validations.Attributes;
 
 const UserValidation = {
-	FLRelations: FLRelations,
-	SLRelations: SLRelations,
-	AllRelations: ALLRelations,
-	Attributes: Attributes,
+	//Model Information
+    FLRelations: FLRelations,
+    SLRelations: SLRelations,
+    AllRelations: ALLRelations,
+    Attributes: Attributes,
 
-	//FindAll
-	queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields, related, extra)),
+	//Params
+    //FindOne, Update, Delete
+    paramOne:  Joi.object().keys({
+        userId: Joi.number().integer().min(1).required(),
+    }),
 
-	//FindOne
-	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
-	paramOne:  Joi.object().keys({
-		userId: Joi.number().integer().min(1).required(),
-	}),
+	//URL Query
+    //FindAll
+    queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields, related, extra)),
+    //FindOne
+    queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
 
-	//POST
-	postPayload:  Joi.object().keys({
-		username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
-		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
-		email: Joi.string().email().required(),
-		isActive: Joi.boolean().valid(true, false).default(false),
-		firstName: Joi.string().min(1).max(64).required(),
-		lastName: Joi.string().min(1).max(64).required(),
-		realmsRolesUsers: Joi.alternatives().try(
-			Joi.array()
-				.items(
-					RealmsRolesUsersValidation.postRelationPayload),
-			RealmsRolesUsersValidation.postRelationPayload),
-	}),
 
-	//PUT
-	putPayload:  Joi.object().keys({
-		username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
-		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
-		email: Joi.string().email().required(),
-		isActive: Joi.boolean().valid(true, false).default(false),
-		firstName: Joi.string().min(1).max(64).required(),
-		lastName: Joi.string().min(1).max(64).required(),
-	}),
+	//Payload
+    //POST
+    postPayload:  Joi.object().keys({
+        username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
+        password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
+        email: Joi.string().email().required(),
+        isActive: Joi.boolean().valid(true, false).default(false),
+        firstName: Joi.string().min(1).max(64).required(),
+        lastName: Joi.string().min(1).max(64).required(),
+		// For Relation Objects
+        realmsRolesUsers: Joi.alternatives().try(
+            Joi.array()
+                .items(
+                    RealmsRolesUsersValidation.postRelationPayload),
+            RealmsRolesUsersValidation.postRelationPayload),
+    }),
 
-	//DELETE
-	deleteOnePayload: Joi.object().keys(_.assign({}, hardDeleted)),
+    //PUT
+    putPayload:  Joi.object().keys({
+        username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
+        password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
+        email: Joi.string().email().required(),
+        isActive: Joi.boolean().valid(true, false).default(false),
+        firstName: Joi.string().min(1).max(64).required(),
+        lastName: Joi.string().min(1).max(64).required(),
+    }),
 
-	//DELETEMANY
-	deleteManyPayload: Joi.object().keys(_.assign({}, hardDeleted, ids)),
+    //DELETE
+    deleteOnePayload: Joi.alternatives().try(
+        Joi.object().keys(_.assign({}, hardDeleted)),
+        Joi.object().allow(null),
+    ),
 
+    //DELETE_MANY
+    deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDeleted, subModels())),
+
+	//ADD_MANY
+	addOnePayload:  Joi.object().keys({
+        realmsRolesUsers: Joi.alternatives().try(
+            Joi.array()
+                .items(
+                    RealmsRolesUsersValidation.postRelationPayload),
+            RealmsRolesUsersValidation.postRelationPayload,
+			Joi.object.null()),
+
+    })
 };
 
 module.exports = UserValidation;

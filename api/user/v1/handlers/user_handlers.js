@@ -56,7 +56,7 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 
 			// call DELETE Handler for CRUD function valid for all present models
-			let response = HandlerHelper.deleteOne(User, request.params.userId, request.query);
+			let response = HandlerHelper.deleteOne(User, request.params.userId, request.payload);
 					return reply(response);
 		},
 

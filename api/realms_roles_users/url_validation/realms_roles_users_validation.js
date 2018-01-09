@@ -5,22 +5,25 @@ const _ = require('lodash');
 
 
 const RealmsRolesUsers = DB.RealmsRolesUsers;
+const Validations = ModelValidation(RealmsRolesUsers);
 
-let filters = ModelValidation(RealmsRolesUsers).filters;
-let pagination = ModelValidation(RealmsRolesUsers).pagination;
-let sort = ModelValidation(RealmsRolesUsers).sort;
-let math = ModelValidation(RealmsRolesUsers).math;
-let softDeleted = ModelValidation(RealmsRolesUsers).softDeleted;
-let excludedFields = ModelValidation(RealmsRolesUsers).excludedFields;
-let count = ModelValidation(RealmsRolesUsers).sort;
-let fields = ModelValidation(RealmsRolesUsers).fields;
-let related = ModelValidation(RealmsRolesUsers).related;
-let extra = ModelValidation(RealmsRolesUsers).extra;
+let filters = Validations.filters;
+let ids = Validations.ids;
+let pagination = Validations.pagination;
+let sort = Validations.sort;
+let math = Validations.math;
+let softDeleted = Validations.softDeleted;
+let hardDeleted = Validations.hardDeleted;
+let excludedFields = Validations.excludedFields;
+let count = Validations.sort;
+let fields = Validations.fields;
+let related = Validations.related;
+let extra = Validations.extra;
 
-let FLRelations = ModelValidation(RealmsRolesUsers).FLRelations;
-let SLRelations = ModelValidation(RealmsRolesUsers).SLRelations;
-let ALLRelations = ModelValidation(RealmsRolesUsers).ALLRelations;
-let Attributes = ModelValidation(RealmsRolesUsers).Attributes;
+let FLRelations = Validations.FLRelations;
+let SLRelations = Validations.SLRelations;
+let ALLRelations = Validations.ALLRelations;
+let Attributes = Validations.Attributes;
 
 const RealmsRolesUsersValidation = {
 	FLRelations: FLRelations,
