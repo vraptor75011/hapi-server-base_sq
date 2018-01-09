@@ -94,7 +94,7 @@ const UserValidation = {
 				.items(
 					RealmsRolesUsersValidation.postRelationPayload),
 			RealmsRolesUsersValidation.postRelationPayload,
-			Joi.object.allow(null)),
+			Joi.object().allow(null)),
 
 	})
 };
