@@ -33,70 +33,70 @@ let Attributes = Validations.Attributes;
 
 const UserValidation = {
 	//Model Information
-    FLRelations: FLRelations,
-    SLRelations: SLRelations,
-    AllRelations: ALLRelations,
-    Attributes: Attributes,
+	FLRelations: FLRelations,
+	SLRelations: SLRelations,
+	AllRelations: ALLRelations,
+	Attributes: Attributes,
 
 	//Params
-    //FindOne, Update, Delete
-    paramOne:  Joi.object().keys({
-        userId: Joi.number().integer().min(1).required(),
-    }),
+	//FindOne, Update, Delete
+	paramOne:  Joi.object().keys({
+		userId: Joi.number().integer().min(1).required(),
+	}),
 
 	//URL Query
-    //FindAll
-    queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields, related, extra)),
-    //FindOne
-    queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
+	//FindAll
+	queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields, related, extra)),
+	//FindOne
+	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
 
 
 	//Payload
-    //POST
-    postPayload:  Joi.object().keys({
-        username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
-        password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
-        email: Joi.string().email().required(),
-        isActive: Joi.boolean().valid(true, false).default(false),
-        firstName: Joi.string().min(1).max(64).required(),
-        lastName: Joi.string().min(1).max(64).required(),
+	//POST
+	postPayload:  Joi.object().keys({
+		username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
+		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
+		email: Joi.string().email().required(),
+		isActive: Joi.boolean().valid(true, false).default(false),
+		firstName: Joi.string().min(1).max(64).required(),
+		lastName: Joi.string().min(1).max(64).required(),
 		// For Relation Objects
-        realmsRolesUsers: Joi.alternatives().try(
-            Joi.array()
-                .items(
-                    RealmsRolesUsersValidation.postRelationPayload),
-            RealmsRolesUsersValidation.postRelationPayload),
-    }),
+		realmsRolesUsers: Joi.alternatives().try(
+			Joi.array()
+				.items(
+					RealmsRolesUsersValidation.postRelationPayload),
+			RealmsRolesUsersValidation.postRelationPayload),
+	}),
 
-    //PUT
-    putPayload:  Joi.object().keys({
-        username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
-        password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
-        email: Joi.string().email().required(),
-        isActive: Joi.boolean().valid(true, false).default(false),
-        firstName: Joi.string().min(1).max(64).required(),
-        lastName: Joi.string().min(1).max(64).required(),
-    }),
+	//PUT
+	putPayload:  Joi.object().keys({
+		username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
+		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
+		email: Joi.string().email().required(),
+		isActive: Joi.boolean().valid(true, false).default(false),
+		firstName: Joi.string().min(1).max(64).required(),
+		lastName: Joi.string().min(1).max(64).required(),
+	}),
 
-    //DELETE
-    deleteOnePayload: Joi.alternatives().try(
-        Joi.object().keys(_.assign({}, hardDeleted)),
-        Joi.object().allow(null),
-    ),
+	//DELETE
+	deleteOnePayload: Joi.alternatives().try(
+		Joi.object().keys(_.assign({}, hardDeleted)),
+		Joi.object().allow(null),
+	),
 
-    //DELETE_MANY
-    deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDeleted)),
+	//DELETE_MANY
+	deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDeleted)),
 
 	//ADD_MANY
 	addOnePayload:  Joi.object().keys({
-        realmsRolesUsers: Joi.alternatives().try(
-            Joi.array()
-                .items(
-                    RealmsRolesUsersValidation.postRelationPayload),
-            RealmsRolesUsersValidation.postRelationPayload,
-			Joi.object.null()),
+		realmsRolesUsers: Joi.alternatives().try(
+			Joi.array()
+				.items(
+					RealmsRolesUsersValidation.postRelationPayload),
+			RealmsRolesUsersValidation.postRelationPayload,
+			Joi.object.allow(null)),
 
-    })
+	})
 };
 
 module.exports = UserValidation;
