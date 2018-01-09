@@ -3,13 +3,22 @@ const _ = require('lodash');
 const DB = require('../../../config/sequelize');
 const ModelValidation = require('../../../utilities/validation/model_validations');
 
-// Model validation to integrate new User POST...with Related Object
-const RealmsRolesUsersValidation = require('../../realms_roles_users/url_validation/realms_roles_users_validation');
-
 const usrString = "^([a-zA-Z0-9]+[\_\.\-]?)*[a-zA-Z0-9]$";                   // alt(a-zA-Z0-9||_.-) always ends with a-zA-Z0-9 no max length
 const pwdString = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
 const usrRegExp = new RegExp(usrString);
 const pwdRegExp = new RegExp(pwdString);
+
+// Model validation to integrate new User POST...with Related Object
+const RealmsRolesUsersValidation = require('../../realms_roles_users/url_validation/realms_roles_users_validation');
+const relationUrl = Joi.string().required().valid('realmsRolesUsers');
+
+let addManyRRU = Joi.alternatives().try(
+			Joi.array().items(
+					RealmsRolesUsersValidation.postRelationPayload),
+			RealmsRolesUsersValidation.postRelationPayload,
+);
+
+// ^To add all relations to create or add from USER form (with User Object)
 
 const Validations = ModelValidation(DB.User);
 
@@ -31,6 +40,8 @@ let SLRelations = Validations.SLRelations;
 let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
 
+let userId = Joi.number().integer().min(1).required();
+
 const UserValidation = {
 	//Model Information
 	FLRelations: FLRelations,
@@ -40,8 +51,8 @@ const UserValidation = {
 
 	//Params
 	//FindOne, Update, Delete
-	paramOne:  Joi.object().keys({
-		userId: Joi.number().integer().min(1).required(),
+	paramUserId:  Joi.object().keys({
+		userId: userId,
 	}),
 
 	//URL Query
@@ -61,11 +72,7 @@ const UserValidation = {
 		firstName: Joi.string().min(1).max(64).required(),
 		lastName: Joi.string().min(1).max(64).required(),
 		// For Relation Objects
-		realmsRolesUsers: Joi.alternatives().try(
-			Joi.array()
-				.items(
-					RealmsRolesUsersValidation.postRelationPayload),
-			RealmsRolesUsersValidation.postRelationPayload),
+		realmsRolesUsers: addManyRRU,
 	}),
 
 	//PUT
@@ -87,16 +94,13 @@ const UserValidation = {
 	//DELETE_MANY
 	deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDeleted)),
 
+	//Relations Payload
 	//ADD_MANY
-	addOnePayload:  Joi.object().keys({
-		realmsRolesUsers: Joi.alternatives().try(
-			Joi.array()
-				.items(
-					RealmsRolesUsersValidation.postRelationPayload),
-			RealmsRolesUsersValidation.postRelationPayload,
-			Joi.object().allow(null)),
+	addManyParams: Joi.object().keys(_.assign({}, {userId: userId}, {childModel: relationUrl})),
+	addManyPayload:  Joi.object().keys({
+		childModel: addManyRRU,
 
-	})
+	}),
 };
 
 module.exports = UserValidation;

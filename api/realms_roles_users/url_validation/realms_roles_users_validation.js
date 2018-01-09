@@ -37,7 +37,7 @@ const RealmsRolesUsersValidation = {
 	//FindOne
 	queryOne: Joi.object().keys(_.assign({}, fields, related)),
 	paramOne:  Joi.object().keys({
-		userId: Joi.number().min(1).required(),
+		realmsRolesUsersId: Joi.number().min(1).required(),
 	}),
 
 	//POST
