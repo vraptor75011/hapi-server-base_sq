@@ -6,10 +6,13 @@ const Q = require('q');
 const Boom = require('boom');
 const  _ = require('lodash');
 const Chalk = require('chalk');
+const Sequelize = require('sequelize');
 const ErrorHelper = require('../error/error-helper');
 const Log = require('../logging/logging');
 const QueryHelper = require('../query/query-helper');
 const ModelValidation = require('../validation/model_validations');
+
+const Op = Sequelize.Op;
 
 //TODO: add a "clean" method that clears out all soft-deleted docs
 //TODO: add an optional TTL config setting that determines how long soft-deleted docs remain in the system
@@ -401,17 +404,15 @@ async function _deleteOne(model, id, hardDelete) {
 }
 
 /**
- * Deletes multiple documents
- * @param model: A mongoose model.
- * @param payload: Either an array of ids or an array of objects containing an id and a "hardDelete" flag.
- * @param Log: A logging object.
+ * Deletes multiple documents from DB. Default: softdeleted
+ * @param model: A sequelize model.
+ * @param payload: an array of ids and a "hardDelete" flag.
  * @returns {object} A promise returning true if the delete succeeds.
  * @private
  */
-//TODO: prevent Q.all from catching first error and returning early. Catch individual errors and return a list
-//TODO(cont) of ids that failed
-function _deleteMany(model, payload, Log) {
+async function _deleteMany(model, payload) {
 	try {
+		let sequelizeQuery = {where: {id: {[Op.in]: payload.$ids}}};
 		let promises = [];
 		payload.forEach(function(arg) {
 			if (_.isString(arg)) {
@@ -422,13 +423,6 @@ function _deleteMany(model, payload, Log) {
 			}
 		});
 
-		return Q.all(promises)
-			.then(function(result) {
-				return true;
-			})
-			.catch(function(error) {
-				throw error;
-			})
 	}
 
 	catch(error) {
@@ -1171,7 +1165,7 @@ function queryFilteredRest(query, model) {
  * @private
  */
 function queryWithDeleted(query, sequelizeQuery, model) {
-	if (query.$withDeleted === true) {
+	if (query.$withDeleted === true || query.$hardDeleted === true) {
 		sequelizeQuery['paranoid'] = false;
 	}
 

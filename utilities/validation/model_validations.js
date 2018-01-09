@@ -206,6 +206,12 @@ module.exports = function(model) {
 
 	const filters = getFilters(model);
 
+	const ids = {
+		$ids: Joi.array().min(2).required()
+			.items(
+				Joi.number().integer().min(1)),
+	};
+
 	const pagination = {
 		$page: Joi.number().integer().min(1).description('page number')
 			.default(1),
@@ -244,6 +250,10 @@ module.exports = function(model) {
 
 	const softDeleted = {
 		$withDeleted: Joi.boolean().description('includes soft deleted record').default(false),
+	};
+
+	const hardDeleted = {
+		$hardDeleted: Joi.boolean().description('includes soft deleted record').default(false),
 	};
 
 	const exludedFields = {
@@ -322,10 +332,12 @@ module.exports = function(model) {
 
 	const modelValidations = {
 		filters: filters,
+		ids: ids,
 		pagination: pagination,
 		sort: sort,
 		math: math,
 		softDeleted: softDeleted,
+		hardDeleted: hardDeleted,
 		excludedFields: exludedFields,
 		count: count,
 		fields: fields,
