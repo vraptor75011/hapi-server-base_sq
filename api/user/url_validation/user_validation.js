@@ -14,10 +14,12 @@ const pwdRegExp = new RegExp(pwdString);
 const User = DB.User;
 
 let filters = ModelValidation(User).filters;
+let ids = ModelValidation(User).ids;
 let pagination = ModelValidation(User).pagination;
 let sort = ModelValidation(User).sort;
 let math = ModelValidation(User).math;
 let softDeleted = ModelValidation(User).softDeleted;
+let hardDeleted = ModelValidation(User).hardDeleted;
 let excludedFields = ModelValidation(User).excludedFields;
 let count = ModelValidation(User).sort;
 let fields = ModelValidation(User).fields;
@@ -42,7 +44,7 @@ const UserValidation = {
 	//FindOne
 	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
 	paramOne:  Joi.object().keys({
-		userId: Joi.number().min(1).required(),
+		userId: Joi.number().integer().min(1).required(),
 	}),
 
 	//POST
@@ -69,6 +71,12 @@ const UserValidation = {
 		firstName: Joi.string().min(1).max(64).required(),
 		lastName: Joi.string().min(1).max(64).required(),
 	}),
+
+	//DELETE
+	deleteOnePayload: Joi.object().keys(_.assign({}, hardDeleted)),
+
+	//DELETEMANY
+	deleteManyPayload: Joi.object().keys(_.assign({}, hardDeleted, ids)),
 
 };
 

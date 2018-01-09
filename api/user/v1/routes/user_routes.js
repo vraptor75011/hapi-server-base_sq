@@ -105,7 +105,27 @@ module.exports.register = (server, options, next) => {
 				notes: ['Delete un User <br>'],
 				validate: {
 					params: UserValidation.paramOne,
-					// payload: UserValidation.putPayload,
+					payload: UserValidation.deleteOnePayload,
+					headers: HeaderValidation.headerRequired,
+				},
+			},
+		},
+		// EXTRA CRUD
+		{
+			method: 'DELETE',
+			path: '/v1/users/',
+			config: {
+				handler: UserHandler.deleteMany,
+				auth:
+					{
+						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
+					},
+				tags: ['api', 'Users'],
+				description: 'DELETE many Users by Ids Array',
+				notes: ['Delete many Users <br>'],
+				validate: {
+					// params: UserValidation.paramOne,
+					payload: UserValidation.deleteManyPayload,
 					headers: HeaderValidation.headerRequired,
 				},
 			},

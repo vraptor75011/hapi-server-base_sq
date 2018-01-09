@@ -44,6 +44,7 @@ const Handler =
 
 		update: function (request, reply) {
 			// Admin and User can update an User, but User can't change his roles and realms
+			// Call an async function with await inside in handler-helper
 
 			// call CREATE Handler for CRUD function valid for all present models
 			let user = HandlerHelper.update(User, request.params.userId, request.payload);
@@ -51,17 +52,21 @@ const Handler =
 		},
 
 		delete: function (request, reply) {
-			// Admin adn User can update an User, but User can't change his roles and realms
+			// Admin can delete an User
+			// Call an async function with await inside in handler-helper
 
-			// call CREATE Handler for CRUD function valid for all present models
-			HandlerHelper.deleteOne(User, request.params.userId, request.query)
-				.then(function(result){
-					return reply(result);
-				})
-				.catch(function (error) {
-					let errorMsg = error.message || 'An error occurred';
-					return reply(Boom.gatewayTimeout(errorMsg));
-				});
+			// call DELETE Handler for CRUD function valid for all present models
+			let response = HandlerHelper.deleteOne(User, request.params.userId, request.query);
+					return reply(response);
+		},
+
+		deleteMany: function (request, reply) {
+			// Admin can delete an User
+			// Call an async function with await inside in handler-helper
+
+			// call DELETE Handler for CRUD function valid for all present models
+			let response = HandlerHelper.deleteMany(User, request.payload);
+			return reply(response);
 		},
 	};
 
