@@ -62,15 +62,13 @@ class UserButton extends Component {
     }
 
     componentWillMount() {
-        const profile = JSON.parse(localStorage.getItem('profile'));
-        console.log(profile)
+        const profile = localStorage.getItem('profile');
 
-        if (profile) {
-            const {firstName, lastName, email} = profile;
+        if (profile !== 'undefined') {
+
+            const {firstName, lastName, email} = JSON.parse(profile);
             this.setState({firstName, lastName, email});
         }
-
-
     }
 
     handleClickButton = () => {
