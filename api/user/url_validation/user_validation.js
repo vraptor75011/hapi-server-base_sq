@@ -100,6 +100,14 @@ const UserValidation = {
 		childModel: addManyRRU,
 
 	}),
+
+    //REMOVE_MANY
+    removeManyParams: Joi.object().keys(_.assign({}, {userId: userId}, {childModel: relationUrl})),
+    removeManyPayload:  Joi.object().keys({
+        childModelIds: Joi.array().min(1).items(
+            Joi.number().integer().min(1)
+        ).required(),
+    }),
 };
 
 module.exports = UserValidation;

@@ -79,30 +79,6 @@ module.exports = {
 	 */
 	deleteMany: _deleteMany,
 
-	/**
-	 * Adds an association to a document
-	 * @param ownerModel: The model that is being added to.
-	 * @param ownerId: The id of the owner document.
-	 * @param childModel: The model that is being added.
-	 * @param childId: The id of the child document.
-	 * @param associationName: The name of the association from the ownerModel's perspective.
-	 * @param payload: Either an id or an object containing an id and extra linking-model fields.
-	 * @param Log: A logging object
-	 * @returns {object} A promise returning true if the add succeeds.
-	 */
-	addOne: _addOne,
-
-	/**
-	 * Removes an association to a document
-	 * @param ownerModel: The model that is being removed from.
-	 * @param ownerId: The id of the owner document.
-	 * @param childModel: The model that is being removed.
-	 * @param childId: The id of the child document.
-	 * @param associationName: The name of the association from the ownerModel's perspective.
-	 * @param Log: A logging object
-	 * @returns {object} A promise returning true if the remove succeeds.
-	 */
-	removeOne: _removeOne,
 
 	/**
 	 * Adds multiple associations to a document
@@ -490,121 +466,6 @@ async function _addMany(ownerModel, ownerId, childModel, associationName, payloa
 	}
 }
 
-/**
- * Removes an association to a document
- * @param ownerModel: The model that is being removed from.
- * @param ownerId: The id of the owner document.
- * @param childModel: The model that is being removed.
- * @param childId: The id of the child document.
- * @param associationName: The name of the association from the ownerModel's perspective.
- * @param Log: A logging object
- * @returns {object} A promise returning true if the remove succeeds.
- * @private
- */
-function _removeOne(ownerModel, ownerId, childModel, childId, associationName, Log) {
-	try {
-		return ownerModel.findOne({ '_id': ownerId })
-			.then(function (ownerObject) {
-				if (ownerObject) {
-					_removeAssociation(ownerModel, ownerObject, childModel, childId, associationName, Log)
-						.then(function() {
-							return true;
-						})
-						.catch(function (error) {
-							const message = "There was a database error while removing the association.";
-							errorHelper.handleError(error, message, errorHelper.types.GATEWAY_TIMEOUT, Log);
-						});
-				}
-				else {
-					const message = "No owner resource was found with that id.";
-					errorHelper.handleError(message, message, errorHelper.types.NOT_FOUND, Log);
-				}
-			})
-	}
-	catch(error) {
-		const message = "There was an error processing the request.";
-		try {
-			errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log)
-		}
-		catch(error) {
-			return Q.reject(error);
-		}
-	}
-}
-
-/**
- * Adds multiple associations to a document
- * @param ownerModel: The model that is being added to.
- * @param ownerId: The id of the owner document.
- * @param childModel: The model that is being added.
- * @param associationName: The name of the association from the ownerModel's perspective.
- * @param payload: Either a list of id's or a list of id's along with extra linking-model fields.
- * @param Log: A logging object
- * @returns {object} A promise returning true if the add succeeds.
- * @private
- */
-function _addOne(ownerModel, ownerId, childModel, associationName, payload, Log) {
-	try {
-		return ownerModel.findOne({ '_id': ownerId })
-			.then(function (ownerObject) {
-				if (ownerObject) {
-					var childIds = [];
-					if (typeof payload[0] === 'string' || payload[0] instanceof String) {//EXPL: the payload is an array of Ids
-						childIds = payload;
-					}
-					else {//EXPL: the payload contains extra fields
-						childIds = payload.map(function(object) {
-							return object.childId;
-						});
-					}
-
-					var promise_chain = Q.when();
-
-					childIds.forEach(function(childId) {
-						var promise_link = function() {
-							var deferred = Q.defer();
-							_setAssociation(ownerModel, ownerObject, childModel, childId, associationName, payload, Log)
-								.then(function(result) {
-									deferred.resolve(result);
-								})
-								.catch(function (error) {
-									deferred.reject(error);
-								});
-							return deferred.promise;
-						};
-
-						promise_chain = promise_chain
-							.then(promise_link)
-							.catch(function(error) {
-								throw error;
-							});
-					});
-
-					return promise_chain
-						.then(function() {
-							return true;
-						})
-						.catch(function (error) {
-							const message = "There was an internal error while setting the associations.";
-							errorHelper.handleError(error, message, errorHelper.types.GATEWAY_TIMEOUT, Log);
-						});
-				}
-				else {
-					const message = "No owner resource was found with that id.";
-					errorHelper.handleError(message, message, errorHelper.types.NOT_FOUND, Log);
-				}
-			})
-	}
-	catch(error) {
-		const message = "There was an error processing the request.";
-		try {
-			errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log)
-		}
-		catch(error) {
-			return Q.reject(error);
-		}
-	}
-}
 
 /**
  * Removes multiple associations from a document
@@ -613,63 +474,43 @@ function _addOne(ownerModel, ownerId, childModel, associationName, payload, Log)
  * @param childModel: The model that is being removed.
  * @param associationName: The name of the association from the ownerModel's perspective.
  * @param payload: A list of ids
- * @param Log: A logging object
  * @returns {object} A promise returning true if the remove succeeds.
  * @private
  */
-function _removeMany(ownerModel, ownerId, childModel, associationName, payload, Log) {
+async function _removeMany(ownerModel, ownerId, childModel, associationName, payload) {
 	try {
-		return ownerModel.findOne({ '_id': ownerId })
-			.then(function (ownerObject) {
-				if (ownerObject) {
-					var childIds = payload;
+        let ownerObject;
+        let result;
+        ownerObject = await ownerModel.findOne({
+            where: {'id': ownerId },
+            include: [{
+                model: childModel,
+            }]
+        });
 
-					var promise_chain = Q.when();
-
-					childIds.forEach(function(childId) {
-						var promise_link = function() {
-							var deferred = Q.defer();
-							_removeAssociation(ownerModel, ownerObject, childModel, childId, associationName, Log)
-								.then(function(result) {
-									deferred.resolve(result);
-								})
-								.catch(function (error) {
-									deferred.reject(error);
-								});
-							return deferred.promise;
-						};
-
-						promise_chain = promise_chain
-							.then(promise_link)
-							.catch(function(error) {
-								throw error;
-							});
-					});
-
-					return promise_chain
-						.then(function() {
-							return true;
-						})
-						.catch(function (error) {
-							const message = "There was an internal error while removing the associations.";
-							errorHelper.handleError(error, message, errorHelper.types.GATEWAY_TIMEOUT, Log);
-						});
-				}
-				else {
-					const message = "No owner resource was found with that id.";
-					errorHelper.handleError(message, message, errorHelper.types.NOT_FOUND, Log);
-				}
-			})
-	}
-	catch(error) {
-		const message = "There was an error processing the request.";
-		try {
-			errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log)
-		}
-		catch(error) {
-			return Q.reject(error);
-		}
-	}
+        if (ownerObject) {
+            if (!payload) {
+                payload = {};
+            }
+            result = await _removeAssociation(ownerObject, childModel, associationName, payload);
+            if (result.errors) {
+                let error = Boom.badRequest(result);
+                error.output.payload['sql validation'] = {message: error.original.message};
+                error.reformat();
+                return error;
+            } else {
+                return {doc: result};
+            }
+        } else {
+            let error = {type: ErrorHelper.types.NOT_FOUND };
+            error.message = ownerModel.name + ' id: ' + ownerId + ' not found';
+            return ErrorHelper.formatResponse(error);
+        }
+    } catch(error) {
+        Log.apiLogger.error(Chalk.red(error));
+        error = {type: ErrorHelper.types.BAD_IMPLEMENTATION};
+        return ErrorHelper.formatResponse(error);
+    }
 }
 
 /**
@@ -807,95 +648,35 @@ async function _setAssociation(ownerObject, childModel, associationName, payload
 }
 
 /**
- * Remove an association instance between two resources
- * @param request
- * @param server
- * @param ownerModel
+ * Remove related association instances from an owner object
  * @param ownerObject
  * @param childModel
- * @param childId
  * @param associationName
- * @param options
- * @param Log
+ * @param payload: the Ids array to remove
  * @returns {*|promise}
  * @private
  */
-function _removeAssociation(ownerModel, ownerObject, childModel, childId, associationName, Log) {
-	var deferred = Q.defer();
+async function _removeAssociation(ownerObject, childModel, associationName, payload) {
+    //Transaction
+    const t = await DB.sequelize.transaction();
 
-	childModel.findOne({ '_id': childId })
-		.then(function (childObject) {
-			if (childObject) {
-				var promise = {};
-				var association = ownerModel.routeOptions.associations[associationName];
-				var associationType = association.type;
-				if (associationType === "ONE_MANY") {//EXPL: one-many associations are virtual, so only update the child reference
-					// childObject[association.foreignField] = null; //TODO: set reference to null instead of deleting it?
-					childObject[association.foreignField] = undefined;
-					promise = childObject.save()
-				}
-				else if (associationType === "MANY_MANY") {//EXPL: remove references from both models
-
-					//EXPL: remove the associated child from the owner
-					var deleteChild = ownerObject[associationName].filter(function(child) {
-						return child[childModel.modelName].toString() === childObject._id.toString();
-					});
-					deleteChild = deleteChild[0];
-
-					var index = ownerObject[associationName].indexOf(deleteChild);
-					if (index > -1) {
-						ownerObject[associationName].splice(index, 1);
-					}
-
-					//EXPL: get the child association name
-					var childAssociation = {};
-					var childAssociations = childModel.routeOptions.associations;
-					for (var childAssociationKey in childAssociations) {
-						var association = childAssociations[childAssociationKey];
-						if (association.model === ownerModel.modelName) {
-							childAssociation = association;
-						}
-					}
-					var childAssociationName = childAssociation.include.as;
-
-					//EXPL: remove the associated owner from the child
-					var deleteOwner = childObject[childAssociationName].filter(function(owner) {
-						return owner[ownerModel.modelName].toString() === ownerObject._id.toString();
-					});
-					deleteOwner = deleteOwner[0];
-
-					index = childObject[childAssociationName].indexOf(deleteOwner);
-					if (index > -1) {
-						childObject[childAssociationName].splice(index, 1);
-					}
-
-					promise = Q.all(ownerModel.findByIdAndUpdate(ownerObject._id, ownerObject), childModel.findByIdAndUpdate(childObject._id, childObject));
-				}
-				else {
-					deferred.reject("Association type incorrectly defined.");
-					return deferred.promise;
-				}
-
-				promise
-					.then(function() {
-						//TODO: add eventLogs
-						deferred.resolve();
-					})
-					.catch(function (error) {
-						Log.error(error);
-						deferred.reject(error);
-					});
-			}
-			else {
-				deferred.reject("Child object not found.");
-			}
-		})
-		.catch(function (error) {
-			Log.error(error);
-			deferred.reject(error);
-		});
-
-	return deferred.promise;
+    try {
+        let action = 'remove'+_.upperFirst(associationName);
+        let result = await ownerObject[action](payload.childModelIds, {transaction: t});
+        if (result) {
+            await t.commit();
+            return true;
+        } else {
+            await t.rollback();
+            let error = {type: ErrorHelper.types.BAD_REQUEST };
+            error.message = 'Impossible to remove ' + childModel.name + 'for: ' + ownerObject.id;
+            return ErrorHelper.formatResponse(error);
+        }
+    } catch(error) {
+        await t.rollback();
+        Log.apiLogger.error(Chalk.red(error));
+        return error;
+    }
 }
 
 /**

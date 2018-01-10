@@ -149,6 +149,25 @@ module.exports.register = (server, options, next) => {
 				},
 			},
 		},
+        {
+            method: 'DELETE',
+            path: '/v1/users/{userId}/{childModel}',
+            config: {
+                handler: UserHandler.removeMany,
+                auth:
+                    {
+                        scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
+                    },
+                tags: ['api', 'Users'],
+                description: 'REMOVE one or more related Model from User',
+                notes: ['Remove one or more related model (destroy relations) from an existed User - Child Model belongsTo User <br>'],
+                validate: {
+                    params: UserValidation.removeManyParams,
+                    payload: UserValidation.removeManyPayload,
+                    headers: HeaderValidation.headerRequired,
+                },
+            },
+        },
 	]);
 
 	next()
