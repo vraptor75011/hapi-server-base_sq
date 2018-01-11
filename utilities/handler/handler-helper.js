@@ -93,13 +93,12 @@ module.exports = {
 	addOne: _addOne,
 
 	/**
-	 * Removes an association to a document
+	 * Removes an association object from a document
 	 * @param ownerModel: The model that is being removed from.
 	 * @param ownerId: The id of the owner document.
 	 * @param childModel: The model that is being removed.
 	 * @param childId: The id of the child document.
 	 * @param associationName: The name of the association from the ownerModel's perspective.
-	 * @param Log: A logging object
 	 * @returns {object} A promise returning true if the remove succeeds.
 	 */
 	removeOne: _removeOne,
@@ -491,44 +490,44 @@ async function _addMany(ownerModel, ownerId, childModel, associationName, payloa
 }
 
 /**
- * Removes an association to a document
+ * Removes an association from a document
  * @param ownerModel: The model that is being removed from.
  * @param ownerId: The id of the owner document.
  * @param childModel: The model that is being removed.
  * @param childId: The id of the child document.
  * @param associationName: The name of the association from the ownerModel's perspective.
- * @param Log: A logging object
+ * @param payload: The payload request
  * @returns {object} A promise returning true if the remove succeeds.
  * @private
  */
-function _removeOne(ownerModel, ownerId, childModel, childId, associationName, Log) {
+async function _removeOne(ownerModel, ownerId, childModel, childId, associationName, payload) {
 	try {
-		return ownerModel.findOne({ '_id': ownerId })
-			.then(function (ownerObject) {
+		let sequelizeQuery = {where: {id: ownerId}};
+		let ownerObject = await ownerModel.findOne(sequelizeQuery);
+		let result;
+		if (!payload) {
+			payload = {};
+		}
+
 				if (ownerObject) {
-					_removeAssociation(ownerModel, ownerObject, childModel, childId, associationName, Log)
-						.then(function() {
-							return true;
-						})
-						.catch(function (error) {
-							const message = "There was a database error while removing the association.";
-							errorHelper.handleError(error, message, errorHelper.types.GATEWAY_TIMEOUT, Log);
-						});
+					result = await _removeAssociation(ownerModel, ownerId, childModel, childId, associationName, payload);
+					if (result.errors) {
+						let error = Boom.badRequest(result);
+						error.output.payload['sql validation'] = {message: error.original.message};
+						error.reformat();
+						return error;
+					} else {
+						return true;
+					}
+				}	else {
+					let error = {type: ErrorHelper.types.NOT_FOUND};
+					error.message = ownerModel.name + ' id: ' + ownerId + ' not found';
+					return ErrorHelper.formatResponse(error);
 				}
-				else {
-					const message = "No owner resource was found with that id.";
-					errorHelper.handleError(message, message, errorHelper.types.NOT_FOUND, Log);
-				}
-			})
-	}
-	catch(error) {
-		const message = "There was an error processing the request.";
-		try {
-			errorHelper.handleError(error, message, errorHelper.types.BAD_REQUEST, Log)
-		}
-		catch(error) {
-			return Q.reject(error);
-		}
+	} catch(error) {
+		Log.apiLogger.error(Chalk.red(error));
+		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION};
+		return ErrorHelper.formatResponse(error);
 	}
 }
 
@@ -783,6 +782,9 @@ async function _setAssociation(ownerObject, childModel, associationName, payload
 
 	try {
 		let result;
+		if (!_.isArray(payload.childModel)) {
+			payload.childModel = [payload.childModel];
+		}
 		let targetModels = await childModel.bulkCreate(payload.childModel, {transaction: t});
 
 		let action = 'add'+_.upperFirst(associationName);
@@ -808,94 +810,46 @@ async function _setAssociation(ownerObject, childModel, associationName, payload
 
 /**
  * Remove an association instance between two resources
- * @param request
- * @param server
- * @param ownerModel
  * @param ownerObject
+ * @param ownerId
  * @param childModel
  * @param childId
  * @param associationName
- * @param options
- * @param Log
+ * @param payload
  * @returns {*|promise}
  * @private
  */
-function _removeAssociation(ownerModel, ownerObject, childModel, childId, associationName, Log) {
-	var deferred = Q.defer();
+async function _removeAssociation(ownerModel, ownerId, childModel, childId, associationName, payload) {
+	//Transaction
+	const t = await DB.sequelize.transaction();
 
-	childModel.findOne({ '_id': childId })
-		.then(function (childObject) {
-			if (childObject) {
-				var promise = {};
-				var association = ownerModel.routeOptions.associations[associationName];
-				var associationType = association.type;
-				if (associationType === "ONE_MANY") {//EXPL: one-many associations are virtual, so only update the child reference
-					// childObject[association.foreignField] = null; //TODO: set reference to null instead of deleting it?
-					childObject[association.foreignField] = undefined;
-					promise = childObject.save()
-				}
-				else if (associationType === "MANY_MANY") {//EXPL: remove references from both models
+	try {
+		let result;
+		if (!_.isArray(childId)) {
+			childId = [childId];
+		}
+		let foreignKey = ownerModel.associations[associationName].foreignKeyField;
 
-					//EXPL: remove the associated child from the owner
-					var deleteChild = ownerObject[associationName].filter(function(child) {
-						return child[childModel.modelName].toString() === childObject._id.toString();
-					});
-					deleteChild = deleteChild[0];
+		let sequelizeQuery = {where: {id: {[Op.in]: childId}, [foreignKey]: ownerId}};
 
-					var index = ownerObject[associationName].indexOf(deleteChild);
-					if (index > -1) {
-						ownerObject[associationName].splice(index, 1);
-					}
-
-					//EXPL: get the child association name
-					var childAssociation = {};
-					var childAssociations = childModel.routeOptions.associations;
-					for (var childAssociationKey in childAssociations) {
-						var association = childAssociations[childAssociationKey];
-						if (association.model === ownerModel.modelName) {
-							childAssociation = association;
-						}
-					}
-					var childAssociationName = childAssociation.include.as;
-
-					//EXPL: remove the associated owner from the child
-					var deleteOwner = childObject[childAssociationName].filter(function(owner) {
-						return owner[ownerModel.modelName].toString() === ownerObject._id.toString();
-					});
-					deleteOwner = deleteOwner[0];
-
-					index = childObject[childAssociationName].indexOf(deleteOwner);
-					if (index > -1) {
-						childObject[childAssociationName].splice(index, 1);
-					}
-
-					promise = Q.all(ownerModel.findByIdAndUpdate(ownerObject._id, ownerObject), childModel.findByIdAndUpdate(childObject._id, childObject));
-				}
-				else {
-					deferred.reject("Association type incorrectly defined.");
-					return deferred.promise;
-				}
-
-				promise
-					.then(function() {
-						//TODO: add eventLogs
-						deferred.resolve();
-					})
-					.catch(function (error) {
-						Log.error(error);
-						deferred.reject(error);
-					});
-			}
-			else {
-				deferred.reject("Child object not found.");
-			}
-		})
-		.catch(function (error) {
-			Log.error(error);
-			deferred.reject(error);
-		});
-
-	return deferred.promise;
+		sequelizeQuery = queryWithDeleted(payload, sequelizeQuery, childModel);
+		result = await childModel.destroy(sequelizeQuery);
+		if (result) {
+			let action = 'get'+_.upperFirst(associationName);
+			let response = await ownerObject[action]({transaction: t});
+			await t.commit();
+			return response;
+		} else {
+			await t.rollback();
+			let error = {type: ErrorHelper.types.BAD_REQUEST };
+			error.message = 'Impossible to remove ' + childModel.name + 'from: ' + ownerObject.id;
+			return ErrorHelper.formatResponse(error);
+		}
+	} catch(error) {
+		await t.rollback();
+		Log.apiLogger.error(Chalk.red(error));
+		return error;
+	}
 }
 
 /**
@@ -1082,7 +1036,7 @@ function queryFilteredRest(query, model) {
  * @private
  */
 function queryWithDeleted(query, sequelizeQuery, model) {
-	if (query.$withDeleted === true || query.$hardDeleted === true) {
+	if (query.$withDeleted === true || query.$hardDelete === true) {
 		sequelizeQuery['paranoid'] = false;
 	}
 

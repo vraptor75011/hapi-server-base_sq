@@ -13,8 +13,9 @@ const RealmsRolesUsersValidation = require('../../realms_roles_users/url_validat
 const relationUrl = Joi.string().required().valid('realmsRolesUsers');
 
 let addManyRRU = Joi.alternatives().try(
-			Joi.array().min(1).items(
-					RealmsRolesUsersValidation.postRelationPayload),
+	Joi.array().min(1).items(
+		RealmsRolesUsersValidation.postRelationPayload),
+	RealmsRolesUsersValidation.postRelationPayload
 );
 
 // ^To add all relations to create or add from USER form (with User Object)
@@ -27,7 +28,7 @@ let pagination = Validations.pagination;
 let sort = Validations.sort;
 let math = Validations.math;
 let softDeleted = Validations.softDeleted;
-let hardDeleted = Validations.hardDeleted;
+let hardDelete = Validations.hardDelete;
 let excludedFields = Validations.excludedFields;
 let count = Validations.sort;
 let fields = Validations.fields;
@@ -39,7 +40,7 @@ let SLRelations = Validations.SLRelations;
 let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
 
-let userId = Joi.number().integer().min(1).required();
+let id = Joi.number().integer().min(1).required();
 
 const UserValidation = {
 	//Model Information
@@ -51,7 +52,7 @@ const UserValidation = {
 	//Params
 	//FindOne, Update, Delete
 	paramUserId:  Joi.object().keys({
-		userId: userId,
+		userId: id,
 	}),
 
 	//URL Query
@@ -86,20 +87,26 @@ const UserValidation = {
 
 	//DELETE
 	deleteOnePayload: Joi.alternatives().try(
-		Joi.object().keys(_.assign({}, hardDeleted)),
+		Joi.object().keys(_.assign({}, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//DELETE_MANY
-	deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDeleted)),
+	deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDelete)),
 
 	//Relations Payload
 	//ADD_MANY
-	addManyParams: Joi.object().keys(_.assign({}, {userId: userId}, {childModel: relationUrl})),
+	addManyParams: Joi.object().keys(_.assign({}, {userId: id}, {childModel: relationUrl})),
 	addManyPayload:  Joi.object().keys({
 		childModel: addManyRRU,
 
 	}),
+	//REMOVE_ONE
+	removeOneParams: Joi.object().keys(_.assign({}, {userId: id}, {childModel: relationUrl}, {childId: id})),
+	removeOnePayload: Joi.alternatives().try(
+		Joi.object().keys(_.assign({}, hardDelete)),
+		Joi.object().allow(null),
+	),
 };
 
 module.exports = UserValidation;

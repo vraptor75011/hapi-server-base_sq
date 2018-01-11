@@ -207,7 +207,7 @@ module.exports = function(model) {
 	const filters = getFilters(model);
 
 	const ids = {
-		$ids: Joi.array().min(2).required()
+		$ids: Joi.array().min(1).required()
 			.items(
 				Joi.number().integer().min(1)),
 	};
@@ -252,8 +252,8 @@ module.exports = function(model) {
 		$withDeleted: Joi.boolean().description('includes soft deleted record').default(false),
 	};
 
-	const hardDeleted = {
-		$hardDeleted: Joi.boolean().description('includes soft deleted record').default(false),
+	const hardDelete = {
+		$hardDelete: Joi.boolean().description('includes soft deleted record').default(false),
 	};
 
 	const exludedFields = {
@@ -337,7 +337,7 @@ module.exports = function(model) {
 		sort: sort,
 		math: math,
 		softDeleted: softDeleted,
-		hardDeleted: hardDeleted,
+		hardDelete: hardDelete,
 		excludedFields: exludedFields,
 		count: count,
 		fields: fields,

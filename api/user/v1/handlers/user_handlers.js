@@ -77,6 +77,15 @@ const Handler =
 			let response = HandlerHelper.addMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
 			return reply(response);
 		},
+
+		removeOne: function (request, reply) {
+			// Admin can remove one child model from an User
+			// Call an async function with await inside in handler-helper
+			let childModel = User.associations[request.params.childModel].target;
+			// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
+			let response = HandlerHelper.removeOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
+			return reply(response);
+		},
 	};
 
 module.exports = Handler;
