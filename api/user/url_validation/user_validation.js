@@ -83,6 +83,8 @@ const UserValidation = {
 		isActive: Joi.boolean().valid(true, false).default(false),
 		firstName: Joi.string().min(1).max(64).required(),
 		lastName: Joi.string().min(1).max(64).required(),
+        // For Relation Objects
+        realmsRolesUsers: addManyRRU,
 	}),
 
 	//DELETE

@@ -51,6 +51,12 @@ const RealmsRolesUsersValidation = {
 		realmId: Joi.number().min(1),
 		roleId: Joi.number().min(1),
 	}),
+    //PUT in Relation with User Model
+    putRelationPayload:  Joi.object().keys({
+		id: Joi.number().integer().min(1),
+        realmId: Joi.number().integer().min(1),
+        roleId: Joi.number().integer().min(1),
+    }),
 
 };
 
