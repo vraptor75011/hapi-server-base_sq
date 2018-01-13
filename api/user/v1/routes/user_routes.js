@@ -159,7 +159,7 @@ module.exports.register = (server, options, next) => {
 						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 					},
 				tags: ['api', 'Users'],
-				description: 'ADD one or more related Model to User',
+				description: 'Remove one related Model from User',
 				notes: ['Remove one related model (delete) from an existed User - Child Model belongsTo User <br>'],
 				validate: {
 					params: UserValidation.removeOneParams,
