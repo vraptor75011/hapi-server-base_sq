@@ -3,11 +3,8 @@ const _ = require('lodash');
 const DB = require('../../../config/sequelize');
 const ModelValidation = require('../../../utilities/validation/model_validations');
 const ModelRelationValidation = require('../../../utilities/validation/model_relation_validations');
-
-const usrString = "^([a-zA-Z0-9]+[\_\.\-]?)*[a-zA-Z0-9]$";                   // alt(a-zA-Z0-9||_.-) always ends with a-zA-Z0-9 no max length
-const pwdString = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
-const usrRegExp = new RegExp(usrString);
-const pwdRegExp = new RegExp(pwdString);
+const BaseValidation = require('../../../utilities/validation/base_validation');
+const UserValidationBase = require('./user_validation_base');
 
 
 const Validations = ModelValidation(DB.User);
@@ -32,9 +29,6 @@ let Attributes = Validations.Attributes;
 
 const RelationValidation = ModelRelationValidation(DB.User, true, DB.User.name, null);
 
-let paramId = RelationValidation.paramId;
-let payloadId = RelationValidation.payloadId;
-let idsRelation = RelationValidation.ids;
 let postRelation = RelationValidation.postRelObject;
 let putRelation = RelationValidation.putRelObject;
 
@@ -53,15 +47,6 @@ let relRelated = RelationValidation.related;
 let relExtra = RelationValidation.extra;
 
 
-let postPayload = {
-	username: Joi.string().min(3).max(64).regex(usrRegExp).required(),
-	password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
-	email: Joi.string().email().required(),
-	isActive: Joi.boolean().valid(true, false).default(false),
-	firstName: Joi.string().min(1).max(64).required(),
-	lastName: Joi.string().min(1).max(64).required(),
-};
-
 const UserValidation = {
 	//Model Information
 	FLRelations: FLRelations,
@@ -73,15 +58,16 @@ const UserValidation = {
 	//FindAll
 	queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields, related, extra)),
 	//FindOne
+	oneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId})),
 	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
 
 
 	//Payload
 	//POST
-	postPayload:  Joi.object().keys(_.assign({}, postPayload, postRelation)),
+	postPayload:  Joi.object().keys(_.assign({}, UserValidationBase.postPayloadObj, postRelation)),
 
 	//PUT
-	putPayload:  Joi.object().keys(_.assign({}, payloadId, postPayload, putRelation)),
+	putPayload:  Joi.object().keys(_.assign({}, BaseValidation.payloadId, UserValidationBase.postPayloadObj, putRelation)),
 
 	//DELETE
 	deleteOnePayload: Joi.alternatives().try(
@@ -94,28 +80,28 @@ const UserValidation = {
 
 	//Relations URL
 	//ADD_ONE
-	addOneParams: Joi.object().keys(_.assign({}, {userId: paramId}, {childModel: relationList}, {childId: paramId})),
+	addOneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
 
 	//REMOVE_ONE
-	removeOneParams: Joi.object().keys(_.assign({}, {userId: paramId}, {childModel: relationList}, {childId: paramId})),
+	removeOneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
 	removeOnePayload: Joi.alternatives().try(
 		Joi.object().keys(_.assign({}, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//ADD_MANY
-	addManyParams: Joi.object().keys(_.assign({}, {userId: paramId}, {childModel: relationList})),
-	addManyPayload: Joi.object().keys(_.assign({}, postRelation, idsRelation)),
+	addManyParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
+	addManyPayload: Joi.object().keys(_.assign({}, postRelation, BaseValidation.ids)),
 
 	//REMOVE_MANY
-	removeManyParams: Joi.object().keys(_.assign({}, {userId: paramId}, {childModel: relationList})),
+	removeManyParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
 	removeManyPayload: Joi.alternatives().try(
-		Joi.object().keys(_.assign({}, idsRelation, hardDelete)),
+		Joi.object().keys(_.assign({}, BaseValidation.ids, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//GET_ALL
-	getAllParams: Joi.object().keys(_.assign({}, {userId: paramId}, {childModel: relationList})),
+	getAllParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
 	queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields, relRelated, relExtra)),
 
 };

@@ -43,7 +43,7 @@ module.exports.register = (server, options, next) => {
 				notes: ['Returns a User identified by the params {userId} <br>' +
 				'Attributes: ' + UserValidation.Attributes + '<br>'],
 				validate: {
-					params: UserValidation.paramUserId,
+					params: UserValidation.oneParams,
 					query: UserValidation.queryOne,
 					// query: UserValidations.query,
 					headers: HeaderValidation.headerRequired,
@@ -83,7 +83,7 @@ module.exports.register = (server, options, next) => {
 				description: 'PUT an Updated User',
 				notes: ['Save an updated User with params in payload <br>'],
 				validate: {
-					params: UserValidation.paramUserId,
+					params: UserValidation.oneParams,
 					payload: UserValidation.putPayload,
 					headers: HeaderValidation.headerRequired,
 				},
@@ -102,7 +102,7 @@ module.exports.register = (server, options, next) => {
 				description: 'DELETE an User',
 				notes: ['Delete un User <br>'],
 				validate: {
-					params: UserValidation.paramUserId,
+					params: UserValidation.oneParams,
 					payload: UserValidation.deleteOnePayload,
 					headers: HeaderValidation.headerRequired,
 				},

@@ -23,9 +23,9 @@ let getRelObject = (model, recursive, PK, exceptionModel, foreignKey) => {
 		if (exceptionModel !== targetModel.name) {
 			let modelName = targetModel.name;
 			let modelFileName = _.snakeCase(modelName);
-			let file = '../../api/' + modelFileName + '/url_validation/' + modelFileName + '_validation';
+			let file = '../../api/' + modelFileName + '/url_validation/' + modelFileName + '_validation_base';
 			let modelValidation = require(file);
-			let schema1L = modelValidation.putPayload;
+			let schema1L = Joi.object().keys(modelValidation.putPayloadObj);
 			let subSchema1L = {};
 			let cleanSchema1L = {};
 
@@ -75,9 +75,10 @@ let getRelList = (model) => {
 	let relationList = [];
 	Object.keys(model.associations).map((rel) => {
 		let relation = model.associations[rel];
-		if (relation.associationType === 'HasMany' || relation.associationType === 'BelongsToMany') {
-			relationList.push(rel);
-		}
+		// if (relation.associationType === 'HasMany' || relation.associationType === 'BelongsToMany') {
+		// 	relationList.push(rel);
+		// }
+		relationList.push(rel);
 
 	});
 
@@ -94,40 +95,42 @@ let getFilters = (model) => {
 	Object.keys(model.associations).map((rel) => {
 		let relation = model.associations[rel];
 		let targetModel = relation.target;
-		Object.keys(targetModel.attributes).map((attr) => {
-			let attribute = targetModel.attributes[attr];
-			let schema = {};
-			let joiArray = [];
-			let type = attribute.type.key;
-			let date = Sequelize.DATE().key;
+		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
+			Object.keys(targetModel.attributes).map((attr) => {
+				let attribute = targetModel.attributes[attr];
+				let schema = {};
+				let joiArray = [];
+				let type = attribute.type.key;
+				let date = Sequelize.DATE().key;
 
-			if (attribute.query && !attribute.exclude) {
-				Object.keys(attribute.query).map((el) => {
-					let element = attribute.query[el];
-					joiArray.push(joiCompile(el, element, model));
+				if (attribute.query && !attribute.exclude) {
+					Object.keys(attribute.query).map((el) => {
+						let element = attribute.query[el];
+						joiArray.push(joiCompile(el, element, model));
 
-				});
+					});
 
-				if (joiArray.length > 1) {
-					schema = Joi.alternatives().try(joiArray);
-				} else {
-					schema = joiArray[0];
+					if (joiArray.length > 1) {
+						schema = Joi.alternatives().try(joiArray);
+					} else {
+						schema = joiArray[0];
+					}
+
+					filtersSchema[rel + '.' + attr] = schema;
+				} else if (!attribute.exclude && type === date) {
+					schema = Joi.alternatives().try(
+						Joi.array().description('the date: 2017-08-15 09:00:00] vs [{or}{btw}2017-08-17 09:00:00,2017-08-17 23:30:00, {or}{btw}2017-12-25 09:00:00,2018-01-06 23:30:00]')
+							.items(Joi.string().max(255)
+								.regex(ValidationHelper.filterRegExp('date')))
+							.example(['{>=}2017-08-01', '{<}2017-09-01']),
+						Joi.string().max(255).regex(ValidationHelper.filterRegExp())
+							.example('{=}2017-08-17 10:00:00'),
+					);
+					filtersSchema[rel + '.' + attr] = schema;
 				}
 
-				filtersSchema[rel + '.' + attr] = schema;
-			} else if (!attribute.exclude && type === date) {
-				schema = Joi.alternatives().try(
-					Joi.array().description('the date: 2017-08-15 09:00:00] vs [{or}{btw}2017-08-17 09:00:00,2017-08-17 23:30:00, {or}{btw}2017-12-25 09:00:00,2018-01-06 23:30:00]')
-						.items(Joi.string().max(255)
-							.regex(ValidationHelper.filterRegExp('date')))
-						.example(['{>=}2017-08-01', '{<}2017-09-01']),
-					Joi.string().max(255).regex(ValidationHelper.filterRegExp())
-						.example('{=}2017-08-17 10:00:00'),
-				);
-				filtersSchema[rel + '.' + attr] = schema;
-			}
-
-		});
+			});
+		}
 	});
 
 	return filtersSchema;
@@ -141,11 +144,13 @@ let getFilters = (model) => {
 let getPagination = (model) => {
 	let paginationSchema = {};
 	Object.keys(model.associations).map((rel) => {
-
-		paginationSchema[rel + '.$page'] = Joi.number().integer().min(1).description('page number')
-			.default(1);
-		paginationSchema[rel + '.$pageSize'] = Joi.number().integer().min(5).max(100).description('rows per page')
-			.default(10);
+		let relation = model.associations[rel];
+		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
+			paginationSchema[rel + '.$page'] = Joi.number().integer().min(1).description('page number')
+				.default(1);
+			paginationSchema[rel + '.$pageSize'] = Joi.number().integer().min(5).max(100).description('rows per page')
+				.default(10);
+		}
 
 	});
 
@@ -161,23 +166,25 @@ let getSort = (model) => {
 	let sortSchema = {};
 	Object.keys(model.associations).map((rel) => {
 		let relation = model.associations[rel];
-		let targetModel = relation.target;
-		let attributes = Object.values(targetModel.attributes);
-		let attr0 = attributes[0].field;
-		let attr1 = attributes[1] ? attributes[1].field : attributes[0].field;
-		let attr2 = attributes[2] ? attributes[2].field : attributes[1] ? attributes[1].field : attributes[0].field;
+		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
+			let targetModel = relation.target;
+			let attributes = Object.values(targetModel.attributes);
+			let attr0 = attributes[0].field;
+			let attr1 = attributes[1] ? attributes[1].field : attributes[0].field;
+			let attr2 = attributes[2] ? attributes[2].field : attributes[1] ? attributes[1].field : attributes[0].field;
 
-		sortSchema[rel + '.$sort'] = Joi.alternatives().try(
-			Joi.array().description('sort column: [{' + rel + '}][+,-]' + attr0 + ',[{' + rel + '}][+,-]' + attr1 + ' vs [-' + attr1 + ', -' + attr2 + ']')
-				.items(
-					Joi.string().max(255)
-						.regex(ValidationHelper.sortRegExp(targetModel))
-						.example('-createdAt'))
-				.example(['{' + rel + '}-' + attr1,'-' + attr2]),
-			Joi.string().max(255)
-				.regex(ValidationHelper.sortRegExp(targetModel))
-				.example('{' + rel + '}-' + attr1),
-		);
+			sortSchema[rel + '.$sort'] = Joi.alternatives().try(
+				Joi.array().description('sort column: [{' + rel + '}][+,-]' + attr0 + ',[{' + rel + '}][+,-]' + attr1 + ' vs [-' + attr1 + ', -' + attr2 + ']')
+					.items(
+						Joi.string().max(255)
+							.regex(ValidationHelper.sortRegExp(targetModel))
+							.example('-createdAt'))
+					.example(['{' + rel + '}-' + attr1,'-' + attr2]),
+				Joi.string().max(255)
+					.regex(ValidationHelper.sortRegExp(targetModel))
+					.example('{' + rel + '}-' + attr1),
+			);
+		}
 
 	});
 
@@ -194,18 +201,18 @@ let getMath = (model) => {
 	Object.keys(model.associations).map((rel) => {
 		let relation = model.associations[rel];
 		let targetModel = relation.target;
-		let attributes = Object.values(targetModel.attributes);
+		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
+			mathSchema[rel + '.$min'] = Joi.string().description('selected attribute MIN: {' + rel + '}id vs updatedAt]').max(255)
+				.regex(ValidationHelper.mathFieldRegExp(targetModel))
+				.example('{' + rel + '}id');
+			mathSchema[rel + '.$max'] =	Joi.string().description('selected attribute MAX: {' + rel + '}id vs createdAt]').max(255)
+				.regex(ValidationHelper.mathFieldRegExp(targetModel))
+				.example('{model}id');
+			mathSchema[rel + '.$sum'] =	Joi.string().description('selected attribute SUM: {' + rel + '}id vs updatedAt]').max(255)
+				.regex(ValidationHelper.mathFieldRegExp(targetModel))
+				.example('{model}id');
 
-		mathSchema[rel + '.$min'] = Joi.string().description('selected attribute MIN: {' + rel + '}id vs updatedAt]').max(255)
-			.regex(ValidationHelper.mathFieldRegExp(targetModel))
-			.example('{' + rel + '}id');
-		mathSchema[rel + '.$max'] =	Joi.string().description('selected attribute MAX: {' + rel + '}id vs createdAt]').max(255)
-			.regex(ValidationHelper.mathFieldRegExp(targetModel))
-			.example('{model}id');
-		mathSchema[rel + '.$sum'] =	Joi.string().description('selected attribute SUM: {' + rel + '}id vs updatedAt]').max(255)
-			.regex(ValidationHelper.mathFieldRegExp(targetModel))
-			.example('{model}id');
-
+		}
 	});
 
 	return mathSchema;
@@ -219,9 +226,10 @@ let getMath = (model) => {
 let getSoftDeleted = (model) => {
 	let softDeletedSchema = {};
 	Object.keys(model.associations).map((rel) => {
-
-		softDeletedSchema[rel + '.$withDeleted'] = Joi.boolean().description('includes soft deleted record').default(false);
-
+		let relation = model.associations[rel];
+		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
+			softDeletedSchema[rel + '.$withDeleted'] = Joi.boolean().description('includes soft deleted record').default(false);
+		}
 	});
 
 	return softDeletedSchema;
@@ -251,8 +259,10 @@ let getHardDeleted = (model) => {
 let getExcludedFields = (model) => {
 	let excludedFieldsSchema = {};
 	Object.keys(model.associations).map((rel) => {
-
-		excludedFieldsSchema[rel + '.$withExcludedFields'] = Joi.boolean().description('includes excluded fields in query').default(false);
+		let relation = model.associations[rel];
+		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
+			excludedFieldsSchema[rel + '.$withExcludedFields'] = Joi.boolean().description('includes excluded fields in query').default(false);
+		}
 
 	});
 
@@ -267,9 +277,10 @@ let getExcludedFields = (model) => {
 let getCount = (model) => {
 	let countSchema = {};
 	Object.keys(model.associations).map((rel) => {
-
-		countSchema[rel + '.$count'] = Joi.boolean().description('count model occurrences fields').default(false);
-
+		let relation = model.associations[rel];
+		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
+			countSchema[rel + '.$count'] = Joi.boolean().description('count model occurrences fields').default(false);
+		}
 	});
 
 	return countSchema;
@@ -545,22 +556,6 @@ let addJoiAnyValid = (schema, value) => {
 
 
 module.exports = function(model, recursive, foreignKey) {
-	const paramId = Joi.number().integer().min(1).required();
-
-	const payloadId = {
-		id: Joi.number().integer().min(1).required(),
-	};
-
-	const ids = {
-		$ids: Joi.alternatives().try(
-			Joi.array().min(1).items(
-				Joi.number().integer().min(1)
-			),
-			Joi.number().integer().min(1),
-			Joi.object().allow(null),
-		),
-	};
-
 	const relationList = Joi.string().required().valid(getRelList(model));
 
 	const postRelObject = getRelObject(model, recursive, false, foreignKey);
@@ -592,9 +587,6 @@ module.exports = function(model, recursive, foreignKey) {
 
 
 	const modelRelationValidations = {
-		paramId: paramId,
-		payloadId: payloadId,
-		ids: ids,
 		postRelObject: postRelObject,
 		putRelObject: putRelObject,
 
