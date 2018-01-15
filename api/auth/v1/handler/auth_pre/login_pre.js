@@ -139,7 +139,7 @@ const LoginPre = [
 				if (authStrategy === AUTH_STRATEGIES.TOKEN) {
 					reply(null);
 				} else {
-					session = await Session.createInstance(request.pre.user);
+					session = Session.createInstance(request.pre.user);
 					Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
 					return reply(session);
 				}

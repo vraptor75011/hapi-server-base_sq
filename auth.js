@@ -1,5 +1,7 @@
 const AuthJWT2 = require('hapi-auth-jwt2');
+const Chalk = require('chalk');
 const Token = require('./utilities/token/token');
+const Log = require('./utilities/logging/logging');
 const Config = require('./config/config');
 
 const DB = require('./config/sequelize');
@@ -23,47 +25,38 @@ module.exports.register = (server, options, next) => {
 		return reply.continue();
 	});
 
-	let validate = function (decodedToken, request, callback) {
-		let user = decodedToken.user;
-		let scope = decodedToken.scope;
-		let roles = decodedToken.roles;
-		let realms = decodedToken.realms;
+	let validate = async (decodedToken, request, callback) => {
+		try {
+			let user = decodedToken.user;
+			let scope = decodedToken.scope;
+			let roles = decodedToken.roles;
+			let realms = decodedToken.realms;
 
-		if (decodedToken.user) {
-			callback(null, Boolean(user), { user, scope, roles, realms });
-		} else if (decodedToken.sessionUser.sessionId) {
-			const Session = DB.Session;
+			if (decodedToken.user) {
+				callback(null, Boolean(user), { user, scope, roles, realms });
+			} else if (decodedToken.sessionUser.sessionId) {
+				const Session = DB.Session;
 
-			Session.findByCredentials(decodedToken.sessionUser.sessionId, decodedToken.sessionUser.sessionKey)
-				.then(function (result) {
-					let session = result;
+				let session = await Session.findByCredentials(decodedToken.sessionUser.sessionId, decodedToken.sessionUser.sessionKey);
+				if (!session) {
+					return callback(null, false);
+				}
 
-					if (!session) {
-						return callback(null, false);
-					}
+				if (session.user.password !== decodedToken.sessionUser.passwordHash) {
+					return callback(null, false);
+				}
 
-					if (session.user.password !== decodedToken.sessionUser.passwordHash) {
-						return callback(null, false);
-					}
+				session = Session.createInstance(session.user);
+				let user = await session.getUser();
+				let scope = decodedToken.scope;
+				let roles = decodedToken.roles;
+				let realms = decodedToken.realms;
 
-					Session.createInstance(session.user)
-						.then(function (session) {
-							session.getUser()
-								.then(function(user){
-									let scope = decodedToken.scope;
-									let roles = decodedToken.roles;
-									let realms = decodedToken.realms;
-
-									callback(null, Boolean(user), { user, scope, roles, realms, session });
-								});
-						})
-						.catch(function () {
-							return callback(null, false);
-						});
-				})
-				.catch(function (error) {
-					Log.error(error);
-				});
+				callback(null, Boolean(user), {user, scope, roles, realms, session});
+			}
+		} catch(error) {
+			Log.apiLogger.error(Chalk.red(error));
+			return callback(null, false);
 		}
 
 	};

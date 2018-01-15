@@ -49,7 +49,7 @@ module.exports = function(sequelize, DataTypes) {
 
 	// Special Methods:
 	// CreateInstance
-	Session.createInstance = (user) => {
+	Session.createInstance = async (user) => {
 
 		let params = {
 			userId: user.id,
@@ -57,29 +57,21 @@ module.exports = function(sequelize, DataTypes) {
 			passwordHash: user.password,
 		};
 
-		let newSession = Session.build(params);
-		return newSession.save()
-			.then(function(result) {
-				newSession = result;
+		let newSession = await Session.create(params);
 
-				let query = {
-					where: {
-						userId: user.id,
-						key: { [Op.ne]: newSession.key }
-					}
-				};
+		let option = {
+			where: {
+				userId: user.id,
+				key: { [Op.ne]: newSession.key }
+			}
+		};
+		await Session.destroy(option);
+		return newSession;
 
-				return Session.destroy(query)
-			})
-			.then(function(result) {
-				return newSession;
-			});
 	};
 
 	// Find By Credentials
-	Session.findByCredentials = (sessionId, sessionKey) => {
-		let session = {};
-		let attributes = QueryHelper.createAttributesArray(Session);
+	Session.findByCredentials = async (sessionId, sessionKey) => {
 		let query = {
 			where: {
 				id: sessionId,
@@ -89,18 +81,12 @@ module.exports = function(sequelize, DataTypes) {
 			}],
 		};
 
-		return Session.findOne(query)
-			.then(function (result) {
-				session = result;
-				if (!session) {
-					return false;
-				}
+		let session = await Session.findOne(query);
+		if (!session) {
+			return false;
+		}
 
-				return session.key === sessionKey ? session : false;
-			})
-			.catch(function (error) {
-				Log.error(error);
-			});
+		return session.key === sessionKey ? session : false;
 	};
 
 	return Session;
