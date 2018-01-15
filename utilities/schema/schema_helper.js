@@ -6,30 +6,20 @@ const _ = require('lodash');
 
 const SchemaUtility = {
 	relationFromSchema: (schema, level) => {
-		let models = schema.sequelize.models;
 		let relations = [];
+		let exclusion = [schema.name];
 
 		Object.keys(schema.associations).map((rel) => {
-			let relModel = {};
-			let localExclusion = [rel];
-
-			if (models[Pluralize.singular(rel)]) {
-				relModel = models[Pluralize.singular(rel)];
-			} else if (models[rel]) {
-				relModel = models[rel];
-			}
+			let relation1L = schema.associations[rel];
+			let relModel = relation1L.target;
 
 			relations.push({name: rel, model: relModel.name});
 
 			if (level === 2) {
-				Object.keys(relModel.associations).map((relOfRel) => {
-					if (!_.includes(localExclusion, relOfRel)) {
-						if (models[Pluralize.singular(relOfRel)]) {
-							relModel = models[Pluralize.singular(relOfRel)];
-						} else if (models[relOfRel]) {
-							relModel = models[relOfRel];
-						}
-
+				Object.keys(relation1L.target.associations).map((relOfRel) => {
+					if (!_.includes(exclusion, relOfRel)) {
+						let relation2L = relation1L.target.associations[relOfRel];
+						let relModel = relation2L.target;
 						relations.push({name: rel + '.' + relOfRel, model: relModel.name});
 					}
 				});
@@ -41,35 +31,24 @@ const SchemaUtility = {
 	},
 
 	relationsFromSchema: (schema, startLevel, endLevel) => {
-		let models = schema.sequelize.models;
 		let relationsArray = [];
 		let relations = '';
+		let exclusion = [schema.name];
 
 		Object.keys(schema.associations).map((rel) => {
-			let relModel = {};
-			let localExclusion = [rel];
-
-			if (models[Pluralize.singular(rel)]) {
-				relModel = models[Pluralize.singular(rel)];
-			} else if (models[rel]) {
-				relModel = models[rel];
-			}
+			let relation1L = schema.associations[rel];
+			let localRelation = rel + ' [' + relation1L.associationType + ']';
 
 			if (startLevel === 1) {
-				relationsArray.push(rel);
+				relationsArray.push(localRelation);
 			}
 
 			if (endLevel === 2) {
-				Object.keys(relModel.associations).map((relOfRel) => {
-					if (!_.includes(localExclusion, relOfRel)) {
-						if (models[Pluralize.singular(relOfRel)]) {
-							relModel = models[Pluralize.singular(relOfRel)];
-						} else if (models[relOfRel]) {
-							relModel = models[relOfRel];
-						}
-
-						relationsArray.push(rel + '.' + relOfRel);
-
+				Object.keys(relation1L.target.associations).map((relOfRel) => {
+					if (!_.includes(exclusion, relOfRel)) {
+						let relation2L = relation1L.target.associations[relOfRel];
+						let localRelation = relOfRel + ' [' + relation2L.associationType + ']';
+						relationsArray.push(rel + '.' + localRelation);
 					}
 				});
 			}

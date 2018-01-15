@@ -141,9 +141,9 @@ const PreHandlerBase = {
 							}
 						}
 					} else {
-						includeLevel.forEach(function(elInclude){
-							if (_.includes(elInclude.model, targetModel)) {
-								includeLevel = elInclude;
+						includeLevel.forEach(function(include){
+							if (!_.some(include, {model: targetModel})) {
+								includeLevel = include;
 							}
 						});
 					}
@@ -193,9 +193,9 @@ const PreHandlerBase = {
 							}
 						}
 					} else {
-						includeLevel.forEach(function(elInclude){
-							if (_.includes(elInclude.model, targetModel)) {
-								includeLevel = elInclude;
+						includeLevel.forEach(function(include){
+							if (!_.some(include, {model: targetModel})) {
+								includeLevel = include;
 							}
 						});
 					}
@@ -255,9 +255,9 @@ const PreHandlerBase = {
 							}
 						}
 					} else {
-						includeLevel.forEach(function(elInclude){
-							if (_.includes(elInclude.model, targetModel)) {
-								includeLevel = elInclude;
+						includeLevel.forEach(function(include){
+							if (!_.some(include, {model: targetModel})) {
+								includeLevel = include;
 							}
 						});
 					}
@@ -339,9 +339,9 @@ const PreHandlerBase = {
 							}
 						}
 					} else {
-						includeLevel.forEach(function(elInclude){
-							if (_.includes(elInclude.model, targetModel)) {
-								includeLevel = elInclude;
+						includeLevel.forEach(function(include){
+							if (!_.some(include, {model: targetModel})) {
+								includeLevel = include;
 							}
 						});
 					}

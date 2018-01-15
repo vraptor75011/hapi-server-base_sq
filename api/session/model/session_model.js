@@ -17,31 +17,7 @@ module.exports = function(sequelize, DataTypes) {
 				primaryKey: true,
 				autoIncrement: true,
 				comment: "Primary and auto incremented key of the table",
-				query: {
-					array: {
-						items: {
-							string: {
-								regex: '',
-								example: '{>=}10',
-							},
-							integer: {
-								min: 1,
-								example: 35,
-							},
-						},
-						description: 'the session ID PK auto-increment: [{=}]1 vs [{>}1,{<>}20,{<=}100]',
-						example: ['{>}35', '{<}50'],
-					},
-					string: {
-						regex: '',
-						example: '{in}35,40',
-					},
-					integer: {
-						min: 1,
-						example: 40,
-					}
-
-				}
+				query: Query.id,
 			},
 			key: {
 				type: DataTypes.STRING,
@@ -50,59 +26,16 @@ module.exports = function(sequelize, DataTypes) {
 				validation: {
 					len: [3, 64]
 				},
-				query: {
-					array: {
-						items: {
-							string: {
-								regex: '',
-								min: 3,
-								example: '{like}-aff1-4749',
-							},
-						},
-						description: 'the session key: -aff1-4749 vs [{=}-aff1-4749,{<>}pippo3,{like}-aff1-4749]',
-						example: ['{like}-aff1-4749', '{like}-drt6-84r5'],
-					},
-					string: {
-						regex: '',
-						min: 3,
-						example: ['{like}dwr6-cdr5', '{<>}drt6-844z']
-					},
-				}
+				query: Query.key,
 			},
 			passwordHash: {
 				type: DataTypes.STRING,
+				exclude: true,
 				allowNull: false,
 				validation: {
 					len: [8, 128]
 				},
-				query: {
-					array: {
-						items: {
-							string: {
-								regex: '',
-								min: 3,
-								max: 255,
-								example: '{like}"hashPWD"',
-							},
-						},
-						description: 'the user pwd hashed: "hashPWD" vs [{=}"hashPWD",{<>}"hashPWD",{like}"hashPWD"]',
-						example: ['{like}"hashPWD"', '{like}"hashPWD"'],
-					},
-					string: {
-						regex: '',
-						min: 3,
-						max: 255,
-						example: ['{<>}"hashPWD"']
-					},
-				}
 			},
-			// userId: {
-			// 	type: DataTypes.INTEGER,
-			// 	references: {
-			// 		model: 'User',
-			// 		key: 'id',
-			// 	}
-			// },
 		},
 		{
 			tableName: 'sessions',
@@ -191,4 +124,51 @@ module.exports = function(sequelize, DataTypes) {
 	};
 
 	return Session;
+};
+
+// Params to build query URL
+const Query = {
+	id: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					example: '{>=}20',
+				},
+				integer: {
+					min: 1,
+					example: 35,
+				},
+			},
+			description: 'the session ID PK auto-increment: [{=}]1 vs [{>}1,{<>}20,{<=}100]',
+			example: ['{>}35', '{<}50'],
+		},
+		string: {
+			regex: '',
+			example: '{in}35,40',
+		},
+		integer: {
+			min: 1,
+			example: 40,
+		}
+
+	},
+	key: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					min: 3,
+					example: '{like}-aff1-4749',
+				},
+			},
+			description: 'the session key: -aff1-4749 vs [{=}-aff1-4749,{<>}pippo3,{like}-aff1-4749]',
+			example: ['{like}-aff1-4749', '{like}-drt6-84r5'],
+		},
+		string: {
+			regex: '',
+			min: 3,
+			example: ['{like}dwr6-cdr5', '{<>}drt6-844z']
+		},
+	},
 };

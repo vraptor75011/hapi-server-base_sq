@@ -108,7 +108,7 @@ class Users extends React.PureComponent {
 
         axios.defaults.headers.common['Authorization'] = localStorage.getItem('token');
 
-        axios.get(`http://localhost:8000/user`).then(response => {
+        axios.get(`http://localhost:4000/api/v1/users`).then(response => {
             console.log('response', response);
             const users = response.data.docs;
             const pages = response.data.pages;

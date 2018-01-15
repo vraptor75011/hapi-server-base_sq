@@ -123,7 +123,6 @@ const ValidationBase = {
 
 	// STRING admitted in withRelated for relations. Possible Relations to include
 	withRelatedRegExp: (schema) => {
-		let models = schema.sequelize.models;
 		let result = '';
 		let relations = '(';
 		let exclusion = [schema.name];
@@ -131,23 +130,16 @@ const ValidationBase = {
 		let schemaRelations = schema.associations;
 
 		Object.keys(schemaRelations).map((rel, index) => {
+			let relModel = schemaRelations[rel].target;
 			let localExclusion = [rel];
 			if (index > 0) {
 				relations += '|';
 			}
 			relations += rel;
 
-			let relModel = {};
-
-			if (models[Pluralize.singular(rel)]) {
-				relModel =models[Pluralize.singular(rel)];
-			} else if (models[rel]) {
-				relModel = models[rel];
-			}
-
-			if (Object.keys(relModel).length > 0) {
+			if (Object.keys(rel).length > 0) {
 				Object.keys(relModel.associations).map((relOfRel) => {
-					if (!_.includes(exclusion, relOfRel) && !_.includes(localExclusion, relOfRel)) {
+					if (!_.includes(exclusion, relOfRel)) {
 						relations += '|';
 						relations += rel + '.' + relOfRel;
 					}

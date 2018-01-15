@@ -65,7 +65,9 @@ module.exports.register = (server, options, next) => {
 					},
 				tags: ['api', 'Users'],
 				description: 'POST a New User',
-				notes: ['Save a new User with params in payload <br>'],
+				notes: ['Save a new User with params in payload with one or more Child object.<br>' +
+								'User hasMany Child Model: User object can contain one or more Child object <br>' +
+								'User BelongsToMany Child Model: User object can contain one or more Child object can contain one Through object'],
 				validate: {
 					payload: UserValidation.postPayload,
 					headers: HeaderValidation.headerRequired,
@@ -132,19 +134,19 @@ module.exports.register = (server, options, next) => {
 		},
 		{
 			method: 'POST',
-			path: '/v1/users/{userId}/{childModel}',
+			path: '/v1/users/{userId}/{childModel}/{childId}',
 			config: {
-				handler: UserHandler.addMany,
+				handler: UserHandler.addOne,
 				auth:
 					{
 						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 					},
 				tags: ['api', 'Users'],
-				description: 'ADD one or more related Model to User',
-				notes: ['Add one or more related model (to save) to an existed User - Child Model belongsTo User <br>'],
+				description: 'ADD one related Model to User',
+				notes: ['Add one related model (to save) to a persisted User <br>' +
+								'Add a persisted child Model to User.'],
 				validate: {
-					params: UserValidation.addManyParams,
-					payload: UserValidation.addManyPayload,
+					params: UserValidation.addOneParams,
 					headers: HeaderValidation.headerRequired,
 				},
 			},
@@ -160,10 +162,73 @@ module.exports.register = (server, options, next) => {
 					},
 				tags: ['api', 'Users'],
 				description: 'Remove one related Model from User',
-				notes: ['Remove one related model (delete) from an existed User - Child Model belongsTo User <br>'],
+				notes: ['Remove one related model (delete) from a persisted User <br>' +
+								'User hasMany Child Model: User object can contain one or more Child object <br>' +
+								'User BelongsToMany Child Model: User object can contain one or more Child object can contain one Through object'],
 				validate: {
 					params: UserValidation.removeOneParams,
 					payload: UserValidation.removeOnePayload,
+					headers: HeaderValidation.headerRequired,
+				},
+			},
+		},
+		{
+			method: 'POST',
+			path: '/v1/users/{userId}/{childModel}',
+			config: {
+				handler: UserHandler.addMany,
+				auth:
+					{
+						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
+					},
+				tags: ['api', 'Users'],
+				description: 'ADD one or more related Model to User',
+				notes: ['Add one or more related model (to save) to an existed User <br>' +
+				'User hasMany Child Model: User object can contain one or more Child object <br>' +
+				'User BelongsToMany Child Model: User object can contain one or more Child object can contain one Through object'],
+				validate: {
+					params: UserValidation.addManyParams,
+					payload: UserValidation.addManyPayload,
+					headers: HeaderValidation.headerRequired,
+				},
+			},
+		},
+		{
+			method: 'DELETE',
+			path: '/v1/users/{userId}/{childModel}',
+			config: {
+				handler: UserHandler.removeMany,
+				auth:
+					{
+						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
+					},
+				tags: ['api', 'Users'],
+				description: 'Remove one or many related Model from User',
+				notes: ['Remove one or many related model (delete) from a persisted User <br>' +
+				'User hasMany Child Model: User object can contain one or more Child object <br>' +
+				'User BelongsToMany Child Model: User object can contain one or more Child object can contain one Through object'],
+				validate: {
+					params: UserValidation.removeManyParams,
+					payload: UserValidation.removeManyPayload,
+					headers: HeaderValidation.headerRequired,
+				},
+			},
+		},
+		{
+			method: 'GET',
+			path: '/v1/users/{userId}/{childModel}',
+			config: {
+				handler: UserHandler.getAll,
+				auth:
+					{
+						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
+					},
+				tags: ['api', 'Users'],
+				description: 'Get All User related child model with query filters',
+				notes: ['Get All records of User related Child Model <br>'],
+				validate: {
+					params: UserValidation.getAllParams,
+					query: UserValidation.queryGetAll,
 					headers: HeaderValidation.headerRequired,
 				},
 			},

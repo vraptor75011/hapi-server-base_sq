@@ -1,8 +1,5 @@
-const Joi = require('joi');
 const Bcrypt = require('bcrypt');
 
-
-const ModelValidation = require('../../../utilities/validation/model_validations');
 
 module.exports = function(sequelize, DataTypes) {
 
@@ -15,31 +12,7 @@ module.exports = function(sequelize, DataTypes) {
 				primaryKey: true,
 				autoIncrement: true,
 				comment: "Primary and auto incremented key of the table",
-				query: {
-					array: {
-						items: {
-							string: {
-								regex: '',
-								example: '{>=}20',
-							},
-							integer: {
-								min: 1,
-								example: 35,
-							},
-						},
-						description: 'the user ID PK auto-increment: [{=}]1 vs [{>}1,{<>}20,{<=}100]',
-						example: ['{>}35', '{<}50'],
-					},
-					string: {
-						regex: '',
-						example: '{in}35,40',
-					},
-					integer: {
-						min: 1,
-						example: 40,
-					}
-
-				}
+				query: Query.id,
 			},
 			username: {
 				type: DataTypes.STRING,
@@ -48,24 +21,7 @@ module.exports = function(sequelize, DataTypes) {
 				validation: {
 					len: [3, 64]
 				},
-				query: {
-					array: {
-						items: {
-							string: {
-								regex: '',
-								min: 3,
-								example: '{like}luigi.rossi',
-							},
-						},
-						description: 'the username: franco.baresi vs [{=}pippo1,{<>}pippo3,{like}pip]',
-						example: ['{like}rossi', '{like}bianchi'],
-					},
-					string: {
-						regex: '',
-						min: 3,
-						example: ['{like}franco.baresi', '{<>}tardelli-GOBBO']
-					},
-				}
+				query: Query.username,
 			},
 			email: {
 				type: DataTypes.STRING,
@@ -74,26 +30,7 @@ module.exports = function(sequelize, DataTypes) {
 				validation: {
 					isEmail: true
 				},
-				query: {
-					array: {
-						items: {
-							string: {
-								regex: '',
-								min: 3,
-								max: 255,
-								example: '{like}eataly.it',
-							},
-						},
-						description: 'the user email: jack@mail.com vs [{=}pippo1@lol.it,{<>}pippo3@lol.it,{like}pip]',
-						example: ['{like}rossi.it', '{like}verdi.it'],
-					},
-					string: {
-						regex: '',
-						min: 3,
-						max: 255,
-						example: ['{<>}luigi.rossi@eataly.it']
-					},
-				}
+				query: Query.email,
 			},
 			password: {
 				type: DataTypes.STRING,
@@ -109,26 +46,7 @@ module.exports = function(sequelize, DataTypes) {
 				validation: {
 					len: [3, 64]
 				},
-				query: {
-					array: {
-						items: {
-							string: {
-								regex: '',
-								min: 3,
-								max: 64,
-								example: '{like}Mario',
-							},
-						},
-						description: 'the user first name: Luigi vs [{or}{=}Mario,{or}{=}Fabio,{or}{like}Mar]',
-						example: ['{like}Rosa', '{like}Viviano'],
-					},
-					string: {
-						regex: '',
-						min: 3,
-						max: 64,
-						example: ['{<>}Mario']
-					},
-				}
+				query: Query.firstName,
 			},
 			lastName: {
 				type: DataTypes.STRING,
@@ -136,44 +54,12 @@ module.exports = function(sequelize, DataTypes) {
 				validation: {
 					len: [3, 64]
 				},
-				query: {
-					array: {
-						items: {
-							string: {
-								regex: '',
-								min: 3,
-								max: 64,
-								example: '{like}Vieri',
-							},
-						},
-						description: 'the user last name: Lo Cascio vs [{or}{=}Rossi,{or}{=}Verdi,{or}{like}Pia]',
-						example: ['{like}Rossini', '{like}Verdini'],
-					},
-					string: {
-						regex: '',
-						min: 3,
-						max: 64,
-						example: ['{<>}Mariotti']
-					},
-				}
+				query: Query.lastName,
 			},
 			isActive: {
 				type: DataTypes.BOOLEAN,
 				defaultValue: false,
-				query: {
-					array: {
-						items: {
-							boolean: {
-								valid: [true, false],
-								example: 'true',
-							},
-						},
-						description: 'the user is active?: true vs [true, false]]',
-					},
-					boolean: {
-						valid: [true, false],
-					},
-				}
+				query: Query.isActive,
 			},
 			resetPasswordToken: {
 				allowOnCreate: false,
@@ -212,8 +98,8 @@ module.exports = function(sequelize, DataTypes) {
 	User.associate = function (models) {
 		User.belongsToMany(models.Role, { through: models.RealmsRolesUsers, compare: false });
 		User.belongsToMany(models.Realm, { through: models.RealmsRolesUsers, compare: false });
-		User.hasMany(models.RealmsRolesUsers);
-		User.hasMany(models.Session);
+		User.hasMany(models.RealmsRolesUsers, {compare: true});
+		User.hasMany(models.Session, {compare: true});
 	};
 
 	// Model Utilities
@@ -224,4 +110,128 @@ module.exports = function(sequelize, DataTypes) {
 	};
 
 	return User;
+};
+
+// Params to build query URL
+const Query = {
+	id: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					example: '{>=}20',
+				},
+				integer: {
+					min: 1,
+					example: 35,
+				},
+			},
+			description: 'the user ID PK auto-increment: [{=}]1 vs [{>}1,{<>}20,{<=}100]',
+			example: ['{>}35', '{<}50'],
+		},
+		string: {
+			regex: '',
+			example: '{in}35,40',
+		},
+		integer: {
+			min: 1,
+			example: 40,
+		}
+
+	},
+
+	username: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					min: 3,
+					example: '{like}luigi.rossi',
+				},
+			},
+			description: 'the username: franco.baresi vs [{=}pippo1,{<>}pippo3,{like}pip]',
+			example: ['{like}rossi', '{like}bianchi'],
+		},
+		string: {
+			regex: '',
+			min: 3,
+			example: ['{like}franco.baresi', '{<>}tardelli-GOBBO']
+		},
+	},
+
+	email: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					min: 3,
+					max: 255,
+					example: '{like}eataly.it',
+				},
+			},
+			description: 'the user email: jack@mail.com vs [{=}pippo1@lol.it,{<>}pippo3@lol.it,{like}pip]',
+			example: ['{like}rossi.it', '{like}verdi.it'],
+		},
+		string: {
+			regex: '',
+			min: 3,
+			max: 255,
+			example: ['{<>}luigi.rossi@eataly.it']
+		},
+	},
+	firstName: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					min: 3,
+					max: 64,
+					example: '{like}Mario',
+				},
+			},
+			description: 'the user first name: Luigi vs [{or}{=}Mario,{or}{=}Fabio,{or}{like}Mar]',
+			example: ['{like}Rosa', '{like}Viviano'],
+		},
+		string: {
+			regex: '',
+			min: 3,
+			max: 64,
+			example: ['{<>}Mario']
+		},
+	},
+	lastName: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					min: 3,
+					max: 64,
+					example: '{like}Vieri',
+				},
+			},
+			description: 'the user last name: Lo Cascio vs [{or}{=}Rossi,{or}{=}Verdi,{or}{like}Pia]',
+			example: ['{like}Rossini', '{like}Verdini'],
+		},
+		string: {
+			regex: '',
+			min: 3,
+			max: 64,
+			example: ['{<>}Mariotti']
+		},
+	},
+	isActive: {
+		array: {
+			items: {
+				boolean: {
+					valid: [true, false],
+					example: 'true',
+				},
+			},
+			description: 'the user is active?: true vs [true, false]]',
+		},
+		boolean: {
+			valid: [true, false],
+		},
+	},
+
 };

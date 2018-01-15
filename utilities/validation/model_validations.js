@@ -207,7 +207,7 @@ module.exports = function(model) {
 	const filters = getFilters(model);
 
 	const ids = {
-		$ids: Joi.array().min(1).required()
+		ids: Joi.array().min(1).required()
 			.items(
 				Joi.number().integer().min(1)),
 	};
