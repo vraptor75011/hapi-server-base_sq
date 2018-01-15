@@ -1,8 +1,3 @@
-// const QueryHelper = require('./query-helper');
-const Q = require('q');
-// var errorHelper = require('./error-helper');
-// var extend = require('util')._extend;
-// var config = require('../config');
 const Boom = require('boom');
 const  _ = require('lodash');
 const Chalk = require('chalk');
@@ -14,11 +9,6 @@ const QueryHelper = require('../query/query-helper');
 const ModelValidation = require('../validation/model_validations');
 
 const Op = Sequelize.Op;
-
-//TODO: add a "clean" method that clears out all soft-deleted docs
-//TODO: add an optional TTL config setting that determines how long soft-deleted docs remain in the system
-//TODO: possibly remove "MANY_ONE" association and make it implied
-//TODO: possibly remove "ONE_ONE" association and make it implied
 
 module.exports = {
 
@@ -763,58 +753,11 @@ async function _removeAssociation(ownerModel, ownerId, childModel, childId, asso
 }
 
 /**
- * This function is called after embedded associations have been populated so that any associations
- * that have been soft deleted are removed.
- * @param result: the object that is being inspected
- * @param parent: the parent of the result object
- * @param parentkey: the parents key for the result object
- * @param depth: the current recursion depth
- * @param Log: a logging object
- * @returns {boolean}: returns false if the result object should be removed from the parent
- * @private
- */
-function filterDeletedEmbeds(result, parent, parentkey, depth, Log) {
-	if (_.isArray(result)) {
-		result = result.filter(function(obj) {
-			var keep = filterDeletedEmbeds(obj, result, parentkey, depth + 1, Log);
-			// Log.log("KEEP:", keep);
-			return keep;
-		});
-		// Log.log("UPDATED:", parentkey);
-		// Log.note("AFTER:", result);
-		parent[parentkey] = result;
-	}
-	else {
-		for (var key in result) {
-			// Log.debug("KEY:", key);
-			// Log.debug("VALUE:", result[key]);
-			if (_.isArray(result[key])) {
-				// Log.log("JUMPING IN ARRAY");
-				filterDeletedEmbeds(result[key], result, key, depth + 1, Log);
-			}
-			else if (_.isObject(result[key]) && result[key]._id) {
-				// Log.log("JUMPING IN OBJECT");
-				var keep = filterDeletedEmbeds(result[key], result, key, depth + 1, Log);
-				if (!keep) {
-					return false;
-				}
-			}
-			else if (key === 'isDeleted' && result[key] === true && depth > 0) {
-				// Log.log("DELETED", depth);
-				return false;
-			}
-		}
-		// Log.log("JUMPING OUT");
-		return true;
-	}
-}
-
-/**
  * This function is called from handler helper to clean the query URL preparing it to
  * the sequelizeQuery for count (SQL query) with filter and relations filter
  * @param query: the query URL from the request
  * @param model: the model to build the filter list
- * @returns {string}: managed query URL to Sequelize query
+ * @returns {{}}: managed query URL to Sequelize query
  * @private
  */
 function queryFilteredCount(query, model) {
@@ -838,7 +781,7 @@ function queryFilteredCount(query, model) {
  * the sequelizeQuery for math operations (SQL query) with math operators
  * @param query: the query URL from the request
  * @param model: the model to build the filter list
- * @returns {string}: managed query URL to Sequelize query
+ * @returns {{}}: managed query URL to Sequelize query
  * @private
  */
 function queryFilteredMath(query, model) {
@@ -859,7 +802,7 @@ function queryFilteredMath(query, model) {
  * the sequelizeQuery for pagination operations (SQL query) with limit e offset
  * @param query: the query URL from the request
  * @param model: the model to build the filter list
- * @returns {string}: managed query URL to Sequelize query
+ * @returns {{}}: managed query URL to Sequelize query
  * @private
  */
 function queryFilteredPagination(query, model) {
@@ -880,7 +823,7 @@ function queryFilteredPagination(query, model) {
  * the sequelizeQuery for sorting documents (SQL query
  * @param query: the query URL from the request
  * @param model: the model to build the filter list
- * @returns {string}: managed query URL to Sequelize query
+ * @returns {{}}: managed query URL to Sequelize query
  * @private
  */
 function queryFilteredSort(query, model) {
@@ -901,7 +844,7 @@ function queryFilteredSort(query, model) {
  * the sequelizeQuery for math operations (SQL query) with sort
  * @param query: the query URL from the request
  * @param model: the model to build the filter list
- * @returns {string}: managed query URL to Sequelize query
+ * @returns {{}}: managed query URL to Sequelize query
  * @private
  */
 function queryFilteredRest(query, model) {
@@ -910,7 +853,7 @@ function queryFilteredRest(query, model) {
 	let relatedList = ModelValidation(model).related;
 	let fieldsList = ModelValidation(model).fields;
 
-	let queryResponse = {};
+	const queryResponse = {};
 
 	Object.keys(filtersList).map((key) => {
 		if (_.has(query, key)) {
@@ -942,7 +885,7 @@ function queryFilteredRest(query, model) {
  * @param query: the query URL from the request
  * @param sequelizeQuery: the sequelize query string
  * @param model: the model to build the filter list
- * @returns {string}: managed sequelize query string
+ * @returns {{}}: managed sequelize query string
  * @private
  */
 function queryWithDeleted(query, sequelizeQuery, model) {
@@ -959,7 +902,7 @@ function queryWithDeleted(query, sequelizeQuery, model) {
  * @param query: the query URL from the request
  * @param sequelizeQuery: the sequelize query string
  * @param model: the model to build the filter list
- * @returns {string}: managed sequelize query string
+ * @returns {{}}: managed sequelize query string
  * @private
  */
 function queryAttributes(query, sequelizeQuery, model) {
