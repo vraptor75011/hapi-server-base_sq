@@ -1,7 +1,3 @@
-const Boom = require('boom');
-const Log = require('../../../../utilities/logging/logging');
-const Chalk = require('chalk');
-
 const DB = require('../../../../config/sequelize');
 const HandlerHelper = require('../../../../utilities/handler/handler-helper');
 
@@ -11,16 +7,11 @@ const User = DB.User;
 const Handler =
 	{
 		findAll: function (request, reply) {
-
+			// Call listAll async function with await inside handler-helper
 			// call LIST Handler for CRUD function valid for all present models
-			HandlerHelper.list(User, request.query)
-				.then(function(result){
-					return reply(result);
-				})
-				.catch(function (error) {
-					let errorMsg = error.message || 'An error occurred';
-					return reply(Boom.gatewayTimeout(errorMsg));
-				});
+			let result = HandlerHelper.list(User, request.query);
+			return reply(result);
+
 		},
 
 		findOne: function (request, reply) {
@@ -70,10 +61,10 @@ const Handler =
 		},
 
 		addOne: function (request, reply) {
-			// Admin can add one or more child model to an User
+			// Admin can add one child model to an User
 			// Call an async function with await inside in handler-helper
 			let childModel = User.associations[request.params.childModel].target;
-			// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
+			// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
 			let response = HandlerHelper.addOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
 			return reply(response);
 		},
@@ -82,7 +73,7 @@ const Handler =
 			// Admin can remove one child model from an User
 			// Call an async function with await inside in handler-helper
 			let childModel = User.associations[request.params.childModel].target;
-			// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
+			// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
 			let response = HandlerHelper.removeOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
 			return reply(response);
 		},
@@ -97,19 +88,19 @@ const Handler =
 		},
 
 		removeMany: function (request, reply) {
-			// Admin can remove one child model from an User
+			// Admin can remove one or more child model from an User
 			// Call an async function with await inside in handler-helper
 			let childModel = User.associations[request.params.childModel].target;
-			// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
+			// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
 			let response = HandlerHelper.removeMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
 			return reply(response);
 		},
 
 		getAll: function (request, reply) {
-			// Admin can remove one child model from an User
+			// Admin can get list of Child model related to User
 			// Call an async function with await inside in handler-helper
 			let childModel = User.associations[request.params.childModel].target;
-			// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
+			// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
 			let response = HandlerHelper.getAll(User, request.params.userId, childModel, request.params.childModel, request.query);
 			return reply(response);
 		},

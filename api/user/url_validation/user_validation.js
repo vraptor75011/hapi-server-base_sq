@@ -9,32 +9,6 @@ const pwdString = "^[a-zA-Z0-9àèéìòù\*\.\,\;\:\-\_\|@&%\$]{3,}$";
 const usrRegExp = new RegExp(usrString);
 const pwdRegExp = new RegExp(pwdString);
 
-// Model validation to integrate new User POST...with Related Object
-const RealmsRolesUsersValidation = require('../../realms_roles_users/url_validation/realms_roles_users_validation');
-const relationUrl = Joi.string().required().valid(['realmsRolesUsers', 'roles']);
-
-let putManyRRU = Joi.alternatives().try(
-	Joi.array().min(1).items(
-		RealmsRolesUsersValidation.putRelationPayload),
-	RealmsRolesUsersValidation.putRelationPayload,
-	Joi.object().allow(null),
-);
-
-let postManyRRU = Joi.alternatives().try(
-	Joi.array().min(1).items(
-		RealmsRolesUsersValidation.postRelationPayload),
-	RealmsRolesUsersValidation.postRelationPayload,
-	Joi.object().allow(null),
-);
-let putChildModels = {
-	realmsRolesUsers: putManyRRU,
-};
-let postChildModels = {
-	realmsRolesUsers: postManyRRU,
-};
-
-
-// ^To add all relations to create or add from USER form (with User Object)
 
 const Validations = ModelValidation(DB.User);
 

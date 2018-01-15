@@ -1,10 +1,6 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const UserValidation = require('../../url_validation/user_validation');
 const UserHandler = require('../handlers/user_handlers');
-const DB = require('../../../../config/sequelize');
-
-// let User = DB.User;
-// let schemaQuery = User.schemaQuery();
 
 module.exports.register = (server, options, next) => {
 
