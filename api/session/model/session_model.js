@@ -1,8 +1,5 @@
-const Joi = require('joi');
 const Uuid = require('node-uuid');
-const _ = require('lodash');
 const Sequelize = require('sequelize');
-const ModelValidation = require('../../../utilities/validation/model_validations');
 const QueryHelper = require('../../../utilities/query/query-helper');
 
 const Op = Sequelize.Op;
@@ -50,24 +47,6 @@ module.exports = function(sequelize, DataTypes) {
 		Session.belongsTo(models.User);
 	};
 
-	// Model URL Query Validation
-	Session.schemaQuery = () => {
-		const modelValidations = ModelValidation(Session);
-
-		return modelValidations;
-	};
-
-	// Model Payload Validation
-	Session.schemaPayload = () => {
-		return Joi.object().keys({
-			id: Joi.number().min(1),
-			key: Joi.string().min(3).max(64).required(),
-			passwordHash: Joi.string().min(3).max(128).required(),
-			createdAt: Joi.date(),
-			updatedAt: Joi.date(),
-			deletedAt: Joi.date(),
-		})};
-
 	// Special Methods:
 	// CreateInstance
 	Session.createInstance = (user) => {
@@ -83,7 +62,7 @@ module.exports = function(sequelize, DataTypes) {
 			.then(function(result) {
 				newSession = result;
 
-				const query = {
+				let query = {
 					where: {
 						userId: user.id,
 						key: { [Op.ne]: newSession.key }
@@ -97,6 +76,7 @@ module.exports = function(sequelize, DataTypes) {
 			});
 	};
 
+	// Find By Credentials
 	Session.findByCredentials = (sessionId, sessionKey) => {
 		let session = {};
 		let attributes = QueryHelper.createAttributesArray(Session);
