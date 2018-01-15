@@ -74,7 +74,7 @@ let getRelObject = (model, recursive, PK, exceptionModel, foreignKey) => {
 let getRelList = (model) => {
 	let relationList = [];
 	Object.keys(model.associations).map((rel) => {
-		let relation = model.associations[rel];
+		// let relation = model.associations[rel];
 		// if (relation.associationType === 'HasMany' || relation.associationType === 'BelongsToMany') {
 		// 	relationList.push(rel);
 		// }
@@ -374,32 +374,32 @@ let getExtra = (model) => {
 		let ass2 = associations[2] ? associations[2].as : associations[1] ? associations[1].as : associations[0].as;
 
 		extraSchema[rel + '.$withFilter'] = Joi.alternatives().try(
-			Joi.array().description('filter by relationships fields: {Roles}[{or|not}]{name}[{=}], [{Realms}{not}{name}{like}]')
+			Joi.array().description('filter by relationships fields: {' + ass0 + '}[{or|not}]{name}[{=}], [{'+ ass1 + '}{not}{name}{like}]')
 				.items(Joi.string().max(255)
 					.regex(ValidationHelper.withFilterRegExp(model)))
-				.example(['{Roles}{id}{=}3','{Realms}{name}{like}App']),
+				.example(['{'+ ass1 + '}{id}{=}3','{'+ ass2 + '}{name}{like}App']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withFilterRegExp(model))
-				.example('{Roles.models}{not}{username}{null}')
+				.example('{'+ ass0 + '}{not}{username}{null}')
 		);
 		extraSchema[rel + '.$withCount'] = Joi.alternatives().try(
-			Joi.array().description('count relationships occurrences: Roles, [Roles, Realms]')
+			Joi.array().description('count relationships occurrences: '+ ass0 + ', ['+ ass1 + '.childModel, '+ ass2 + ']')
 				.items(
 					Joi.string().max(255)
 						.regex(ValidationHelper.withCountRegExp(model)))
-				.example(['Realms','Roles']),
-			Joi.string().max(255).description('relationships: Roles, [Roles.models, Realms]')
+				.example([ass0, ass1]),
+			Joi.string().max(255).description('relationships: '+ ass0 + ', ['+ ass1 + ', Realms]')
 				.regex(ValidationHelper.withCountRegExp(model))
 				.example('Realms')
 		);
 		extraSchema[rel + '.$withSort'] = Joi.alternatives().try(
-			Joi.array().description('sort related field: {Realms}[+,-]id vs [-id, -name]')
+			Joi.array().description('sort related field: {'+ ass1 + '}[+,-]id vs [-id, -name]')
 				.items(Joi.string().max(255)
 					.regex(ValidationHelper.withSortRegExp(model)))
-				.example(['{Roles}+name','{Roles.models}-username']),
+				.example(['{'+ ass0 + '}+name','{'+ ass0 + '}-username']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withSortRegExp(model))
-				.example('{Realms}description')
+				.example('{'+ ass0 + '}description')
 		);
 
 	});
@@ -420,11 +420,10 @@ let joiCompile = (key, element, model) => {
 
 	if (key === 'array') {
 		let schema = Joi.array();
-		let joiArray = [];
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 			if (key === 'items') {
-				Object.keys(element02).map((key, index) => {
+				Object.keys(element02).map((key) => {
 					schema = schema.items(joiCompile(key, element02[key], model));
 				});
 			}
@@ -444,7 +443,7 @@ let joiCompile = (key, element, model) => {
 	if (key === 'string') {
 		let schema = Joi.string();
 
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 
 			if (key === 'regex') {
@@ -474,7 +473,7 @@ let joiCompile = (key, element, model) => {
 	if (key === 'integer') {
 		let schema = Joi.number().integer();
 
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 
 			if (key === 'min') {
@@ -500,7 +499,7 @@ let joiCompile = (key, element, model) => {
 	if (key === 'any') {
 		let schema = Joi.any();
 
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 
 			if (key === 'forbidden') {
@@ -515,7 +514,7 @@ let joiCompile = (key, element, model) => {
 	if (key === 'boolean') {
 		let schema = Joi.boolean();
 
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 
 			if (key === 'valid') {
@@ -538,7 +537,7 @@ let addJoiAnyExample = (schema, example) => {
 	return schema.example(example);
 };
 
-let addJoiAnyForbidden = (schema, value) => {
+let addJoiAnyForbidden = (schema) => {
 	return schema.forbidden();
 };
 
@@ -555,7 +554,7 @@ let addJoiAnyValid = (schema, value) => {
 };
 
 
-module.exports = function(model, recursive, foreignKey) {
+module.exports = (model, recursive, foreignKey) => {
 	const relationList = Joi.string().required().valid(getRelList(model));
 
 	const postRelObject = getRelObject(model, recursive, false, foreignKey);
@@ -584,9 +583,7 @@ module.exports = function(model, recursive, foreignKey) {
 
 	const extra = getExtra(model);
 
-
-
-	const modelRelationValidations = {
+	return {
 		postRelObject: postRelObject,
 		putRelObject: putRelObject,
 
@@ -604,6 +601,4 @@ module.exports = function(model, recursive, foreignKey) {
 		related: related,
 		extra: extra,
 	};
-
-	return modelRelationValidations;
 };
