@@ -102,7 +102,7 @@ const SessionValidation = {
 
 	//GET_ALL
 	getAllParams: Joi.object().keys(_.assign({}, {sessionId: BaseValidation.paramId}, {childModel: relationList})),
-	queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields)),
+	queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields, relRelated, relExtra)),
 
 };
 

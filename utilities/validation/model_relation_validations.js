@@ -148,7 +148,7 @@ let getPagination = (model) => {
 		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
 			paginationSchema[rel + '.$page'] = Joi.number().integer().min(1).description('page number')
 				.default(1);
-			paginationSchema[rel + '.$pageSize'] = Joi.number().integer().min(5).max(100).description('rows per page')
+			paginationSchema[rel + '.$pageSize'] = Joi.number().integer().min(1).max(100).description('rows per page')
 				.default(10);
 		}
 
@@ -226,10 +226,7 @@ let getMath = (model) => {
 let getSoftDeleted = (model) => {
 	let softDeletedSchema = {};
 	Object.keys(model.associations).map((rel) => {
-		let relation = model.associations[rel];
-		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
-			softDeletedSchema[rel + '.$withDeleted'] = Joi.boolean().description('includes soft deleted record').default(false);
-		}
+		softDeletedSchema[rel + '.$withDeleted'] = Joi.boolean().description('includes soft deleted record').default(false);
 	});
 
 	return softDeletedSchema;
@@ -259,11 +256,7 @@ let getHardDeleted = (model) => {
 let getExcludedFields = (model) => {
 	let excludedFieldsSchema = {};
 	Object.keys(model.associations).map((rel) => {
-		let relation = model.associations[rel];
-		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
-			excludedFieldsSchema[rel + '.$withExcludedFields'] = Joi.boolean().description('includes excluded fields in query').default(false);
-		}
-
+		excludedFieldsSchema[rel + '.$withExcludedFields'] = Joi.boolean().description('includes excluded fields in query').default(false);
 	});
 
 	return excludedFieldsSchema;
@@ -367,41 +360,43 @@ let getExtra = (model) => {
 	let extraSchema = {};
 	Object.keys(model.associations).map((rel) => {
 		let relation = model.associations[rel];
-		let targetModel = relation.target;
-		let associations = Object.values(targetModel.associations);
-		let ass0 = associations[0].as;
-		let ass1 = associations[1] ? associations[1].as : associations[0].as;
-		let ass2 = associations[2] ? associations[2].as : associations[1] ? associations[1].as : associations[0].as;
 
-		extraSchema[rel + '.$withFilter'] = Joi.alternatives().try(
-			Joi.array().description('filter by relationships fields: {' + ass0 + '}[{or|not}]{name}[{=}], [{'+ ass1 + '}{not}{name}{like}]')
-				.items(Joi.string().max(255)
-					.regex(ValidationHelper.withFilterRegExp(model)))
-				.example(['{'+ ass1 + '}{id}{=}3','{'+ ass2 + '}{name}{like}App']),
-			Joi.string().max(255)
-				.regex(ValidationHelper.withFilterRegExp(model))
-				.example('{'+ ass0 + '}{not}{username}{null}')
-		);
-		extraSchema[rel + '.$withCount'] = Joi.alternatives().try(
-			Joi.array().description('count relationships occurrences: '+ ass0 + ', ['+ ass1 + '.childModel, '+ ass2 + ']')
-				.items(
-					Joi.string().max(255)
-						.regex(ValidationHelper.withCountRegExp(model)))
-				.example([ass0, ass1]),
-			Joi.string().max(255).description('relationships: '+ ass0 + ', ['+ ass1 + ', Realms]')
-				.regex(ValidationHelper.withCountRegExp(model))
-				.example('Realms')
-		);
-		extraSchema[rel + '.$withSort'] = Joi.alternatives().try(
-			Joi.array().description('sort related field: {'+ ass1 + '}[+,-]id vs [-id, -name]')
-				.items(Joi.string().max(255)
-					.regex(ValidationHelper.withSortRegExp(model)))
-				.example(['{'+ ass0 + '}+name','{'+ ass0 + '}-username']),
-			Joi.string().max(255)
-				.regex(ValidationHelper.withSortRegExp(model))
-				.example('{'+ ass0 + '}description')
-		);
+		if (relation.associationType !== 'BelongsTo' && relation.associationType !== 'HasOne') {
+			let targetModel = relation.target;
+			let associations = Object.values(targetModel.associations);
+			let ass0 = associations[0].as;
+			let ass1 = associations[1] ? associations[1].as : associations[0].as;
+			let ass2 = associations[2] ? associations[2].as : associations[1] ? associations[1].as : associations[0].as;
 
+			extraSchema[rel + '.$withFilter'] = Joi.alternatives().try(
+				Joi.array().description('filter by relationships fields: {' + ass0 + '}[{or|not}]{name}[{=}], [{'+ ass1 + '}{not}{name}{like}]')
+					.items(Joi.string().max(255)
+						.regex(ValidationHelper.withFilterRegExp(model)))
+					.example(['{'+ ass1 + '}{id}{=}3','{'+ ass2 + '}{name}{like}App']),
+				Joi.string().max(255)
+					.regex(ValidationHelper.withFilterRegExp(model))
+					.example('{'+ ass0 + '}{not}{username}{null}')
+			);
+			extraSchema[rel + '.$withCount'] = Joi.alternatives().try(
+				Joi.array().description('count relationships occurrences: '+ ass0 + ', ['+ ass1 + '.childModel, '+ ass2 + ']')
+					.items(
+						Joi.string().max(255)
+							.regex(ValidationHelper.withCountRegExp(model)))
+					.example([ass0, ass1]),
+				Joi.string().max(255).description('relationships: '+ ass0 + ', ['+ ass1 + ', Realms]')
+					.regex(ValidationHelper.withCountRegExp(model))
+					.example('Realms')
+			);
+			extraSchema[rel + '.$withSort'] = Joi.alternatives().try(
+				Joi.array().description('sort related field: {'+ ass1 + '}[+,-]id vs [-id, -name]')
+					.items(Joi.string().max(255)
+						.regex(ValidationHelper.withSortRegExp(model)))
+					.example(['{'+ ass0 + '}+name','{'+ ass0 + '}-username']),
+				Joi.string().max(255)
+					.regex(ValidationHelper.withSortRegExp(model))
+					.example('{'+ ass0 + '}description')
+			);
+		}
 	});
 
 	return extraSchema;

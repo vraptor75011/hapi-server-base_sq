@@ -143,7 +143,6 @@ module.exports = {
 async function _list(model, query) {
 	try {
 		let sequelizeQuery = {};
-		let count = "";
 		let result;
 
 		let totalCount;
@@ -255,7 +254,7 @@ async function _list(model, query) {
 			pageSize: query.$pageSize,
 		};
 
-		pages.total = Math.ceil(count / query.$pageSize);
+		pages.total = Math.ceil(filteredCount / query.$pageSize);
 		pages.next = pages.current + 1;
 		pages.hasNext = pages.next <= pages.total;
 		pages.prev = pages.current - 1;
@@ -623,6 +622,8 @@ async function _removeMany(ownerModel, ownerId, childModel, associationName, pay
 async function _getAll(ownerModel, ownerId, childModel, associationName, query) {
 	try {
 		let sequelizeQuery = {where: {id: ownerId}};
+		sequelizeQuery = queryWithDeleted({}, sequelizeQuery, ownerModel);
+		sequelizeQuery = queryAttributes({}, sequelizeQuery, ownerModel);
 		let ownerObject = await ownerModel.findOne(sequelizeQuery);
 		let realQuery = {};
 		let result;
@@ -635,14 +636,118 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 		});
 
 		if (ownerObject) {
-			result = await _list(childModel, realQuery);
+			let relation = ownerModel.associations[associationName];
+			let model = relation.target;
+			if (relation.associationType === 'BelongsTo' || relation.associationType === 'hasOne') {
+				let queryRest = queryFilteredRest(realQuery, model);
+				sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryRest, {});
+				sequelizeQuery = queryWithDeleted(realQuery, sequelizeQuery, model);
+				sequelizeQuery = queryAttributes(realQuery, sequelizeQuery, model);
+				let action = 'get'+_.upperFirst(associationName);
+				result = await ownerObject[action](sequelizeQuery);
+			} else if (relation.associationType === 'BelongsToMany' || relation.associationType === 'hasMany') {
+				sequelizeQuery = {};
+				let totalCount;
+				let filteredCount;
+				totalCount = await model.count(sequelizeQuery);
+
+				if (realQuery.$count) {
+					let queryCount = queryFilteredCount(realQuery, model);
+					sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
+					filteredCount = await model.count(sequelizeQuery);
+
+					result = {
+						total: totalCount,
+						filtered: filteredCount,
+					};
+				} else if (realQuery.$min || realQuery.$max || realQuery.$sum) {
+					let queryCount = queryFilteredCount(realQuery, model);
+					sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
+					filteredCount = await model.count(sequelizeQuery);
+
+					let queryMath = queryFilteredMath(realQuery, model);
+					let attr = QueryHelper.createSequelizeFilter(model, queryMath, '');
+
+					if (realQuery.$min) {
+						let min = await model.min(attr, sequelizeQuery);
+
+						result = {
+							total: totalCount,
+							filtered: filteredCount,
+							min: min,
+						};
+					}
+
+					if (realQuery.$max) {
+						let max = await model.max(attr, sequelizeQuery);
+
+						result = {
+							total: totalCount,
+							filtered: filteredCount,
+							max: max,
+						};
+					}
+
+					if (realQuery.$sum) {
+						let sum = await model.sum(attr, sequelizeQuery);
+
+						result = {
+							total: totalCount,
+							filtered: filteredCount,
+							sum: sum,
+						};
+					}
+				} else {
+					let queryCount = queryFilteredCount(realQuery, model);
+					sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
+					filteredCount = await model.count(sequelizeQuery);
+
+					// 3) Query findAll record with all URL query params
+					let queryPagination = queryFilteredPagination(realQuery, model);
+					let querySort = queryFilteredSort(realQuery, model);
+					let queryRest = queryFilteredRest(realQuery, model);
+					let queryInclude = _.assign({}, queryPagination, querySort, queryRest);
+					sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryInclude, sequelizeQuery);
+					sequelizeQuery = queryWithDeleted(realQuery, sequelizeQuery, model);
+					sequelizeQuery = queryAttributes(realQuery, sequelizeQuery, model);
+
+					let action = 'get'+_.upperFirst(associationName);
+					let childDocs = await ownerObject[action](sequelizeQuery);
+
+					const pages = {
+						current: realQuery.$page || 1,
+						prev: 0,
+						hasPrev: false,
+						next: 0,
+						hasNext: false,
+						total: 0
+					};
+					const items = {
+						total: totalCount,
+						filtered: filteredCount,
+						page: realQuery.$page,
+						pageSize: realQuery.$pageSize,
+					};
+
+					pages.total = Math.ceil(filteredCount / realQuery.$pageSize);
+					pages.next = pages.current + 1;
+					pages.hasNext = pages.next <= pages.total;
+					pages.prev = pages.current - 1;
+					pages.hasPrev = pages.prev !== 0;
+					// FindALL response
+					result = {items: items, pages: pages, docs: childDocs};
+				}
+
+
+			}
+
 			if (result.errors) {
 				let error = Boom.badRequest(result);
 				error.output.payload['sql validation'] = {message: error.original.message};
 				error.reformat();
 				return error;
 			} else {
-				return result;
+				return {doc: ownerObject, [associationName]: result};
 			}
 		}	else {
 			let error = {type: ErrorHelper.types.NOT_FOUND};
@@ -727,11 +832,12 @@ async function _removeAssociation(ownerModel, ownerId, childModel, childId, asso
 		let foreignKey = relation.foreignKey;
 
 		if (relation.associationType === 'HasMany') {
+			// Destroy all hasMany side objects: 1 -> N, Destroy all N objects
 			let sequelizeQuery = {where: {id: {[Op.in]: childId}, [foreignKey]: {[Op.eq]: ownerId}}};
 			sequelizeQuery = queryWithDeleted(payload, sequelizeQuery, childModel);
-
 			result = await childModel.destroy(sequelizeQuery);
 		} else if (relation.associationType === 'BelongsToMany') {
+			// Destroy all through table instances of belongsToMany: 1 -> N <- 1, Destroy all N row in the table.
 			let action = 'remove'+_.upperFirst(associationName);
 			result = await ownerObject[action](childId, {transaction: t});
 		}

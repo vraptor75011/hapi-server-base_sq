@@ -215,7 +215,7 @@ module.exports = function(model) {
 	const pagination = {
 		$page: Joi.number().integer().min(1).description('page number')
 			.default(1),
-		$pageSize: Joi.number().integer().min(5).max(100).description('rows per page')
+		$pageSize: Joi.number().integer().min(1).max(100).description('rows per page')
 			.default(10),
 	};
 
