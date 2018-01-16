@@ -6,16 +6,17 @@ const DB = require('../../../../../config/sequelize');
 const Config = require('../../../../../config/config');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
+const ErrorHelper = require('../../../../../utilities/error/error-helper');
 
 const User = DB.User;
 const Realm = DB.Realm;
 const Role = DB.Role;
+const Session = DB.Session;
 
 
-const Login =
+module.exports =
 	{
 		login: async function (request, reply) {
-
 			let authHeader = "";
 			let refreshToken = "";
 			let scope = "";
@@ -73,7 +74,28 @@ const Login =
 				return reply(Boom.gatewayTimeout(errorMsg));
 			}
 
+		},
+
+		logout: async function (request, reply) {
+			let user = request.auth.credentials.user;
+			let sessionKey = request.payload.sessionKey;
+
+			try {
+				let query = {where: {key: sessionKey, userId: user.id}};
+				let session = await Session.findOne(query);
+				if (session) {
+					Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' has logged out'));
+					session.destroy();
+					return true;
+				} else {
+					let error = Session.name + ' key: ' + sessionKey + ' not present';
+					return reply(Boom.notFound(error));
+				}
+			} catch(error) {
+				Log.apiLogger.error(Chalk.red(error));
+				let errorMsg = error.message || 'An error occurred';
+				return reply(Boom.gatewayTimeout(errorMsg));
+			}
+
 		}
 	};
-
-module.exports = Login;

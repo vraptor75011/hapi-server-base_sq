@@ -188,6 +188,8 @@ const LoginPre = [
 			let roles = request.pre.roles;
 			let scope = [];
 
+			// Add 'Logged' to scope
+			scope = scope.concat('Logged');
 			// Add Realm-Roles to Scope
 			roles.forEach(function (role){
 				if (role.name.indexOf('User') !== -1) {
