@@ -43,6 +43,9 @@ module.exports = {
 			resetPasswordExpires: {
 				type: Sequelize.STRING,
 			},
+			resetPasswordNewPWD: {
+				type: Sequelize.STRING(128),
+			},
 			activateAccountToken: {
 				type: Sequelize.STRING,
 			},
