@@ -39,7 +39,7 @@
     "nodemon": "^1.14.9",
     "pluralize": "^7.0.0",
     "q": "^1.5.1",
-    "sequelize": "^4.28.6",
+    "sequelize": "^4.31.2",
     "sequelize-cli": "^3.2.0",
     "vision": "^4.1.1"
   }

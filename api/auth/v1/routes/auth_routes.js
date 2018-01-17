@@ -1,5 +1,5 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
-const AuthLogin = require('../handler/auth_handlers/auth_handlers');
+const AuthLogin = require('../handler/auth_handlers');
 const AuthValidations = require('../../url_validation/auth_validations');
 
 const LoginPre = require('../handler/auth_pre/login_pre');
@@ -37,6 +37,37 @@ module.exports.register = (server, options, next) => {
 				validate: {
 					headers: HeaderValidation.headerRequired,
 					payload: AuthValidations.logoutPayload,
+				},
+			},
+		},
+		{
+			method: 'POST',
+			path: '/v1/auth/refresh',
+			config: {
+				handler: AuthLogin.refresh,
+				auth: 					{
+					scope: ['Refresh'],
+				},
+				tags: ['Refresh', 'Token', 'api', 'v1'],
+				description: 'User refresh his token. Return two refreshed tokens.',
+				notes: ['Returns two refreshed tokens if refresh token is OK'],
+				validate: {
+					headers: HeaderValidation.headerRequired,
+					// payload: AuthValidations.logoutPayload,
+				},
+			},
+		},
+		{
+			method: 'POST',
+			path: '/v1/auth/registration',
+			config: {
+				handler: AuthLogin.registration,
+				auth: false,
+				tags: ['Registration', 'api', 'v1'],
+				description: 'Register new User (no active).',
+				notes: ['Returns the new User object'],
+				validate: {
+					payload: AuthValidations.registrationPayload
 				},
 			},
 		},

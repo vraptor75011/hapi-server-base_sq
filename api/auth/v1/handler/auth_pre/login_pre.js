@@ -134,12 +134,14 @@ const LoginPre = [
 	{
 		assign: 'session',
 		method: async function (request, reply) {
+			let user = request.pre.user;
+			let realm = request.pre.realm;
 			let session = {};
 			try {
 				if (authStrategy === AUTH_STRATEGIES.TOKEN) {
 					reply(null);
 				} else {
-					session = Session.createInstance(request.pre.user);
+					session = await Session.createInstance(user, realm);
 					Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
 					return reply(session);
 				}
@@ -186,20 +188,22 @@ const LoginPre = [
 		method: async function (request, reply) {
 			let realm = request.pre.realm;
 			let roles = request.pre.roles;
-			let scope = [];
+			let standardScope = [];
+			let refreshScope = [];
 
 			// Add 'Logged' to scope
-			scope = scope.concat('Logged');
+			standardScope = standardScope.concat('Logged');
+			refreshScope = refreshScope.concat('Refresh');
 			// Add Realm-Roles to Scope
 			roles.forEach(function (role){
 				if (role.name.indexOf('User') !== -1) {
-					scope = scope.concat(realm.name+'-'+role.name+'-'+request.pre.user.id)
+					standardScope = standardScope.concat(realm.name+'-'+role.name+'-'+request.pre.user.id)
 				} else {
-					scope = scope.concat(realm.name+'-'+role.name);
+					standardScope = standardScope.concat(realm.name+'-'+role.name);
 				}
 			});
 
-			return reply(scope);
+			return reply({standardScope, refreshScope});
 
 		}
 	},
@@ -209,7 +213,7 @@ const LoginPre = [
 
 			let user = request.pre.user;
 			let roles = [];
-			let scope = request.pre.scope;
+			let scope = request.pre.scope.standardScope;
 			let realms = [];
 			realms.push(request.pre.realm.name);
 			request.pre.roles.forEach(function(role){
@@ -251,7 +255,7 @@ const LoginPre = [
 		method: function (request, reply) {
 
 			let roles = [];
-			let scope = request.pre.scope;
+			let scope = request.pre.scope.refreshScope;
 			let session = request.pre.session;
 			let realms = [];
 			realms.push(request.pre.realm.name);

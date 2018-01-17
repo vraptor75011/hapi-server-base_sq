@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const UserValidation = require('../../user/url_validation/user_validation_base');
 
 
 module.exports = {
@@ -14,8 +15,14 @@ module.exports = {
 			realm: Joi.string().max(64)
 		}),
 	),
+
 	logoutPayload: Joi.object().keys({
 		sessionKey: Joi.string().max(255).required(),
+	}),
+
+	registrationPayload :Joi.object().keys({
+		user: Joi.object().keys(UserValidation.registrationPayloadObj).required(),
+		// registerType: Joi.string().valid(['Registration', 'Invite']).default('Registration')
 	}),
 
 };
