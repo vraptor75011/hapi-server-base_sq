@@ -62,28 +62,20 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.isActive,
 			},
 			resetPasswordToken: {
-				allowOnCreate: false,
-				allowOnUpdate: false,
-				exclude: true,
 				type: DataTypes.STRING,
+				exclude: true,
 			},
 			resetPasswordExpires: {
-				allowOnCreate: false,
-				allowOnUpdate: false,
-				exclude: true,
 				type: DataTypes.STRING,
+				exclude: true,
 			},
 			activateAccountToken: {
-				allowOnCreate: false,
-				allowOnUpdate: false,
-				exclude: true,
 				type: DataTypes.STRING,
+				exclude: true,
 			},
 			activateAccountExpires: {
-				allowOnCreate: false,
-				allowOnUpdate: false,
-				exclude: true,
 				type: DataTypes.STRING,
+				exclude: true,
 			},
 		},
 		{

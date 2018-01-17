@@ -1,6 +1,5 @@
 const AuthJWT2 = require('hapi-auth-jwt2');
 const Chalk = require('chalk');
-const Token = require('./utilities/token/token');
 const Log = require('./utilities/logging/logging');
 const Config = require('./config/config');
 
@@ -9,7 +8,6 @@ const DB = require('./config/sequelize');
 
 module.exports.register = (server, options, next) => {
 	let authStrategy = Config.get('/serverHapiConfig/authStrategy');
-	let expirationPeriod = Config.get('/expirationPeriod');
 
 	// server.ext('onPreResponse', function (request, reply) {
 	//

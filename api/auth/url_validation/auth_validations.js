@@ -25,4 +25,10 @@ module.exports = {
 		// registerType: Joi.string().valid(['Registration', 'Invite']).default('Registration')
 	}),
 
+	invitationPayload :Joi.object().keys({
+		user: Joi.object().keys(UserValidation.registrationPayloadObj).required(),
+	}),
+
+	activationQuery: Joi.string().required(),
+
 };

@@ -26,7 +26,7 @@ const constants = {
 const config = {
   $meta: 'This file configures Hapi Server Base.',
   projectName: constants.APP_TITLE,
-  websiteName: 'Server Admin',
+  websiteName: 'Server Base User administration',
   port: {
     $filter: 'env',
     production: process.env.PORT,
@@ -53,9 +53,9 @@ const config = {
     production: process.env.JWT_SECRET,
     $default: '#mgtfYK@QuRV8-guardatecosavihoinventatoperfareunbelStrongJwtSecret-VMM7T>W;^fMVr)y'
   },
-  nodemailer: {
+  mailAccount: {
     $filter: 'env',
-    local: {
+	  $default: {
       host: 'smtp.gmail.com',
       port: 465,
       secure: true,
@@ -87,7 +87,7 @@ const config = {
   },
   system: {
     fromAddress: {
-      name: 'appy',
+      name: 'Admin',
       address: 'giapiazze@gmail.com'
     },
     toAddress: {

@@ -3,6 +3,7 @@ const AuthLogin = require('../handler/auth_handlers');
 const AuthValidations = require('../../url_validation/auth_validations');
 
 const LoginPre = require('../handler/auth_pre/login_pre');
+const ActivationPre = require('../handler/auth_pre/activation_pre');
 
 
 module.exports.register = (server, options, next) => {
@@ -38,6 +39,7 @@ module.exports.register = (server, options, next) => {
 					headers: HeaderValidation.headerRequired,
 					payload: AuthValidations.logoutPayload,
 				},
+
 			},
 		},
 		{
@@ -55,22 +57,53 @@ module.exports.register = (server, options, next) => {
 					headers: HeaderValidation.headerRequired,
 					// payload: AuthValidations.logoutPayload,
 				},
+
 			},
 		},
 		{
 			method: 'POST',
 			path: '/v1/auth/registration',
 			config: {
-				handler: AuthLogin.registration,
+				handler: AuthLogin.accountRegistration,
 				auth: false,
 				tags: ['Registration', 'api', 'v1'],
 				description: 'Register new User (no active).',
-				notes: ['Returns the new User object'],
+				notes: ['Returns the new User object no active'],
 				validate: {
 					payload: AuthValidations.registrationPayload
 				},
 			},
 		},
+		{
+			method: 'POST',
+			path: '/v1/auth/invitation',
+			config: {
+				handler: AuthLogin.accountInvitation,
+				auth: false,
+				tags: ['Invitation', 'api', 'v1'],
+				description: 'Admin invites a new User (no active).',
+				notes: ['Returns the new User object no active'],
+				validate: {
+					payload: AuthValidations.invitationPayload
+				},
+			},
+		},
+		{
+			method: 'GET',
+			path: '/v1/auth/activation',
+			config: {
+				handler: AuthLogin.accountActivation,
+				auth: false,
+				description: 'User account activation.',
+				tags: ['Activation', 'api', 'v1'],
+				validate: {
+					query: {
+						token: AuthValidations.activationQuery,
+					}
+				},
+				pre: ActivationPre,
+			}
+		}
 	]);
 
 	next()

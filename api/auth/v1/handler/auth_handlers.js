@@ -1,6 +1,8 @@
 const Boom = require('boom');
 const Log = require('../../../../utilities/logging/logging');
 const Chalk = require('chalk');
+const Jwt = require('jsonwebtoken');
+const Bcrypt = require('bcrypt');
 const DB = require('../../../../config/sequelize');
 
 const Config = require('../../../../config/config');
@@ -10,6 +12,7 @@ const expirationPeriod = Config.get('/expirationPeriod');
 const ErrorHelper = require('../../../../utilities/error/error-helper');
 const HandlerHelper = require('../../../../utilities/handler/handler-helper');
 const Token = require('../../../../utilities/token/token');
+const Mailer = require('../../../../utilities/mailer/mailer');
 
 const User = DB.User;
 const Realm = DB.Realm;
@@ -179,29 +182,130 @@ module.exports =
 			}
 		},
 
-		registration: async function (request, reply) {
+		accountRegistration: async function (request, reply) {
 			try {
 				let user = request.payload.user;
 				let result;
 
-				let keyHash = await Session.generateKeys();
+				let keyHash = await Session.generateKeyHash();
 
 				user.isActive = false;
 				user.password = User.hashPassword(user.password);
 				user.activateAccountToken = keyHash.hash;
 				user.activateAccountExpires = Date.now() + (4*1000*60*60);
+				user.realmsRolesUsers = {realmId: 1, roleId: 1};
 
 				result = await HandlerHelper.create(User, user);
-				if (result) {
+				if (result.isBoom) {
+					return result;
+				} else {
 					user = result.doc;
+					const emailOptions = {
+						subject: 'Activate your ' + Config.get('/websiteName') + ' account',
+						to: {
+							name: user.firstName + " " + user.lastName,
+							address: user.email
+						}
+					};
+					const template = 'welcome';
 
+					const token = Jwt.sign({
+						email: user.email,
+						key: keyHash.key
+					}, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" });
+
+					const context = {
+						clientURL: Config.get('/clientURL'),
+						websiteName: Config.get('/websiteName'),
+						key: token
+					};
+
+					Mailer.sendMail(emailOptions, template, context);
+					Log.apiLogger.info(Chalk.cyan('sending welcome email to: ', user.email));
+					return reply(result);
 				}
-
-				return true;
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return reply(Boom.gatewayTimeout(errorMsg));
 			}
 		},
+
+		accountInvitation: async function (request, reply) {
+			try {
+				let user = request.payload.user;
+				let result;
+
+				let keyHash = await Session.generateKeyHash();
+
+				let originalPassword = user.password;
+				user.isActive = false;
+				user.password = User.hashPassword(user.password);
+				user.activateAccountToken = keyHash.hash;
+				user.activateAccountExpires = Date.now() + (4*1000*60*60);
+				user.realmsRolesUsers = {realmId: 1, roleId: 1};
+
+				result = await HandlerHelper.create(User, user);
+				if (result.isBoom) {
+					return result;
+				} else {
+					user = result.doc;
+					const emailOptions = {
+						subject: 'Invitation to ' + Config.get('/websiteName'),
+						to: {
+							name: user.firstName + " " + user.lastName,
+							address: user.email
+						}
+					};
+					const template = 'invite';
+
+					const token = Jwt.sign({
+						email: user.email,
+						key: keyHash.key
+					}, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" });
+
+					const context = {
+						clientURL: Config.get('/clientURL'),
+						websiteName: Config.get('/websiteName'),
+						inviteeName: 'Admin',
+						email: user.email,
+						password: originalPassword,
+						key: token
+					};
+
+					Mailer.sendMail(emailOptions, template, context);
+					Log.apiLogger.info(Chalk.cyan('sending welcome email to: ', user.email));
+					return reply(result);
+				}
+			} catch(error) {
+				Log.apiLogger.error(Chalk.red(error));
+				let errorMsg = error.message || 'An error occurred';
+				return reply(Boom.gatewayTimeout(errorMsg));
+			}
+		},
+
+		accountActivation: async (request, reply) => {
+
+			const key = request.pre.decoded.key;
+			const token = request.pre.user.activateAccountToken;
+
+			let keyMatch = await Bcrypt.compare(key, token);
+			if (!keyMatch) {
+				return reply(Boom.badRequest('Invalid email or key.'));
+			}
+
+			const id = request.pre.user.id;
+			let attributes = {
+				isActive: true,
+				activateAccountToken: null,
+				activateAccountExpires: null,
+			};
+
+			let result = await HandlerHelper.update(User, id, attributes);
+
+			if (result) {
+				return reply(result);
+			}
+		},
+
 	};
