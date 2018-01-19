@@ -13,6 +13,9 @@ import {ConnectedRouter, routerMiddleware, routerReducer} from 'react-router-red
 
 import {Route} from 'react-router-dom';
 import reduxThunk from 'redux-thunk';
+import { apiMiddleware } from 'redux-api-middleware';
+import authMiddleware  from './middleware/authMiddleware';
+
 //import Login from './components/LoginForm';
 import SignIn from './conteiners/auth/SignIn';
 
@@ -23,12 +26,17 @@ const history = createHistory();
 const middleware = routerMiddleware(history);
 
 const store = createStore(
+
     combineReducers({
         reducers,
         router: routerReducer
     }),
     applyMiddleware(middleware),
     applyMiddleware(reduxThunk)
+
+
+
+
 );
 
 const theme = createMuiTheme({

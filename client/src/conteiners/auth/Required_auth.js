@@ -2,6 +2,34 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {push} from 'react-router-redux';
+import jwtDecode from "jwt-decode";
+
+function isTokenExpired(token) {
+    const dateNow = new Date();
+    if(token.exp < dateNow.getTime()/ 1000) {
+        return true
+    }
+    return false
+}
+
+function isRefreshTokenExpired(token){
+
+    const dateNow = new Date();
+
+    if(token.exp < dateNow.getTime()/ 1000) {
+        return true
+    }
+    return false
+}
+
+function getRefreshToken(){
+    //call some api
+}
+
+let tokenName = "spectre-domain-token";
+const refreshTokenName = 'spectre-domain-refreshToken';
+
+
 
 export default function (ComposedComponent) {
     class Authentication extends Component {
@@ -10,24 +38,79 @@ export default function (ComposedComponent) {
         }
 
         componentWillMount() {
+            const token = localStorage.getItem(tokenName) !== 'undefined' || null ? localStorage.getItem(tokenName) : null;
 
-            if (!localStorage.getItem('token')) {
-                //this.props.routeActions.push('/foo'); push('/');
-                console.log(!localStorage.getItem('token'), !this.props.authenticated)
-                this.props.dispatch(push("/login"));
+            if (token) {
+                const decodedToken = jwtDecode(token);
+                console.log(isTokenExpired(decodedToken))
+                if (isTokenExpired(decodedToken)) {
+                    ///se il token è scaduto....
+                    const refreshToken = localStorage.getItem(refreshTokenName) !== 'undefined' || null ? localStorage.getItem(refreshTokenName) : null;
+
+                    if (refreshToken) {
+
+                        if (isRefreshTokenExpired(decodedToken)) {
+                            //go to login
+                            console.log('è scaduto il refresh token')
+                            this.props.dispatch(push("/login"));
+                        }
+                        else {
+                            getRefreshToken()
+                            console.log('get new tken')
+                        }
+                    }
+                    else {
+                        //vai al login
+                        //dispatch(push("/"));
+                    }
+
+                }
+                else{
+                    return
+
+                }
+
             }
+            return this.props.dispatch(push("/login"));
         }
 
+
         componentWillUpdate(nextProps) {
-            if (!localStorage.getItem('token')) {
-                //push('/');
-                console.log(!localStorage.getItem('token'), !nextProps.authenticated)
-                this.props.dispatch(push("/login"));
+            const token = localStorage.getItem(tokenName) !== 'undefined' || null ? localStorage.getItem(tokenName) : null;
+
+            if (token) {
+                const decodedToken = jwtDecode(token);
+                console.log(isTokenExpired(decodedToken))
+                if (isTokenExpired(decodedToken)) {
+                    ///se il token è scaduto....
+                    const refreshToken = localStorage.getItem(refreshTokenName) !== 'undefined' || null ? localStorage.getItem(refreshTokenName) : null;
+
+                    if (refreshToken) {
+
+                        if (isRefreshTokenExpired(decodedToken)) {
+                            //go to login
+                            console.log('è scaduto il refresh token')
+                            this.props.dispatch(push("/login"));
+                        }
+                        else {
+                            getRefreshToken()
+                            console.log('get new tken')
+                        }
+                    }
+
+
+                }
+
             }
+            else{
+                return
+
+            }
+
         }
 
         render() {
-            console.log('AUTORIZED', localStorage.getItem('token'), sessionStorage.getItem('token'))
+
             return <ComposedComponent {...this.props} />
         }
     }

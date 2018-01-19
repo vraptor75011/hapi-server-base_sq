@@ -8,11 +8,6 @@
     }
   },
   "dependencies": {
-    "@devexpress/dx-core": "^1.0.0-beta.1",
-    "@devexpress/dx-grid-core": "^1.0.0-beta.1",
-    "@devexpress/dx-react-core": "^1.0.0-beta.1",
-    "@devexpress/dx-react-grid": "^1.0.0-beta.1",
-    "@devexpress/dx-react-grid-material-ui": "^1.0.0-beta.1",
     "axios": "^0.17.1",
     "history": "^4.7.2",
     "jwt-decode": "^2.2.0",
@@ -26,6 +21,7 @@
     "react-router-redux": "^5.0.0-alpha.8",
     "react-scripts": "1.0.17",
     "redux": "^3.7.2",
+    "redux-api-middleware": "^2.0.1",
     "redux-form": "^7.2.0",
     "redux-thunk": "^2.2.0"
   },

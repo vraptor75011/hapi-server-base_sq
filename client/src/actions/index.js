@@ -5,6 +5,9 @@ import {AUTH_ERROR, AUTH_USER, UNAUTH_USER} from './types'
 
 //require('axios-debug')(axios);
 //const ROOT_URL = 'http://localhost:8000';
+const tokenName = "spectre-domain-token";
+const refreshTokenName = 'spectre-domain-refreshToken';
+const profileName = 'spectre-domain-profile';
 
 
 export function authError(error) {
@@ -28,7 +31,7 @@ export function signInUser(fields) {
         };
 
 
-        axios.post(`/api/v1/login`, data)
+        axios.post(`/api/v1/auth/login`, data)
             .then(response => {
                 // If request is good...
                 // - Update state to indicate user is authenticated
@@ -37,10 +40,10 @@ export function signInUser(fields) {
                     type: AUTH_USER
                 });
                 ///save the jwt token
-
-                localStorage.setItem('token', response.data.refreshToken);
-                localStorage.setItem('profile', JSON.stringify(response.data.doc.user));
-                console.log(response.data.user)
+                localStorage.setItem(tokenName, response.data.meta.authHeader);
+                localStorage.setItem(refreshTokenName, response.data.meta.refreshToken);
+                localStorage.setItem(profileName, JSON.stringify(response.data.doc.user));
+                console.log(response.data.doc.user)
 
 
                 //redirect to retstricted area by dispatch push
@@ -63,7 +66,8 @@ export function signInUser(fields) {
 export function signoutUser() {
 
     return function (dispatch) {
-        const token = localStorage.getItem('token');
+
+        const token = localStorage.getItem(tokenName) !== 'undefined' || null ? localStorage.getItem(tokenName) : null;
         if (token) {
 
             const decoded = jwtDecode(token);
@@ -72,8 +76,9 @@ export function signoutUser() {
             axios.delete(`/api/v1/session/${decoded.sessionId}`, {
                 "hardDelete": true
             }).then(response => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('profile');
+                localStorage.removeItem(tokenName);
+                localStorage.removeItem(refreshTokenName);
+                localStorage.removeItem(profileName);
                 dispatch({
                     type: UNAUTH_USER
                 });
