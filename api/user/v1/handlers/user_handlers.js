@@ -1,5 +1,11 @@
 const DB = require('../../../../config/sequelize');
 const HandlerHelper = require('../../../../utilities/handler/handler-helper');
+const Log = require('../../../../utilities/logging/logging');
+const Chalk = require('chalk');
+const Sequelize = require('sequelize');
+const Boom = require('boom');
+
+const Op = Sequelize.Op;
 
 const User = DB.User;
 
@@ -103,4 +109,22 @@ module.exports = {
 		let response = HandlerHelper.getAll(User, request.params.userId, childModel, request.params.childModel, request.query);
 		return reply(response);
 	},
+
+	// EXTRA Handlers
+	checkEmail: async (request, reply) => {
+		try {
+			let condition = {where: {email: {[Op.eq]: request.payload.email}}};
+			let user = await User.findOne(condition);
+			if (user) {
+				return reply(true);
+			}
+			else {
+				return reply(false);
+			}
+		} catch (error) {
+			Log.apiLogger.error(Chalk.red(error));
+			return reply(Boom.badImplementation('There was an error accessing the database.'));
+		}
+	},
+
 };

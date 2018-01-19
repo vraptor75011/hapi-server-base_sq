@@ -1,6 +1,5 @@
 const AuthJWT2 = require('hapi-auth-jwt2');
 const Chalk = require('chalk');
-const Token = require('./utilities/token/token');
 const Log = require('./utilities/logging/logging');
 const Config = require('./config/config');
 
@@ -9,21 +8,20 @@ const DB = require('./config/sequelize');
 
 module.exports.register = (server, options, next) => {
 	let authStrategy = Config.get('/serverHapiConfig/authStrategy');
-	let expirationPeriod = Config.get('/expirationPeriod');
 
-	server.ext('onPreResponse', function (request, reply) {
-
-		const Creds = request.auth.credentials;
-
-		// EXPL: if the auth credentials contain session info (i.e. a refresh token), respond with a fresh set of tokens in the header.
-		// Otherwise, clear the header tokens.
-		if (Creds && Creds.session && request.response.header) {
-			request.response.header('X-Auth-Header', "Bearer " + Token(Creds.user, null, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.short));
-			request.response.header('X-Refresh-Token', Token(null, Creds.session, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.long));
-		}
-
-		return reply.continue();
-	});
+	// server.ext('onPreResponse', function (request, reply) {
+	//
+	// 	const Creds = request.auth.credentials;
+	//
+	// 	// EXPL: if the auth credentials contain session info (i.e. a refresh token), respond with a fresh set of tokens in the header.
+	// 	// Otherwise, clear the header tokens.
+	// 	if (Creds && Creds.session && request.response.header) {
+	// 		request.response.header('X-Auth-Header', "Bearer " + Token(Creds.user, null, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.short));
+	// 		request.response.header('X-Refresh-Token', Token(null, Creds.session, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.long));
+	// 	}
+	//
+	// 	return reply.continue();
+	// });
 
 	let validate = async (decodedToken, request, callback) => {
 		try {
@@ -46,13 +44,10 @@ module.exports.register = (server, options, next) => {
 					return callback(null, false);
 				}
 
-				session = Session.createInstance(session.user);
-				let user = await session.getUser();
+				// session = Session.createInstance(session.user);
 				let scope = decodedToken.scope;
-				let roles = decodedToken.roles;
-				let realms = decodedToken.realms;
 
-				callback(null, Boolean(user), {user, scope, roles, realms, session});
+				callback(null, Boolean(session.user), {scope, session});
 			}
 		} catch(error) {
 			Log.apiLogger.error(Chalk.red(error));

@@ -219,7 +219,7 @@ module.exports.register = (server, options, next) => {
 					{
 						scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 					},
-				tags: ['api', 'Users'],
+				tags: ['api', 'Users', 'GetAll'],
 				description: 'Get All User related child model with query filters',
 				notes: ['Get All records of User related Child Model <br>'],
 				validate: {
@@ -228,6 +228,21 @@ module.exports.register = (server, options, next) => {
 					headers: HeaderValidation.headerRequired,
 				},
 			},
+		},
+		{
+			method: 'POST',
+			path: '/v1/users/checkEmail',
+			config: {
+				handler: UserHandler.checkEmail,
+				auth: false,
+				description: 'User check email.',
+				tags: ['api', 'Users', 'Check Email'],
+				validate: {
+					payload: {
+						email: UserValidation.checkMailParams,
+					}
+				},
+			}
 		},
 	]);
 

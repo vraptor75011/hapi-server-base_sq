@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-	up: (queryInterface, Sequelize) => {
-		return queryInterface.createTable('sessions',
+	up: async (queryInterface, Sequelize) => {
+		await queryInterface.createTable('sessions',
 			{
 				id: {
 					type: Sequelize.INTEGER,
@@ -23,18 +23,23 @@ module.exports = {
 					type: Sequelize.INTEGER,
 					allowNull: false,
 				},
+				realmId: {
+					type: Sequelize.INTEGER,
+					allowNull: false,
+				},
 				createdAt: {
 					type: Sequelize.DATE
 				},
 				updatedAt: {
 					type: Sequelize.DATE
 				},
-			})
-			.then(() => queryInterface.addIndex('sessions', ['key', 'userId']))
+			});
+			await queryInterface.addIndex('sessions', ['key', 'userId', 'realmId']);
+
 	},
 
-	down: (queryInterface, Sequelize) => {
-		return queryInterface.dropTable('sessions');
+	down: async (queryInterface, Sequelize) => {
+		await queryInterface.dropTable('sessions');
 
 	}
 };

@@ -14,8 +14,8 @@ function createToken(user, session, scope, roles, realms, expirationPeriod) {
 		token = Jwt.sign({
 			sessionUser: tokenUser,
 			scope: scope,
-			roles: roles,
-			realms: realms,
+			// roles: roles,
+			// realms: realms,
 		}, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
 	}	else {
 		const tokenUser = {

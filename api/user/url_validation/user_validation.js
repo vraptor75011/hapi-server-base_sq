@@ -104,6 +104,9 @@ const UserValidation = {
 	getAllParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
 	queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields, relRelated, relExtra)),
 
+	//Check Email
+	checkMailParams: Joi.string().email().required(),
+
 };
 
 module.exports = UserValidation;

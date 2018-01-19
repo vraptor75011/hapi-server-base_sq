@@ -1,5 +1,6 @@
 const Uuid = require('node-uuid');
 const Sequelize = require('sequelize');
+const Bcrypt = require('bcrypt');
 const QueryHelper = require('../../../utilities/query/query-helper');
 
 const Op = Sequelize.Op;
@@ -45,14 +46,16 @@ module.exports = function(sequelize, DataTypes) {
 	// Model Relations
 	Session.associate = function (models) {
 		Session.belongsTo(models.User);
+		Session.belongsTo(models.Realm);
 	};
 
 	// Special Methods:
 	// CreateInstance
-	Session.createInstance = async (user) => {
+	Session.createInstance = async (user, realm) => {
 
 		let params = {
 			userId: user.id,
+			realmId: realm.id,
 			key: Uuid.v4(),
 			passwordHash: user.password,
 		};
@@ -62,6 +65,7 @@ module.exports = function(sequelize, DataTypes) {
 		let option = {
 			where: {
 				userId: user.id,
+				realmId: realm.id,
 				key: { [Op.ne]: newSession.key }
 			}
 		};
@@ -76,9 +80,13 @@ module.exports = function(sequelize, DataTypes) {
 			where: {
 				id: sessionId,
 			},
-			include: [{
-				association: Session.associations.user,
-			}],
+			include: [
+				{
+					association: Session.associations.user,
+				},
+				{
+					association: Session.associations.realm
+				}],
 		};
 
 		let session = await Session.findOne(query);
@@ -89,6 +97,19 @@ module.exports = function(sequelize, DataTypes) {
 		return session.key === sessionKey ? session : false;
 	};
 
+	// Generate a hashed key for new user registration
+	Session.generateKeyHash = async () => {
+		let salt;
+		let hash;
+		const key = Uuid.v4();
+
+		salt = await Bcrypt.genSalt(10);
+		hash = await Bcrypt.hash(key, salt);
+		return { key, hash };
+	};
+
+
+	// To complete model function
 	return Session;
 };
 

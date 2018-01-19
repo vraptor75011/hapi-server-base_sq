@@ -316,22 +316,25 @@ async function _create(model, payload) {
 	try {
 		let result;
 		let query = {$withRelated: []};
-		let payloadOption = {};
-		if (!_.isArray(payload)) {
-			payload = [payload];
-		}
 
-		payload.forEach((instance) => {
-			Object.keys(model.associations).map((rel) => {
-				if (_.has(instance, rel)) {
-					query.$withRelated.push(rel);
-				}
-			});
-			payloadOption = QueryHelper.createSequelizeFilter(model, query, {});
+		Object.keys(model.associations).map((rel) => {
+			if (_.has(payload, rel)) {
+				query.$withRelated.push(rel);
+			}
 		});
 
-		result = await model.create(payload, payloadOption);
+		let sequelizeQuery = QueryHelper.createSequelizeFilter(model, query, {});
+		sequelizeQuery = queryAttributes({}, sequelizeQuery, model);
+
+		result = await model.create(payload, sequelizeQuery);
 		if (result) {
+			//Delete excluded attributes
+			Object.keys(model.attributes).map((attr) => {
+				let attribute = model.attributes[attr];
+				if (attribute.exclude) {
+					delete result.dataValues[attr];
+				}
+			});
 			return {doc: result};
 		} else {
 			let error = {type: ErrorHelper.types.SERVER_TIMEOUT};
