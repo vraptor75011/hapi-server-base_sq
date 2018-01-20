@@ -230,6 +230,31 @@ module.exports.register = (server, options, next) => {
 			},
 		},
 		{
+			method: 'GET',
+			path: '/v1/users/4Select',
+			config: {
+				handler: UserHandler.findAll,
+				auth:
+				// false,
+					{
+						scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-User', 'WebApp-User'],
+					},
+				tags: ['api', 'Users'],
+				description: 'GET Users List for Input Select',
+				notes: ['Returns Users list for input select filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
+				'User First Level Relations, only for query: ' + UserValidation.FLRelations + '<br>' +
+				'User Second Level Relations only for query: ' + UserValidation.SLRelations + '<br>' +
+				'Attributes: ' + UserValidation.Attributes4Select + '<br>'],
+				validate: {
+					query: UserValidation.query4Select,
+					// query: UserValidations.query,
+					headers: HeaderValidation.headerRequired,
+				},
+			},
+		},
+
+		//Extra CRUD
+		{
 			method: 'POST',
 			path: '/v1/users/checkEmail',
 			config: {

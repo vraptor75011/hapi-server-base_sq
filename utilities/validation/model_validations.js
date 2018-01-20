@@ -12,7 +12,7 @@ const _ = require('lodash');
  */
 let getFilters = (model) => {
 	let filtersSchema = {};
-	Object.keys(model.attributes).map((attr, index) => {
+	Object.keys(model.attributes).map((attr) => {
 		let attribute = model.attributes[attr];
 		let schema = {};
 		let joiArray = [];
@@ -20,7 +20,7 @@ let getFilters = (model) => {
 		let date = Sequelize.DATE().key;
 
 		if (attribute.query) {
-			Object.keys(attribute.query).map((el, index) => {
+			Object.keys(attribute.query).map((el) => {
 				let element = attribute.query[el];
 				joiArray.push(joiCompile(el, element, model));
 
@@ -203,6 +203,7 @@ module.exports = function(model) {
 	const SLRelations = SchemaHelper.relationsFromSchema(model, 2, 2);
 	const ALLRelations = SchemaHelper.relationsFromSchema(model, 1, 2);
 	const Attributes = SchemaHelper.createAttributesList(model);
+	const Attributes4Select = SchemaHelper.createAttributesList4Select(model);
 
 	const filters = getFilters(model);
 
@@ -256,7 +257,7 @@ module.exports = function(model) {
 		$hardDelete: Joi.boolean().description('includes soft deleted record').default(false),
 	};
 
-	const exludedFields = {
+	const excludedFields = {
 		$withExcludedFields: Joi.boolean().description('includes soft deleted record').default(false),
 	};
 
@@ -277,7 +278,22 @@ module.exports = function(model) {
 		),
 	};
 
-	const related = {
+	const fields4Select = {
+		$fields4Select: Joi.alternatives().try(
+			Joi.array().description('selected attributes: [{model}id, [id, username, {model}email]')
+				.default(ValidationHelper.fieldDefault4Select(model))
+				.items(
+					Joi.string().max(255)
+						.regex(ValidationHelper.field4SelectRegExp(model)))
+				.example(['{model}id','{model}username']),
+			Joi.string().max(255)
+				.default(ValidationHelper.fieldDefault4Select(model)[0] + ',' + ValidationHelper.fieldDefault4Select(model)[1])
+				.regex(ValidationHelper.field4SelectRegExp(model))
+				.example('{model}id')
+		),
+	};
+
+	const withRelated = {
 		$withRelated: Joi.alternatives().try(
 			Joi.array().description('includes relationships: Roles, [Roles.models, Realms]')
 				.items(
@@ -288,6 +304,9 @@ module.exports = function(model) {
 				.regex(ValidationHelper.withRelatedRegExp(model))
 				.example('Realms'),
 		),
+	};
+
+	const withRelFields = {
 		$withFields: Joi.alternatives().try(
 			Joi.array().description('selects relationships fields: {Roles}name, [{Realms}name,description]')
 				.items(Joi.string().max(255)
@@ -299,16 +318,19 @@ module.exports = function(model) {
 		),
 	};
 
-	const extra = {
+	const withRelFilters = {
 		$withFilter: Joi.alternatives().try(
 			Joi.array().description('filter by relationships fields: {Roles}[{or|not}]{name}[{=}], [{Realms}{not}{name}{like}]')
 				.items(Joi.string().max(255)
 					.regex(ValidationHelper.withFilterRegExp(model)))
-				.example(['{Roles}{id}{=}3','{Realms}{name}{like}App']),
+				.example(['{Roles}{id}{=}3', '{Realms}{name}{like}App']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withFilterRegExp(model))
 				.example('{Roles.models}{not}{username}{null}')
 		),
+	};
+
+	const withRelCount = {
 		$withCount: Joi.alternatives().try(
 			Joi.array().description('count relationships occurrences: Roles, [Roles, Realms]')
 				.items(
@@ -319,6 +341,9 @@ module.exports = function(model) {
 				.regex(ValidationHelper.withCountRegExp(model))
 				.example('Realms')
 		),
+	};
+
+	const withRelSort = {
 		$withSort: Joi.alternatives().try(
 			Joi.array().description('sort related field: {Realms}[+,-]id vs [-id, -name]')
 				.items(Joi.string().max(255)
@@ -338,16 +363,21 @@ module.exports = function(model) {
 		math: math,
 		softDeleted: softDeleted,
 		hardDelete: hardDelete,
-		excludedFields: exludedFields,
+		excludedFields: excludedFields,
 		count: count,
 		fields: fields,
-		related: related,
-		extra: extra,
+		fields4Select: fields4Select,
+		withRelated: withRelated,
+		withRelFields: withRelFields,
+		withRelFilters: withRelFilters,
+		withRelCount: withRelCount,
+		withRelSort: withRelSort,
 
 		FLRelations: FLRelations,
 		SLRelations: SLRelations,
 		ALLRelations: ALLRelations,
 		Attributes: Attributes,
+		Attributes4Select: Attributes4Select,
 	};
 
 	return modelValidations;

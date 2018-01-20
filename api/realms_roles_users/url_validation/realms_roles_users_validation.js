@@ -13,12 +13,19 @@ let pagination = Validations.pagination;
 let sort = Validations.sort;
 let math = Validations.math;
 let softDeleted = Validations.softDeleted;
-let hardDeleted = Validations.hardDeleted;
+let hardDelete = Validations.hardDelete;
 let excludedFields = Validations.excludedFields;
 let count = Validations.sort;
 let fields = Validations.fields;
-let related = Validations.related;
-let extra = Validations.extra;
+let fields4Select = Validations.fields4Select;
+let withRelated = Validations.withRelated;
+let withRelFields = Validations.withRelFields;
+let withRelFilters = Validations.withRelFilters;
+let withRelCount = Validations.withRelCount;
+let withRelSort = Validations.withRelSort;
+let val4QueryAll = Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields,
+	withRelated, withRelFields, withRelFilters, withRelCount, withRelSort);
+let val4Select = Object.assign({}, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
 
 let FLRelations = Validations.FLRelations;
 let SLRelations = Validations.SLRelations;
@@ -32,7 +39,7 @@ const RealmsRolesUsersValidation = {
 	Attributes: Attributes,
 
 	//FindAll
-	queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, count, fields, related, extra)),
+	queryAll: Joi.object().keys(val4QueryAll),
 
 	//FindOne
 	queryOne: Joi.object().keys(_.assign({}, fields, related)),
@@ -66,6 +73,9 @@ const RealmsRolesUsersValidation = {
 		realmId: Joi.number().integer().min(1),
 		roleId: Joi.number().integer().min(1),
 	}),
+
+	//GET for Select
+	find4SelectParams: Joi.object().keys(val4Select),
 
 };
 

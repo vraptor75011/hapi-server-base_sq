@@ -42,6 +42,7 @@ module.exports = function(sequelize, DataTypes) {
 			},
 			firstName: {
 				type: DataTypes.STRING,
+				default4Select: true,
 				required: true,
 				validation: {
 					len: [3, 64]
@@ -50,6 +51,7 @@ module.exports = function(sequelize, DataTypes) {
 			},
 			lastName: {
 				type: DataTypes.STRING,
+				default4Select: true,
 				required: true,
 				validation: {
 					len: [3, 64]
@@ -77,6 +79,13 @@ module.exports = function(sequelize, DataTypes) {
 				type: DataTypes.STRING,
 				exclude: true,
 			},
+			fullName: {
+				type: DataTypes.VIRTUAL(DataTypes.STRING, ['lastName', 'firstName']),
+				default4Select: true,
+				get: function() {
+					return this.get('lastName') + ' ' + this.get('firstName')
+				},
+			}
 		},
 		{
 			tableName: 'users',
@@ -84,7 +93,6 @@ module.exports = function(sequelize, DataTypes) {
 			timestamps: true,
 		},
 	);
-
 
 	// Model Relations
 	User.associate = function (models) {

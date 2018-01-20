@@ -19,8 +19,15 @@ let hardDelete = Validations.hardDelete;
 let excludedFields = Validations.excludedFields;
 let count = Validations.sort;
 let fields = Validations.fields;
-let related = Validations.related;
-let extra = Validations.extra;
+let fields4Select = Validations.fields4Select;
+let withRelated = Validations.withRelated;
+let withRelFields = Validations.withRelFields;
+let withRelFilters = Validations.withRelFilters;
+let withRelCount = Validations.withRelCount;
+let withRelSort = Validations.withRelSort;
+let val4QueryAll = Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields,
+	withRelated, withRelFields, withRelFilters, withRelCount, withRelSort);
+let val4Select = Object.assign({}, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
 
 let FLRelations = Validations.FLRelations;
 let SLRelations = Validations.SLRelations;
@@ -56,10 +63,10 @@ const SessionValidation = {
 
 	//URL Query
 	//FindAll
-	queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields, related, extra)),
+	queryAll: Joi.object().keys(val4QueryAll),
 	//FindOne
 	oneParams: Joi.object().keys(_.assign({}, {sessionId: BaseValidation.paramId})),
-	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
+	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, withRelated)),
 
 
 	//Payload
@@ -103,6 +110,9 @@ const SessionValidation = {
 	//GET_ALL
 	getAllParams: Joi.object().keys(_.assign({}, {sessionId: BaseValidation.paramId}, {childModel: relationList})),
 	queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields, relRelated, relExtra)),
+
+	//GET for Select
+	find4SelectParams: Joi.object().keys(val4Select),
 
 };
 
