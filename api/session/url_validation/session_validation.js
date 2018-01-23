@@ -111,8 +111,8 @@ const SessionValidation = {
 	getAllParams: Joi.object().keys(_.assign({}, {sessionId: BaseValidation.paramId}, {childModel: relationList})),
 	queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields, relRelated, relExtra)),
 
-	//GET for Select
-	find4SelectParams: Joi.object().keys(val4Select),
+    //GET for Select
+    query4Select: Joi.object().keys(val4Select),
 
 };
 

@@ -42,7 +42,6 @@ module.exports = function(sequelize, DataTypes) {
 			},
 			firstName: {
 				type: DataTypes.STRING,
-				default4Select: true,
 				required: true,
 				validation: {
 					len: [3, 64]
@@ -51,7 +50,6 @@ module.exports = function(sequelize, DataTypes) {
 			},
 			lastName: {
 				type: DataTypes.STRING,
-				default4Select: true,
 				required: true,
 				validation: {
 					len: [3, 64]
