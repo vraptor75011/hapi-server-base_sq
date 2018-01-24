@@ -3,6 +3,7 @@ const Hapi = require('hapi');
 const Plugins = require('./plugins');
 const Routes = require('./routes');
 const Auth = require('./auth');
+const View = require('./views');
 const DB = require('./config/sequelize');
 
 const Log = require('./utilities/logging/logging');
@@ -31,47 +32,9 @@ server.connection({
 });
 server.realm.modifiers.route.prefix = '/api';
 
-let db = createDB();
+createDB();
+startServer(server);
 
-// Auth module
-return server
-  .register(Auth)
-  .then(function() {
-    Log.apiLogger.info(Chalk.cyan('Auth loaded'));
-    return server
-      .register(Plugins)
-      .then(function() {
-        Log.apiLogger.info(Chalk.cyan('Plugins loaded'));
-        // Routes module
-        server
-          .register(Routes)
-          .then(function() {
-            Log.apiLogger.info(Chalk.cyan('Routes loaded'));
-            // Start Server
-            server
-              .start()
-              .then(function() {
-                Log.apiLogger.info(
-                  Chalk.cyan('Server running at: ' + server.info.uri),
-                );
-              })
-              .catch(function(err) {
-                Log.apiLogger.error(
-                  Chalk.red('error', 'Failed to start Server: ' + err),
-                );
-              });
-          })
-          .catch(function(err) {
-            Log.apiLogger.error(Chalk.red('Failed to register routes: ' + err));
-          });
-      })
-      .catch(function(err) {
-        Log.apiLogger.error(Chalk.red('Failed to load plugin:' + err));
-      });
-  })
-  .catch(function(err) {
-    Log.apiLogger.error(Chalk.red('Failed to register auth: ' + err));
-  });
 
 //
 // //EXPORT
@@ -87,4 +50,23 @@ async function createDB() {
     });
   });
   return tables;
+}
+
+async function startServer(server) {
+  try {
+      await server.register(Auth);
+      Log.apiLogger.info(Chalk.cyan('Auth loaded'));
+      await server.register(Plugins);
+      Log.apiLogger.info(Chalk.cyan('Plugins loaded'));
+      await server.register(View);
+      Log.apiLogger.info(Chalk.cyan('View loaded'));
+      await server.register(Routes);
+      Log.apiLogger.info(Chalk.cyan('Routes loaded'));
+      // Start Server
+      let result = await server.start();
+      Log.apiLogger.info(Chalk.cyan('Server running at: ' + server.info.uri));
+      return result;
+  } catch(error) {
+      Log.apiLogger.error(Chalk.red('Failed to start Server: ' + error));
+  }
 }
