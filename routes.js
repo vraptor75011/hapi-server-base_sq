@@ -15,14 +15,10 @@ const Routes = [
     { register: RealmsRolesUsersRoutes},
 	// Role Routes
 	{ register: RoleRoutes},
-
 	// User Routes
 	{ register: UserRoutes},
-
 	// Session Routes
 	{ register: SessionRoutes},
-
-
 
 ];
 
