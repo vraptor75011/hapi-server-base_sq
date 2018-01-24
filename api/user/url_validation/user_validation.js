@@ -55,7 +55,7 @@ let relRelated = RelationValidation.related;
 let relExtra = RelationValidation.extra;
 
 
-const UserValidation = {
+module.exports = {
 	//Model Information
 	FLRelations: FLRelations,
 	SLRelations: SLRelations,
@@ -120,5 +120,3 @@ const UserValidation = {
 	checkMailParams: Joi.string().email().required(),
 
 };
-
-module.exports = UserValidation;

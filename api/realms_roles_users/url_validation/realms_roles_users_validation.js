@@ -1,11 +1,13 @@
 const Joi = require('joi');
-const ModelValidation = require('../../../utilities/validation/model_validations');
-const DB = require('../../../config/sequelize');
 const _ = require('lodash');
+const DB = require('../../../config/sequelize');
+const ModelValidation = require('../../../utilities/validation/model_validations');
+const ModelRelationValidation = require('../../../utilities/validation/model_relation_validations');
+const BaseValidation = require('../../../utilities/validation/base_validation');
+const FixedValidation = require('./realms_roles_users_validation_base');
 
 
-const RealmsRolesUsers = DB.RealmsRolesUsers;
-const Validations = ModelValidation(RealmsRolesUsers);
+const Validations = ModelValidation(DB.RealmsRolesUsers);
 
 let filters = Validations.filters;
 let ids = Validations.ids;
@@ -24,59 +26,94 @@ let withRelFilters = Validations.withRelFilters;
 let withRelCount = Validations.withRelCount;
 let withRelSort = Validations.withRelSort;
 let val4QueryAll = Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields,
-	withRelated, withRelFields, withRelFilters, withRelCount, withRelSort);
+    withRelated, withRelFields, withRelFilters, withRelCount, withRelSort);
 let val4Select = Object.assign({}, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
 
 let FLRelations = Validations.FLRelations;
 let SLRelations = Validations.SLRelations;
 let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
+let Attributes4Select = Validations.Attributes4Select;
 
-const RealmsRolesUsersValidation = {
-	FLRelations: FLRelations,
-	SLRelations: SLRelations,
-	AllRelations: ALLRelations,
-	Attributes: Attributes,
+const RelationValidation = ModelRelationValidation(DB.RealmsRolesUsers, true, DB.RealmsRolesUsers.name, null);
 
-	//FindAll
-	queryAll: Joi.object().keys(val4QueryAll),
+let postRelation = RelationValidation.postRelObject;
+let putRelation = RelationValidation.putRelObject;
 
-	//FindOne
-	queryOne: Joi.object().keys(_.assign({}, fields, related)),
-	paramOne:  Joi.object().keys({
-		realmsRolesUsersId: Joi.number().min(1).required(),
-	}),
+let relationList = RelationValidation.relationList;
 
-	//POST
-	postPayload:  Joi.object().keys({
-		realmId: Joi.number().integer().min(1).required(),
-		roleId: Joi.number().integer().min(1).required(),
-		userId: Joi.number().integer().min(1).required(),
-	}),
+let relFilters = RelationValidation.filters;
+let relPagination = RelationValidation.pagination;
+let relSort = RelationValidation.sort;
+let relMath = RelationValidation.math;
+let relSoftDeleted = RelationValidation.softDeleted;
+let relHardDeleted = RelationValidation.hardDeleted;
+let relExcludedFields = RelationValidation.excludedFields;
+let relCount = RelationValidation.count;
+let relFields = RelationValidation.fields;
+let relRelated = RelationValidation.related;
+let relExtra = RelationValidation.extra;
 
-	//PUT
-	putPayload:  Joi.object().keys({
-		id: Joi.number().integer().min(1).required(),
-		realmId: Joi.number().integer().min(1).required(),
-		roleId: Joi.number().integer().min(1).required(),
-		userId: Joi.number().integer().min(1).required(),
-	}),
 
-	//POST in Relation with User Model
-	postRelationPayload:  Joi.object().keys({
-		realmId: Joi.number().integer().min(1),
-		roleId: Joi.number().integer().min(1),
-	}),
-	//PUT in Relation with User Model
-	putRelationPayload:  Joi.object().keys({
-		id: Joi.number().integer().min(1),
-		realmId: Joi.number().integer().min(1),
-		roleId: Joi.number().integer().min(1),
-	}),
+module.exports = {
+    //Model Information
+    FLRelations: FLRelations,
+    SLRelations: SLRelations,
+    AllRelations: ALLRelations,
+    Attributes: Attributes,
+    Attributes4Select: Attributes4Select,
 
-	//GET for Select
-	find4SelectParams: Joi.object().keys(val4Select),
+    //URL Query
+    //FindAll
+    queryAll: Joi.object().keys(val4QueryAll),
+    //FindOne
+    oneParams: Joi.object().keys(_.assign({}, {realmsRolesUsersId: BaseValidation.paramId})),
+    queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, withRelated)),
+
+
+    //Payload
+    //POST
+    postPayload:  Joi.object().keys(_.assign({}, FixedValidation.postPayloadObj, postRelation)),
+
+    //PUT
+    putPayload:  Joi.object().keys(_.assign({}, BaseValidation.payloadId, FixedValidation.postPayloadObj, putRelation)),
+
+    //DELETE
+    deleteOnePayload: Joi.alternatives().try(
+        Joi.object().keys(_.assign({}, hardDelete)),
+        Joi.object().allow(null),
+    ),
+
+    //DELETE_MANY
+    deleteManyPayload: Joi.object().keys(_.assign({}, ids, hardDelete)),
+
+    //Relations URL
+    //ADD_ONE
+    addOneParams: Joi.object().keys(_.assign({}, {realmsRolesUsersId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
+
+    //REMOVE_ONE
+    removeOneParams: Joi.object().keys(_.assign({}, {realmsRolesUsersId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
+    removeOnePayload: Joi.alternatives().try(
+        Joi.object().keys(_.assign({}, hardDelete)),
+        Joi.object().allow(null),
+    ),
+
+    //ADD_MANY
+    addManyParams: Joi.object().keys(_.assign({}, {realmsRolesUsersId: BaseValidation.paramId}, {childModel: relationList})),
+    addManyPayload: Joi.object().keys(_.assign({}, postRelation, BaseValidation.ids)),
+
+    //REMOVE_MANY
+    removeManyParams: Joi.object().keys(_.assign({}, {realmsRolesUsersId: BaseValidation.paramId}, {childModel: relationList})),
+    removeManyPayload: Joi.alternatives().try(
+        Joi.object().keys(_.assign({}, BaseValidation.ids, hardDelete)),
+        Joi.object().allow(null),
+    ),
+
+    //GET_ALL
+    getAllParams: Joi.object().keys(_.assign({}, {realmsRolesUsersId: BaseValidation.paramId}, {childModel: relationList})),
+    queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields, relRelated, relExtra)),
+
+    //GET for Select
+    query4Select: Joi.object().keys(val4Select),
 
 };
-
-module.exports = RealmsRolesUsersValidation;

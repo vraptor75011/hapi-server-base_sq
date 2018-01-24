@@ -54,7 +54,7 @@ let relRelated = RelationValidation.related;
 let relExtra = RelationValidation.extra;
 
 
-const SessionValidation = {
+module.exports = {
 	//Model Information
 	FLRelations: FLRelations,
 	SLRelations: SLRelations,
@@ -115,5 +115,3 @@ const SessionValidation = {
     query4Select: Joi.object().keys(val4Select),
 
 };
-
-module.exports = SessionValidation;

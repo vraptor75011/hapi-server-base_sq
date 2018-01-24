@@ -13,6 +13,7 @@ module.exports = function(sequelize, DataTypes) {
 			},
 			name: {
 				type: DataTypes.STRING,
+                default4Select: true,
 				unique: true,
 				allowNull: false,
 				validation: {

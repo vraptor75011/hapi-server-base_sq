@@ -259,5 +259,5 @@ module.exports.register = (server, options, next) => {
 
 module.exports.register.attributes = {
 	name: 'api.v1.sessions',
-	version: '1.0.1',
+	version: '1.0.0',
 };
