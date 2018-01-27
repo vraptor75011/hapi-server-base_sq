@@ -63,11 +63,16 @@ let sequelize = new Sequelize(Config.database, Config.username, Config.password,
 		},
 //
 	});
-//
+
+// require('sequelize-virtual-fields')(Sequelize);
+// // For virtual Attributes
+// sequelize.initVirtualFields();
+
 const DB = {
 	Sequelize: Sequelize,
 	sequelize: sequelize,
 };
+
 //
 let modelFiles = getFiles('api');
 //

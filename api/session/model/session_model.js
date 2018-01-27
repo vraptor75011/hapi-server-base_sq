@@ -19,6 +19,7 @@ module.exports = function(sequelize, DataTypes) {
 			},
 			key: {
 				type: DataTypes.STRING,
+				default4Select: true,
 				unique: true,
 				allowNull: false,
 				validation: {

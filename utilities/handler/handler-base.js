@@ -1,7 +1,5 @@
 const _ = require('lodash');
-const Joi = require('joi');
 const SchemaUtility = require('../schema/schema_helper');
-const DB = require('../../config/sequelize');
 const Sequelize = require('sequelize');
 
 const Op = Sequelize.Op;
@@ -85,7 +83,18 @@ const PreHandlerBase = {
 				let realValue = _.replace(el, '{'+schema.name+'}', '');
 
 				let tmp = _.split(realValue, ',');
-				tmp.forEach(function(col){
+				tmp.forEach((col) => {
+					response.attributes.push(col);
+				});
+				responseChanged = true;
+			}
+
+			if (op === '$fields4Select') {
+				response['attributes'] = response.attributes || [];
+				let realValue = _.replace(el, '{'+schema.name+'}', '');
+
+				let tmp = _.split(realValue, ',');
+				tmp.forEach((col) => {
 					response.attributes.push(col);
 				});
 				responseChanged = true;
@@ -568,13 +577,25 @@ let sortParser = (response, value, schema) => {
 		let columns = _.split(realValue, ',');
 		columns.forEach(function(col){
 			let direction = _.includes(col, '-') ? 'DESC' : 'ASC';
-
 			realValue = _.replace(_.replace(col, '-', ''), '+', '');
-
-			let tmp = [];
-			tmp.push(realValue);
-			tmp.push(direction);
-			response.order.push(tmp);
+			let attribute = schema.attributes[realValue];
+			let type = attribute.type;
+			if (type.key === 'VIRTUAL'){
+				let fields = type.fields;
+				if (fields) {
+					fields.forEach((attr) => {
+						let tmp = [];
+						tmp.push(attr);
+						tmp.push(direction);
+						response.order.push(tmp);
+					})
+				}
+			} else {
+				let tmp = [];
+				tmp.push(realValue);
+				tmp.push(direction);
+				response.order.push(tmp);
+			}
 		});
 
 	});

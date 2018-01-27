@@ -19,13 +19,21 @@ let hardDelete = Validations.hardDelete;
 let excludedFields = Validations.excludedFields;
 let count = Validations.sort;
 let fields = Validations.fields;
-let related = Validations.related;
-let extra = Validations.extra;
+let fields4Select = Validations.fields4Select;
+let withRelated = Validations.withRelated;
+let withRelFields = Validations.withRelFields;
+let withRelFilters = Validations.withRelFilters;
+let withRelCount = Validations.withRelCount;
+let withRelSort = Validations.withRelSort;
+let val4QueryAll = Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields,
+	withRelated, withRelFields, withRelFilters, withRelCount, withRelSort);
+let val4Select = Object.assign({}, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
 
 let FLRelations = Validations.FLRelations;
 let SLRelations = Validations.SLRelations;
 let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
+let Attributes4Select = Validations.Attributes4Select;
 
 const RelationValidation = ModelRelationValidation(DB.User, true, DB.User.name, null);
 
@@ -47,19 +55,20 @@ let relRelated = RelationValidation.related;
 let relExtra = RelationValidation.extra;
 
 
-const UserValidation = {
+module.exports = {
 	//Model Information
 	FLRelations: FLRelations,
 	SLRelations: SLRelations,
 	AllRelations: ALLRelations,
 	Attributes: Attributes,
+	Attributes4Select: Attributes4Select,
 
 	//URL Query
 	//FindAll
-	queryAll: Joi.object().keys(Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields, related, extra)),
+	queryAll: Joi.object().keys(val4QueryAll),
 	//FindOne
 	oneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId})),
-	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, related)),
+	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, withRelated)),
 
 
 	//Payload
@@ -104,9 +113,10 @@ const UserValidation = {
 	getAllParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
 	queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields, relRelated, relExtra)),
 
+	//GET for Select
+	query4Select: Joi.object().keys(val4Select),
+
 	//Check Email
 	checkMailParams: Joi.string().email().required(),
 
 };
-
-module.exports = UserValidation;

@@ -958,28 +958,20 @@ function queryFilteredSort(query, model) {
  */
 function queryFilteredRest(query, model) {
 	let filtersList = ModelValidation(model).filters;
-	let extraList = ModelValidation(model).extra;
-	let relatedList = ModelValidation(model).related;
+	let relatedList = ModelValidation(model).withRelated;
 	let fieldsList = ModelValidation(model).fields;
+	let withRelFields = ModelValidation(model).withRelFields;
+	let withRelFilters = ModelValidation(model).withRelFilters;
+	let withRelCount = ModelValidation(model).withRelCount;
+	let withRelSort = ModelValidation(model).withRelSort;
+	let fields4Select = ModelValidation(model).fields4Select;
+
+	let queryAll = (_.assign({}, filtersList, relatedList, fieldsList, fields4Select,
+		withRelFields, withRelFilters, withRelCount, withRelSort));
 
 	const queryResponse = {};
 
-	Object.keys(filtersList).map((key) => {
-		if (_.has(query, key)) {
-			_.set(queryResponse, key, query[key]);
-		}
-	});
-	Object.keys(extraList).map((key) => {
-		if (_.has(query, key)) {
-			_.set(queryResponse, key, query[key]);
-		}
-	});
-	Object.keys(relatedList).map((key) => {
-		if (_.has(query, key)) {
-			_.set(queryResponse, key, query[key]);
-		}
-	});
-	Object.keys(fieldsList).map((key) => {
+	Object.keys(queryAll).map((key) => {
 		if (_.has(query, key)) {
 			_.set(queryResponse, key, query[key]);
 		}

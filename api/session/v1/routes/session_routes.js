@@ -229,6 +229,29 @@ module.exports.register = (server, options, next) => {
 				},
 			},
 		},
+        {
+            method: 'GET',
+            path: '/v1/sessions/4Select',
+            config: {
+                handler: SessionHandler.findAll,
+                auth:
+                // false,
+                    {
+                        scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-User', 'WebApp-User'],
+                    },
+                tags: ['api', 'Sessions'],
+                description: 'GET Sessions List for Input Select',
+                notes: ['Returns Sessions list for input select filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
+                'User First Level Relations, only for query: ' + SessionValidation.FLRelations + '<br>' +
+                'User Second Level Relations only for query: ' + SessionValidation.SLRelations + '<br>' +
+                'Attributes: ' + SessionValidation.Attributes4Select + '<br>'],
+                validate: {
+                    query: SessionValidation.query4Select,
+                    // query: UserValidations.query,
+                    headers: HeaderValidation.headerRequired,
+                },
+            },
+        },
 	]);
 
 	next()
@@ -236,5 +259,5 @@ module.exports.register = (server, options, next) => {
 
 module.exports.register.attributes = {
 	name: 'api.v1.sessions',
-	version: '1.0.1',
+	version: '1.0.0',
 };
