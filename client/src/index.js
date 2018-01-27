@@ -32,7 +32,7 @@ const store = createStore(
         router: routerReducer
     }),
     applyMiddleware(middleware),
-    applyMiddleware(reduxThunk)
+    applyMiddleware(reduxThunk, authMiddleware)
 
 
 

@@ -1,4 +1,4 @@
-import {AUTH_ERROR, AUTH_USER, UNAUTH_USER} from '../actions/types';
+import {AUTH_ERROR, AUTH_USER, UNAUTH_USER, LOADING_TOKEN} from '../actions/types';
 
 export default function (state = {}, action) {
     switch (action.type) {
@@ -8,6 +8,9 @@ export default function (state = {}, action) {
             return {...state, error: null, authenticated: false};
         case AUTH_ERROR:
             return {...state, error: 'Invalid email or password. Please try again'};
+        case LOADING_TOKEN:
+            console.log(action)
+            return {...state, fetching: false };
 
     }
 

@@ -39,7 +39,7 @@ const config = {
   },
   constants: constants,
   expirationPeriod: {
-    short: '7d',
+    short: '1m',
     medium: '30d',
     long: '90d'
   },

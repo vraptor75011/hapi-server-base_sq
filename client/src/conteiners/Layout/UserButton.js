@@ -47,6 +47,8 @@ const styles = {
     }
 };
 
+const profileName = 'spectre-domain-profile';
+
 class UserButton extends Component {
 
     constructor(props) {
@@ -62,9 +64,9 @@ class UserButton extends Component {
     }
 
     componentWillMount() {
-        const profile = localStorage.getItem('profile');
+        const profile = localStorage.getItem(profileName) ? localStorage.getItem(profileName) : null;
 
-        if (profile !== 'undefined') {
+        if (profile) {
 
             const {firstName, lastName, email} = JSON.parse(profile);
             this.setState({firstName, lastName, email});
