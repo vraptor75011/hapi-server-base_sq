@@ -5,7 +5,7 @@ const SwaggerPack = require('./plugins/swagger_plugin');
 
 const Plugins = [
 	// logging
-	GoodPack,
+	// GoodPack,
 
 	// Swagger
 	SwaggerPack.inert,

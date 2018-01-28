@@ -286,8 +286,9 @@ module.exports =
 
 		accountActivation: async (request, reply) => {
 
-			const key = request.pre.decoded.key;
-			const token = request.pre.user.activateAccountToken;
+			let key = request.pre.decoded.key;
+			let user = request.pre.user;
+			let token = user.activateAccountToken;
 
 			let keyMatch = await Bcrypt.compare(key, token);
 			if (!keyMatch) {
@@ -301,11 +302,19 @@ module.exports =
 				activateAccountExpires: null,
 			};
 
+			const context = {
+				email: user.email,
+			};
+
 			let result = await HandlerHelper.update(User, id, attributes);
 
 			if (result) {
-				return reply(result);
+				return  reply.view('register_ok', context);
+			}	else {
+				return  reply.view('register_error');
 			}
+
+
 		},
 
 	};
