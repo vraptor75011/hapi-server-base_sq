@@ -2,7 +2,7 @@ import React from 'react';
 //import App  from './App';
 import App from './Layout/AppBar.js';
 import HomeComponent from '../components/Home';
-import UsersComponent from './Users/Users';
+import UsersComponent from './Users/users';
 import Broadcrumbs from '../components/Breadcrumbs'
 
 

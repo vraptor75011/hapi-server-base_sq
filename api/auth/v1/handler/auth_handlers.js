@@ -34,13 +34,13 @@ module.exports =
 				case AUTH_STRATEGIES.REFRESH_TOKEN:
 					authHeader = 'Bearer ' + request.pre.standardToken;
 					refreshToken = request.pre.refreshToken;
-					scope = request.pre.scope.standardScope;
+					scope = request.pre.scope;
 
 					break;
 				case AUTH_STRATEGIES.SESSION_TOKEN:
 					authHeader = 'Bearer ' + request.pre.standardToken;
 					refreshToken = request.pre.refreshToken;
-					scope = request.pre.scope.standardScope;
+					scope = request.pre.scope;
 					break;
 				default:
 					break;

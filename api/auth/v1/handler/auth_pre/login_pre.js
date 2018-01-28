@@ -189,11 +189,9 @@ const LoginPre = [
 			let realm = request.pre.realm;
 			let roles = request.pre.roles;
 			let standardScope = [];
-			let refreshScope = [];
 
 			// Add 'Logged' to scope
 			standardScope = standardScope.concat('Logged');
-			refreshScope = refreshScope.concat('Refresh');
 			// Add Realm-Roles to Scope
 			roles.forEach(function (role){
 				if (role.name.indexOf('User') !== -1) {
@@ -203,7 +201,7 @@ const LoginPre = [
 				}
 			});
 
-			return reply({standardScope, refreshScope});
+			return reply(standardScope);
 
 		}
 	},
@@ -213,7 +211,7 @@ const LoginPre = [
 
 			let user = request.pre.user;
 			let roles = [];
-			let scope = request.pre.scope.standardScope;
+			let scope = request.pre.scope;
 			let realms = [];
 			realms.push(request.pre.realm.name);
 			request.pre.roles.forEach(function(role){
@@ -255,7 +253,7 @@ const LoginPre = [
 		method: function (request, reply) {
 
 			let roles = [];
-			let scope = request.pre.scope.refreshScope;
+			let scope = request.pre.scope;
 			let session = request.pre.session;
 			let realms = [];
 			realms.push(request.pre.realm.name);

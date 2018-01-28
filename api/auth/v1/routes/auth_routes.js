@@ -51,8 +51,8 @@ module.exports.register = (server, options, next) => {
 					scope: ['Refresh'],
 				},
 				tags: ['Refresh', 'Token', 'api', 'v1'],
-				description: 'User refresh his token. Return two refreshed tokens.',
-				notes: ['Returns two refreshed tokens if refresh token is OK'],
+				description: 'User refresh his store. Return two refreshed tokens.',
+				notes: ['Returns two refreshed tokens if refresh store is OK'],
 				validate: {
 					headers: HeaderValidation.headerRequired,
 					// payload: AuthValidations.logoutPayload,
