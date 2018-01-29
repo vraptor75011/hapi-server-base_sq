@@ -22,6 +22,18 @@ module.exports.register = (server, options, next) => {
 		if (Creds && Creds.session && request.response.header) {
 			request.response.header('X-Auth-Header', "Bearer " + Token(Creds.user, null, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.short));
 			request.response.header('X-Refresh-Token', Token(null, Creds.session, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.long));
+			let user = {
+				id: Creds.user.id,
+				username: Creds.user.username,
+				email: Creds.user.email,
+				fullName: Creds.user.fullName,
+				lastName: Creds.user.lastName,
+				firstName: Creds.user.firstName,
+				roles: Creds.roles,
+				realms: Creds.realms,
+				scope: Creds.scope,
+			};
+			request.response.header('X-User', JSON.stringify(user));
 		}
 
 		return reply.continue();
@@ -39,6 +51,7 @@ module.exports.register = (server, options, next) => {
 			} else if (decodedToken.sessionUser.sessionId) {
 				const Session = DB.Session;
 				const Realm = DB.Realm;
+				const Role = DB.Role;
 				let roles = [];
 				let realms = [];
 				let scope = [];
@@ -59,14 +72,21 @@ module.exports.register = (server, options, next) => {
 					return callback(null, false);
 				} else {
 					session = await Session.createInstance(session.user, realm);
-					let user = await session.getUser();
-					let userRoles = await user.getRoles({through: {
-							where: {realmId: realm.id}
-						}});
-					userRoles.forEach(function(role){
+					let user = await session.getUser({include: [{
+							model: Role,
+							through: {
+								where: {realmId: realm.id}
+							}
+						},{
+							model: Realm,
+							through: {
+								where: {realmId: realm.id}
+							}
+						}]});
+					user.roles.forEach(function(role){
 						roles.push(role.name);
 					});
-					realms.push(realm.name);
+					realms.push(user.realms[0].name);
 					scope = scope.concat('Logged');
 					// Add Realm-Roles to Scope
 					roles.forEach(function (roleName){
@@ -76,6 +96,19 @@ module.exports.register = (server, options, next) => {
 							scope = scope.concat(realm.name+'-'+roleName);
 						}
 					});
+					delete user.dataValues.password;
+					delete user.dataValues.isActive;
+					delete user.dataValues.resetPasswordToken;
+					delete user.dataValues.resetPasswordExpires;
+					delete user.dataValues.resetPasswordNewPWD;
+					delete user.dataValues.activateAccountToken;
+					delete user.dataValues.activateAccountExpires;
+					delete user.dataValues.createdAt;
+					delete user.dataValues.updatedAt;
+					delete user.dataValues.deletedAt;
+					user.dataValues.roles = roles;
+					user.dataValues.realms = realms;
+					user.dataValues.scope = scope;
 
 					Log.session.info(Chalk.grey('User: ' + user.fullName + ' has refreshed Tokens'));
 					callback(null, Boolean(user), {user, scope, roles, realms, session});

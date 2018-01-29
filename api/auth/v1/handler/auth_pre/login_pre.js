@@ -48,9 +48,8 @@ const LoginPre = [
 			let userLogging = email || username;
 			Log.session.info(Chalk.grey('User: ' + userLogging + ' try to logging in'));
 
-			let user = {};
 			try {
-				user = await User.findOne(
+				let user = await User.findOne(
 					{where:
 							{
 								[Op.or]: [
