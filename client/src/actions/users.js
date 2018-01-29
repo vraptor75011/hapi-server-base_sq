@@ -39,11 +39,11 @@ export function deleteUsers(id) {
 // 		const response = await axios.get(`http://localhost:4000/api/v1/users`);
 // 		if (response) {
 //
-// 		    if (response.data.headers && response.data.headers['x-auth-header'] && response.data.headers['x-refresh-token'] ) {
-// 		        setToken(response.data.headers['x-auth-header'], response.data.headers['x-refresh-token']);
+// 		    if (response.headers && response.headers['x-auth-header'] && response.headers['x-refresh-token'] ) {
+// 		        setToken(response.headers['x-auth-header'], response.headers['x-refresh-token']);
 //         }
-// 		    if (response.data.headers && response.data.headers['x-user'] ) {
-// 		        setProfile(JSON.parse(response.data.headers['x-user']));
+// 		    if (response.headers && response.headers['x-user'] ) {
+// 		        setProfile(JSON.parse(response.headers['x-user']));
 //         }
 //
 // 			return {
