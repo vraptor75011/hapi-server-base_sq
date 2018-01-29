@@ -5,7 +5,8 @@ import Input, {InputLabel, InputAdornment} from 'material-ui/Input';
 import {FormControl, FormHelperText} from 'material-ui/Form';
 import {CardContent} from 'material-ui/Card';
 import {reduxForm} from 'redux-form';
-import * as actions from '../../actions';
+
+import { signInUser } from '../../actions/auth';
 import {connect} from 'react-redux';
 import Button from 'material-ui/Button';
 import AccountCircle from 'material-ui-icons/AccountCircle';
@@ -148,7 +149,7 @@ class SignIn extends React.Component {
 
                                 <FormHelperText error={true}>{this.state.passwordError}</FormHelperText>
                             </FormControl>
-                            <Button type="submit" className={classes.button} raised color="contrast">
+                            <Button type="submit" className={classes.button} raised color="primary">
                                 Login
                             </Button>
                         </form>
@@ -171,7 +172,7 @@ function mapStateToProps(state) {
 }
 
 export default compose(
-    connect(mapStateToProps, actions),
+    connect(mapStateToProps, {signInUser}),
     reduxForm({
         form: 'signin',
         fields: ['email', 'password', 'rememberMe'],

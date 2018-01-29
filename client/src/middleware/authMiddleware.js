@@ -3,12 +3,9 @@ import {push} from "react-router-redux";
 import {AUTH_USER} from "../actions/types";
 import {authError} from "../actions";
 import axios from "axios/index";
+import { tokenName, refreshTokenName, profileName } from '../config';
 
 
-
-const tokenName = "spectre-domain-token";
-const refreshTokenName = 'spectre-domain-refreshToken';
-const profileName = 'spectre-domain-profile';
 
 export default function authMiddleware({ dispatch, getState }) {
 
@@ -30,7 +27,7 @@ console.log('il token esiste')
             if (refreshToken) {
                 console.log('il refresh token esiste')
                 const decodedRefreshToken = jwtDecode(refreshToken);
-                if (isRefreshTokenExpired(decodedRefreshToken)) {
+                if (isTokenExpired(decodedRefreshToken)) {
                     //go to login
                     console.log('è scaduto il refresh token')
                     localStorage.removeItem(refreshTokenName);
@@ -113,14 +110,6 @@ function isTokenExpired(token) {
     return true
 }
 
-function isRefreshTokenExpired(token){
-
-    console.log(token.exp < Date.now() / 1000)
-    if(token) {
-        return token.exp < Date.now() / 1000;
-    }
-    return true
-}
 
 
 

@@ -16,6 +16,8 @@ import reduxThunk from 'redux-thunk';
 import { apiMiddleware } from 'redux-api-middleware';
 import authMiddleware  from './middleware/authMiddleware';
 
+import ReduxPromise from 'redux-promise'
+
 //import Login from './components/LoginForm';
 import SignIn from './conteiners/auth/SignIn';
 
@@ -32,7 +34,7 @@ const store = createStore(
         router: routerReducer
     }),
     applyMiddleware(middleware),
-    applyMiddleware(reduxThunk, authMiddleware)
+    applyMiddleware(ReduxPromise,reduxThunk, authMiddleware)
 
 
 

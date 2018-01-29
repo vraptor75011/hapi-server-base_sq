@@ -88,7 +88,7 @@ class TopBar extends Component {
                         <IconButton
                             aria-label="open drawer"
                             onClick={this.handleDrawerOpen}
-                            className={classes.menuButton} color="contrast">
+                            className={classes.menuButton} color="primary">
                             <MenuIcon/>
                         </IconButton>
                         <Typography type="title" color="inherit" className={classes.flex}>

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import {push} from 'react-router-redux';
 import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 
 import UserForm from './UserForm';
 
@@ -16,6 +17,9 @@ import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogT
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
+
+
+import { getUsers } from '../../actions/users';
 
 
 const styles = theme => ({
@@ -99,12 +103,12 @@ class Users extends React.PureComponent {
 
     componentDidMount() {
 
-        this.getUsers();
+        this.props.getUsers();
 
 
     }
 
-    getUsers = () => {
+    /*getUsers = () => {
 
         axios.defaults.headers.common['Authorization'] = localStorage.getItem('token');
 
@@ -122,7 +126,7 @@ class Users extends React.PureComponent {
                 this.props.dispatch(push("/login"));
             }
         });
-    };
+    };*/
 
     deleteUser = () => {
 
@@ -239,11 +243,8 @@ class Users extends React.PureComponent {
     }
 
     render() {
+        const { classes, users } = this.props;
         const {
-            classes,
-        } = this.props;
-        const {
-            users,
             rows,
             pages,
             columns,
@@ -263,6 +264,8 @@ class Users extends React.PureComponent {
 
 
 
+console.log(this.props )
+
         return (<div>
                 <Paper className={classes.root}>
                     <div className={classes.tableWrapper}>
@@ -277,18 +280,19 @@ class Users extends React.PureComponent {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {users.map(this.renderRowTable)}
+                                {users && users.docs.map(this.renderRowTable)}
                             </TableBody>
                             <TableFooter>
                                 <TableRow>
                                     <TablePagination
-                                        count={pages.total || 1}
+                                        count={users && users.pages.total || 1}
                                         rowsPerPage={10}
                                         rowsPerPageOptions={allowedPageSizes}
-                                        page={pages.current}
+                                        page={users && users.pages.current}
                                         onChangePage={this.handleChangePage}
                                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
                                     />
+
                                 </TableRow>
                             </TableFooter>
                         </Table>
@@ -326,9 +330,16 @@ Users.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
+function mapDispatchToProps(dispatch){
 
-function mapStateToProps(state) {
-    return {authenticated: state.reducers.auth.authenticated};
+    return bindActionCreators({getUsers }, dispatch);
+
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(Users));
+
+function mapStateToProps(state) {
+    console.log(state)
+    return {users: state.users, pippo: 'pippo' };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
