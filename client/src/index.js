@@ -5,7 +5,7 @@ import {applyMiddleware, combineReducers, createStore} from 'redux';
 import {createMuiTheme, MuiThemeProvider} from 'material-ui/styles';
 import purple from 'material-ui/colors/purple';
 import {Home, Users} from './conteiners/ComposedPages';
-import RequiredAuth from './conteiners/auth/required_auth';
+import RequiredAuth from './conteiners/auth/Required_auth';
 import reducers from './reducers';
 import './index.css';
 import createHistory from 'history/createBrowserHistory';
@@ -14,9 +14,12 @@ import {ConnectedRouter, routerMiddleware, routerReducer} from 'react-router-red
 import {Route} from 'react-router-dom';
 import reduxThunk from 'redux-thunk';
 import { apiMiddleware } from 'redux-api-middleware';
+import authMiddleware  from './middleware/authMiddleware';
+
+import ReduxPromise from 'redux-promise'
 
 //import Login from './components/LoginForm';
-import SignIn from './conteiners/auth/sign_in';
+import SignIn from './conteiners/auth/SignIn';
 
 // Create a history of your choosing (we're using a browser history in this case)
 const history = createHistory();
@@ -24,15 +27,14 @@ const history = createHistory();
 // Build the middleware for intercepting and dispatching navigation actions
 const middleware = routerMiddleware(history);
 
-console.log('Prima pagina!');
-
 const store = createStore(
+
     combineReducers({
         reducers,
         router: routerReducer
     }),
     applyMiddleware(middleware),
-    applyMiddleware(reduxThunk)
+    applyMiddleware(ReduxPromise,reduxThunk, authMiddleware)
 
 
 
