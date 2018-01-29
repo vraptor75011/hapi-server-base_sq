@@ -14,9 +14,9 @@ const constants = {
     SUPER_ADMIN: 'SuperAdmin',
   },
   AUTH_STRATEGIES: {
-    TOKEN: 'standard-jwt-access-token',
+    TOKEN: 'standard-jwt-access-store',
     REFRESH_TOKEN: 'standard-jwt-with-refresh',
-    SESSION_TOKEN: 'jwt-with-session-for-refresh-token'
+    SESSION_TOKEN: 'jwt-with-session-for-refresh-store'
   },
 	HOST: '127.0.0.1',
   PORT: 4000,

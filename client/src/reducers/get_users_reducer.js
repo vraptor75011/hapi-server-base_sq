@@ -9,9 +9,10 @@ export default function (state = {}, action) {
 
             if (action.payload.data) {
 
-                const data = action.payload.data;
+                const docs = action.payload.data.docs;
+                const pages = action.payload.data.pages;
 
-                return {...state, data}
+                return {...state, docs, pages}
             }
 
 

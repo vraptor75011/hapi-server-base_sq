@@ -4,6 +4,7 @@ const AuthValidations = require('../../url_validation/auth_validations');
 
 const LoginPre = require('../handler/auth_pre/login_pre');
 const ActivationPre = require('../handler/auth_pre/activation_pre');
+const ActiveNewPWDPre = require('../handler/auth_pre/active_new_pwd_pre');
 
 
 module.exports.register = (server, options, next) => {
@@ -51,8 +52,8 @@ module.exports.register = (server, options, next) => {
 					scope: ['Refresh'],
 				},
 				tags: ['Refresh', 'Token', 'api', 'v1'],
-				description: 'User refresh his token. Return two refreshed tokens.',
-				notes: ['Returns two refreshed tokens if refresh token is OK'],
+				description: 'User refresh his store. Return two refreshed tokens.',
+				notes: ['Returns two refreshed tokens if refresh store is OK'],
 				validate: {
 					headers: HeaderValidation.headerRequired,
 					// payload: AuthValidations.logoutPayload,
@@ -103,7 +104,37 @@ module.exports.register = (server, options, next) => {
 				},
 				pre: ActivationPre,
 			}
-		}
+		},
+        {
+            method: 'POST',
+            path: '/v1/auth/resetPWD',
+            config: {
+                handler: AuthLogin.resetPWDRequest,
+                auth: false,
+                tags: ['Reset Password', 'api', 'v1'],
+                description: 'Everybody can send request to reset his pwd.',
+                notes: ['Returns the updated User object with new pwd not active'],
+                validate: {
+                    payload: AuthValidations.resetPWDPayload
+                },
+            },
+        },
+        {
+            method: 'GET',
+            path: '/v1/auth/activeNewPWD',
+            config: {
+                handler: AuthLogin.activeNewPWD,
+                auth: false,
+                description: 'User reset PWD confirm.',
+                tags: ['Reset Password', 'api', 'v1'],
+                validate: {
+                    query: {
+                        token: AuthValidations.activationQuery,
+                    }
+                },
+                pre: ActiveNewPWDPre,
+            }
+        },
 	]);
 
 	next()
