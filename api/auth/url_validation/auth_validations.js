@@ -31,4 +31,8 @@ module.exports = {
 
 	activationQuery: Joi.string().required(),
 
+    resetPWDPayload :Joi.object().keys({
+        user: Joi.object().keys(UserValidation.registrationResetPWDPayloadObj).required(),
+    }),
+
 };

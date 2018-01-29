@@ -34,4 +34,9 @@ module.exports = {
 		lastName: Joi.string().min(1).max(64).required(),
 	},
 
+    registrationResetPWDPayloadObj: {
+        email: Joi.string().email().required(),
+        password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
+    },
+
 };
