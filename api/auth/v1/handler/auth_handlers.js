@@ -114,7 +114,6 @@ module.exports =
 			realms.push(realm.name);
 			let roles = [];
 			let standardScope = [];
-			let refreshScope = [];
 
 			try {
 				// Check user active?
@@ -148,7 +147,6 @@ module.exports =
 				// Create new Scope from Session User Roles
 				// Add 'Logged' to scope
 				standardScope = standardScope.concat('Logged');
-				refreshScope = refreshScope.concat('Refresh');
 				// Add Realm-Roles to Scope
 				roles.forEach(function (roleName){
 					if (roleName.indexOf('User') !== -1) {
@@ -160,15 +158,26 @@ module.exports =
 
 				// Create new two tokens
 				let authHeader = 'Bearer ' + await Token(user, null, standardScope, roles, realms, expirationPeriod.short);
-				let refreshToken = await Token(null, newSession, refreshScope, roles, realms, expirationPeriod.long);
+				let refreshToken = await Token(null, newSession, standardScope, roles, realms, expirationPeriod.long);
 
 				// Response
 				delete user.dataValues.password;
+				delete user.dataValues.isActive;
+				delete user.dataValues.resetPasswordToken;
+				delete user.dataValues.resetPasswordExpires;
+				delete user.dataValues.resetPasswordNewPWD;
+				delete user.dataValues.activateAccountToken;
+				delete user.dataValues.activateAccountExpires;
+				delete user.dataValues.createdAt;
+				delete user.dataValues.updatedAt;
+				delete user.dataValues.deletedAt;
+				user.dataValues.roles = roles;
+				user.dataValues.realms = realms;
+				user.dataValues.scope = standardScope;
 				const response = {
 					meta: {
 						authHeader,
 						refreshToken,
-						standardScope,
 					},
 					doc: {
 						user

@@ -49,7 +49,7 @@ module.exports.register = (server, options, next) => {
 			config: {
 				handler: AuthLogin.refresh,
 				auth: 					{
-					scope: ['Refresh'],
+					scope: ['Logged'],
 				},
 				tags: ['Refresh', 'Token', 'api', 'v1'],
 				description: 'User refresh his store. Return two refreshed tokens.',
@@ -105,36 +105,36 @@ module.exports.register = (server, options, next) => {
 				pre: ActivationPre,
 			}
 		},
-        {
-            method: 'POST',
-            path: '/v1/auth/resetPWD',
-            config: {
-                handler: AuthLogin.resetPWDRequest,
-                auth: false,
-                tags: ['Reset Password', 'api', 'v1'],
-                description: 'Everybody can send request to reset his pwd.',
-                notes: ['Returns the updated User object with new pwd not active'],
-                validate: {
-                    payload: AuthValidations.resetPWDPayload
-                },
-            },
-        },
-        {
-            method: 'GET',
-            path: '/v1/auth/activeNewPWD',
-            config: {
-                handler: AuthLogin.activeNewPWD,
-                auth: false,
-                description: 'User reset PWD confirm.',
-                tags: ['Reset Password', 'api', 'v1'],
-                validate: {
-                    query: {
-                        token: AuthValidations.activationQuery,
-                    }
-                },
-                pre: ActiveNewPWDPre,
-            }
-        },
+		{
+			method: 'POST',
+			path: '/v1/auth/resetPWD',
+			config: {
+				handler: AuthLogin.resetPWDRequest,
+				auth: false,
+				tags: ['Reset Password', 'api', 'v1'],
+				description: 'Everybody can send request to reset his pwd.',
+				notes: ['Returns the updated User object with new pwd not active'],
+				validate: {
+					payload: AuthValidations.resetPWDPayload
+				},
+			},
+		},
+		{
+			method: 'GET',
+			path: '/v1/auth/activeNewPWD',
+			config: {
+				handler: AuthLogin.activeNewPWD,
+				auth: false,
+				description: 'User reset PWD confirm.',
+				tags: ['Reset Password', 'api', 'v1'],
+				validate: {
+					query: {
+						token: AuthValidations.activationQuery,
+					}
+				},
+				pre: ActiveNewPWDPre,
+			}
+		},
 	]);
 
 	next()
