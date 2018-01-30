@@ -6,18 +6,26 @@ import { tokenName, refreshTokenName, profileName } from '../config';
 
 
 
+
 export function getUsers() {
 
 
     axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-    const request = axios.get(`http://localhost:4000/api/v1/users`);
 
-    return {
-        type: 'GET_USERS',
-        payload: request
+
+    return function (dispatch) {
+
+        axios.get(`http://localhost:4000/api/v1/users`).then(response =>
+            dispatch({
+                type: 'GET_USERS',
+                payload: response.data
+            }));
+
+
     }
-
 }
+
+
 
 
 export function deleteUsers(id) {
