@@ -4,6 +4,7 @@ const Sequelize = require('sequelize');
 const Token = require('./utilities/token/token');
 const Log = require('./utilities/logging/logging');
 const Config = require('./config/config');
+const _ = require('lodash');
 
 const DB = require('./config/sequelize');
 const Op = Sequelize.Op;
@@ -19,9 +20,12 @@ module.exports.register = (server, options, next) => {
 
 		// EXPL: if the auth credentials contain session info (i.e. a refresh store), respond with a fresh set of tokens in the header.
 		// Otherwise, clear the header tokens.
-		if (Creds && Creds.session && request.response.header) {
+		if (Creds && Creds.session && request.response.header && !_.includes(request.path, '/auth/refresh')) {
 			request.response.header('X-Refresh-Token', Token(null, Creds.session, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.long));
-			Creds.scope = Creds.scope.pop();
+			let index = Creds.scope.indexOf('Refresh');
+			if (index > -1) {
+				Creds.scope.splice(index, 1);
+			}
 			request.response.header('X-Auth-Header', "Bearer " + Token(Creds.user, null, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.short));
 
 			let user = {

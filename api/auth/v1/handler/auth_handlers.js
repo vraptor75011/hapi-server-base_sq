@@ -188,12 +188,12 @@ module.exports =
 						return reply(response);
 					} else {
 						Log.apiLogger.error(Chalk.red('Refresh: Old Session without userId'));
-						let errorMsg = error.message || 'An error occurred';
+						let errorMsg = 'An error occurred';
 						return reply(Boom.gatewayTimeout(errorMsg));
 					}
 				} else {
 					Log.apiLogger.error(Chalk.red('Refresh: Old Session without realmId'));
-					let errorMsg = error.message || 'An error occurred';
+					let errorMsg = 'An error occurred';
 					return reply(Boom.gatewayTimeout(errorMsg));
 				}
 			} catch(error) {
