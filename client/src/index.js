@@ -16,6 +16,7 @@ import reduxThunk from 'redux-thunk';
 import { apiMiddleware } from 'redux-api-middleware';
 import authMiddleware  from './middleware/authMiddleware';
 
+
 import ReduxPromise from 'redux-promise'
 
 //import Login from './components/LoginForm';
@@ -29,12 +30,13 @@ const middleware = routerMiddleware(history);
 
 const store = createStore(
 
+
     combineReducers({
         reducers,
         router: routerReducer
     }),
-    applyMiddleware(middleware),
-    applyMiddleware(ReduxPromise,reduxThunk, authMiddleware)
+    applyMiddleware(middleware,ReduxPromise,reduxThunk, authMiddleware)
+
 
 
 

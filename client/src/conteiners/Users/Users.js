@@ -186,11 +186,11 @@ class Users extends React.PureComponent {
 
 
     renderRowTable = (data) => {
-
-        const id = data._id;
+console.log(data)
+        const id = data.id;
         return (<TableRow
             tabIndex={-1}
-            key={data._id}
+            key={id+'-key-user'}
         >
             <TableCell>
                 <div style={{display: 'flex'}}>
@@ -264,7 +264,7 @@ class Users extends React.PureComponent {
 
 
 
-console.log(this.props )
+console.log(users.pages, users.pages.total )
 
         return (<div>
                 <Paper className={classes.root}>
@@ -280,15 +280,16 @@ console.log(this.props )
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {users && users.docs.map(this.renderRowTable)}
+                                {!users.docs && <TableRow/>}
+                                {users.docs && users.docs.map(this.renderRowTable)}
                             </TableBody>
                             <TableFooter>
                                 <TableRow>
                                     <TablePagination
-                                        count={users && users.pages.total || 1}
+                                        count={users.pages && users.pages.total}
                                         rowsPerPage={10}
                                         rowsPerPageOptions={allowedPageSizes}
-                                        page={users && users.pages.current}
+                                        page={users.pages && users.pages.current}
                                         onChangePage={this.handleChangePage}
                                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
                                     />
@@ -339,7 +340,7 @@ function mapDispatchToProps(dispatch){
 
 function mapStateToProps(state) {
     console.log(state)
-    return {users: state.users, pippo: 'pippo' };
+    return {users: state.reducers.users, pippo: 'pippo' };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
