@@ -29,7 +29,7 @@ module.exports =
 			let authHeader = "";
 			let refreshToken = "";
 			let scope = "";
-			let user = request.pre.user;
+			let userPre = request.pre.user;
 			let roles = [];
 			let realms = [];
 			realms.push(request.pre.realm.name);
@@ -54,19 +54,14 @@ module.exports =
 					break;
 			}
 
-			delete user.dataValues.password;
-			delete user.dataValues.isActive;
-			delete user.dataValues.resetPasswordToken;
-			delete user.dataValues.resetPasswordExpires;
-			delete user.dataValues.resetPasswordNewPWD;
-			delete user.dataValues.activateAccountToken;
-			delete user.dataValues.activateAccountExpires;
-			delete user.dataValues.createdAt;
-			delete user.dataValues.updatedAt;
-			delete user.dataValues.deletedAt;
-			user.dataValues.roles = roles;
-			user.dataValues.realms = realms;
-			user.dataValues.scope = scope;
+			let user = {
+				id: userPre.id,
+				email: userPre.email,
+				fullName: userPre.fullName,
+				username: userPre.username,
+				realms,
+				roles,
+			};
 
 			Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' has logged in'));
 
@@ -76,7 +71,7 @@ module.exports =
 					refreshToken,
 				},
 				doc: {
-					user
+					user,
 				},
 			};
 			return reply(mapperOptions);
@@ -107,100 +102,29 @@ module.exports =
 		},
 
 		refresh: async function (request, reply) {
-			try {
-				let credential = request.auth.credentials;
-				let realm = await Realm.findOne({where: {id: {[Op.eq]: credential.session.realmId}}});
-				if (realm) {
-					let realms = [];
-					realms.push(realm.name);
-					let user = await User.findOne({
-						where: {id: {[Op.eq]: credential.user.id}},
-						include: [{
-							model: Role,
-							through: {
-								where: {realmId: realm.id}
-							}
-						},{
-							model: Realm,
-							through: {
-								where: {realmId: realm.id}
-							}
-						}],
-					});
-					let roles = [];
-					let scope = [];
+			// Take new two tokens from Request Auth
+			let authHeader = request.auth.credentials.standardToken;
+			let refreshToken = request.auth.credentials.refreshToken;
 
-					if (user) {
-						// Check user active?
-						if (!user.isActive) {
-							return reply(Boom.unauthorized('Account is inactive.'));
-						}
+			let user = {
+				id: request.auth.credentials.user.id,
+				email: request.auth.credentials.user.email,
+				fullName: request.auth.credentials.user.fullName,
+				username: request.auth.credentials.user.username,
+				realms: request.auth.credentials.realms,
+				roles: request.auth.credentials.roles,
+			};
 
-						// Create new Session
-						let newSession = await Session.createInstance(user, realm);
-						Log.session.info(Chalk.grey('User: ' + user.username + ' refresh session: ' + newSession.key));
-
-						// Search user roles in Session realm
-						user.roles.forEach(function(role){
-							roles.push(role.name);
-						});
-
-						// Create new Scope from Session User Roles
-						// Add 'Logged' to scope
-						scope = scope.concat('Logged');
-						// Add Realm-Roles to Scope
-						roles.forEach(function (roleName){
-							if (roleName.indexOf('User') !== -1) {
-								scope = scope.concat(realm.name+'-'+roleName+'-'+user.id)
-							} else {
-								scope = scope.concat(realm.name+'-'+roleName);
-							}
-						});
-
-						// Create new two tokens
-						let authHeader = 'Bearer ' + await Token(user, null, scope, roles, realms, expirationPeriod.short);
-						scope = scope.concat('Refresh');
-						let refreshToken = await Token(null, newSession, scope, roles, realms, expirationPeriod.long);
-
-						// Response
-						delete user.dataValues.password;
-						delete user.dataValues.isActive;
-						delete user.dataValues.resetPasswordToken;
-						delete user.dataValues.resetPasswordExpires;
-						delete user.dataValues.resetPasswordNewPWD;
-						delete user.dataValues.activateAccountToken;
-						delete user.dataValues.activateAccountExpires;
-						delete user.dataValues.createdAt;
-						delete user.dataValues.updatedAt;
-						delete user.dataValues.deletedAt;
-						user.dataValues.roles = roles;
-						user.dataValues.realms = realms;
-						user.dataValues.scope = scope;
-						const response = {
-							meta: {
-								authHeader,
-								refreshToken,
-							},
-							doc: {
-								user
-							},
-						};
-						return reply(response);
-					} else {
-						Log.apiLogger.error(Chalk.red('Refresh: Old Session without userId'));
-						let errorMsg = 'An error occurred';
-						return reply(Boom.gatewayTimeout(errorMsg));
-					}
-				} else {
-					Log.apiLogger.error(Chalk.red('Refresh: Old Session without realmId'));
-					let errorMsg = 'An error occurred';
-					return reply(Boom.gatewayTimeout(errorMsg));
-				}
-			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
-				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
-			}
+			const response = {
+				meta: {
+					authHeader,
+					refreshToken,
+				},
+				doc: {
+					user: user,
+				},
+			};
+			return reply(response);
 		},
 
 		accountRegistration: async function (request, reply) {

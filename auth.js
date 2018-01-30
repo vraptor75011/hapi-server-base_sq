@@ -20,24 +20,17 @@ module.exports.register = (server, options, next) => {
 
 		// EXPL: if the auth credentials contain session info (i.e. a refresh store), respond with a fresh set of tokens in the header.
 		// Otherwise, clear the header tokens.
-		if (Creds && Creds.session && request.response.header && !_.includes(request.path, '/auth/refresh')) {
-			request.response.header('X-Refresh-Token', Token(null, Creds.session, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.long));
-			let index = Creds.scope.indexOf('Refresh');
-			if (index > -1) {
-				Creds.scope.splice(index, 1);
-			}
-			request.response.header('X-Auth-Header', "Bearer " + Token(Creds.user, null, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.short));
+		if (Creds && Creds.session && request.response.header) {
+			request.response.header('X-Auth-Header', Creds.standardToken);
+			request.response.header('X-Refresh-Token', Creds.refreshToken);
 
 			let user = {
 				id: Creds.user.id,
 				username: Creds.user.username,
 				email: Creds.user.email,
 				fullName: Creds.user.fullName,
-				lastName: Creds.user.lastName,
-				firstName: Creds.user.firstName,
 				roles: Creds.roles,
 				realms: Creds.realms,
-				scope: Creds.scope,
 			};
 			request.response.header('X-User', JSON.stringify(user));
 		}
@@ -102,7 +95,8 @@ module.exports.register = (server, options, next) => {
 							scope = scope.concat(realm.name+'-'+roleName);
 						}
 					});
-					scope = scope.concat('Refresh');
+					delete user.dataValues.firstName;
+					delete user.dataValues.lastName;
 					delete user.dataValues.password;
 					delete user.dataValues.isActive;
 					delete user.dataValues.resetPasswordToken;
@@ -113,13 +107,20 @@ module.exports.register = (server, options, next) => {
 					delete user.dataValues.createdAt;
 					delete user.dataValues.updatedAt;
 					delete user.dataValues.deletedAt;
-					user.dataValues.roles = roles;
-					user.dataValues.realms = realms;
-					user.dataValues.scope = scope;
+					user.roles = roles;
+					user.realms = realms;
+					user.scope = scope;
+
+					let standardToken = 'Bearer ' + Token(user, null, scope, roles, realms, expirationPeriod.short);
+					let refreshToken = Token(null, session, scope, roles, realms, expirationPeriod.long);
 
 					Log.session.info(Chalk.grey('User: ' + user.fullName + ' has refreshed Tokens'));
-					callback(null, Boolean(user), {user, scope, roles, realms, session});
+					callback(null, Boolean(user), {user, scope, roles, realms, session, standardToken, refreshToken});
 				}
+			} else {
+				const Session = DB.Session;
+				let session = await Session.findByCredentials(decodedToken.sessionUser.sessionId, decodedToken.sessionUser.sessionKey);
+				callback(null, Boolean(user), {user, scope, roles, realms, session});
 			}
 		} catch(error) {
 			Log.apiLogger.error(Chalk.red(error));
