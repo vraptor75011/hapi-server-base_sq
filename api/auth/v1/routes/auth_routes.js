@@ -48,7 +48,7 @@ module.exports.register = (server, options, next) => {
 			path: '/v1/auth/refresh',
 			config: {
 				handler: AuthLogin.refresh,
-				auth: 					{
+				auth: {
 					scope: ['Logged'],
 				},
 				tags: ['Refresh', 'Token', 'api', 'v1'],
