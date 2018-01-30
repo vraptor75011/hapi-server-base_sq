@@ -69,6 +69,10 @@ module.exports = function(sequelize, DataTypes) {
 				type: DataTypes.STRING,
 				exclude: true,
 			},
+			resetPasswordNewPWD: {
+				type: DataTypes.STRING,
+				exclude: true,
+			},
 			activateAccountToken: {
 				type: DataTypes.STRING,
 				exclude: true,
