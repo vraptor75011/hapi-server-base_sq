@@ -80,7 +80,9 @@ module.exports.register = (server, options, next) => {
 			path: '/v1/auth/invitation',
 			config: {
 				handler: AuthLogin.accountInvitation,
-				auth: false,
+				auth: {
+					scope: ['WebApp-Admin']
+				},
 				tags: ['Invitation', 'api', 'v1'],
 				description: 'Admin invites a new User (no active).',
 				notes: ['Returns the new User object no active'],
