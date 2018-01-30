@@ -10,7 +10,7 @@ const DB = require('../../../../config/sequelize');
 
 const Config = require('../../../../config/config');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
-const authStrategy = Config.get('/serverHapiConfig/authStrategy');
+const AuthStrategy = Config.get('/serverHapiConfig/authStrategy');
 const expirationPeriod = Config.get('/expirationPeriod');
 const ErrorHelper = require('../../../../utilities/error/error-helper');
 const HandlerHelper = require('../../../../utilities/handler/handler-helper');
@@ -38,7 +38,7 @@ module.exports =
 			});
 
 
-			switch (authStrategy) {
+			switch (AuthStrategy) {
 				case AUTH_STRATEGIES.REFRESH_TOKEN:
 					authHeader = 'Bearer ' + request.pre.standardToken;
 					refreshToken = request.pre.refreshToken;
