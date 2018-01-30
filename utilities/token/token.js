@@ -11,6 +11,7 @@ function createToken(user, session, scope, roles, realms, expirationPeriod) {
 			sessionKey: session.key,
 			passwordHash: session.passwordHash,
 		};
+		scope.push('Refresh');
 		token = Jwt.sign({
 			sessionUser: tokenUser,
 			scope: scope,

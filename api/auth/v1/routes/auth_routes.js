@@ -49,7 +49,7 @@ module.exports.register = (server, options, next) => {
 			config: {
 				handler: AuthLogin.refresh,
 				auth: {
-					scope: ['Logged'],
+					scope: ['Refresh'],
 				},
 				tags: ['Refresh', 'Token', 'api', 'v1'],
 				description: 'User refresh his store. Return two refreshed tokens.',
