@@ -4,9 +4,6 @@ import { tokenName, refreshTokenName, profileName } from '../config';
 
 
 
-
-
-
 export function getUsers() {
 
 
