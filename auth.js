@@ -20,8 +20,10 @@ module.exports.register = (server, options, next) => {
 		// EXPL: if the auth credentials contain session info (i.e. a refresh store), respond with a fresh set of tokens in the header.
 		// Otherwise, clear the header tokens.
 		if (Creds && Creds.session && request.response.header) {
-			request.response.header('X-Auth-Header', "Bearer " + Token(Creds.user, null, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.short));
 			request.response.header('X-Refresh-Token', Token(null, Creds.session, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.long));
+			Creds.scope = Creds.scope.pop();
+			request.response.header('X-Auth-Header', "Bearer " + Token(Creds.user, null, Creds.scope, Creds.roles, Creds.realms, expirationPeriod.short));
+
 			let user = {
 				id: Creds.user.id,
 				username: Creds.user.username,
@@ -96,6 +98,7 @@ module.exports.register = (server, options, next) => {
 							scope = scope.concat(realm.name+'-'+roleName);
 						}
 					});
+					scope = scope.concat('Refresh');
 					delete user.dataValues.password;
 					delete user.dataValues.isActive;
 					delete user.dataValues.resetPasswordToken;
