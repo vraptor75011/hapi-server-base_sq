@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_USERS, DELETE_USER } from './types';
+import { GET_USERS, DELETE_USER, EDIT_USER, EDIT_USER_ERROR  } from './types';
 import { tokenName, refreshTokenName, profileName } from '../config';
 import authHelper from '../helpers/auth_helper';
 
@@ -13,7 +13,7 @@ export function getUsers() {
       if(token) {
           try {
               axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-              const response = await axios.get(`http://localhost:4000/api/v1/users`);
+              const response = await axios.get(`/api/v1/users`);
               return dispatch({type: 'GET_USERS', payload: response.data});
           } catch (error) {
               if (error.response && error.response.status === 401) {
@@ -47,4 +47,59 @@ export function deleteUser(id) {
       }
     }
   };
+}
+
+
+export function editUser(data) {
+    return async (dispatch, getState) => {
+
+        const token = await authHelper();
+
+
+        if(token) {
+            try {
+                axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
+
+
+
+                console.log(data)
+                const response = await axios.put(`/api/v1/users/${data.id}`, data);
+
+
+                return dispatch({type: 'EDIT_USER', payload: response.data});
+
+
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    dispatch(push('/login'));
+                }
+                else if (error.response && error.response.status === 400) {
+                    dispatch({type: 'EDIT_USER_ERROR', payload: error.response});
+                }
+
+
+            }
+        }
+    };
+}
+
+export function newUser() {
+    return async (dispatch, getState) => {
+
+        const token = await authHelper();
+        if(token) {
+            try {
+                axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
+                const response = await axios.get(`http://localhost:4000/api/v1/users`);
+                return dispatch({type: 'GET_USERS', payload: response.data});
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    dispatch(push('/login'));
+                } else {
+                    dispatch(push('/login'));
+                    console.log('ERRORE............');
+                }
+            }
+        }
+    };
 }

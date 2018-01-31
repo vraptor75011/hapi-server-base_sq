@@ -78,10 +78,10 @@ class Users extends React.PureComponent {
             users: [],
             pages: {current: 1, hasNext: false, hasPrev: false, next: 2, prev: 0, total: 1},
             columns: [
-                {name: 'firstName', title: 'Nome'},
-                {name: 'lastName', title: 'Cognome'},
-                {name: 'email', title: 'Email'},
-                {name: 'lastLogin', title: 'Lastest Login'}
+                {eng: 'First name', italian: 'Nome'},
+                {eng: 'Last name', italian: 'Cognome'},
+                {eng: 'Email', italian: 'Email'},
+                {eng: 'Last login', italian: 'Ultimo Login'}
             ],
             rows: [],
             sorting: [],
@@ -172,7 +172,7 @@ console.log(data)
 
     renderRowHeader = (data, index) => {
 
-        return (<TableCell key={index + '-headerRow'}>{data.name}</TableCell>)
+        return (<TableCell key={index + '-headerRow'}>{data.eng}</TableCell>)
     };
 
     handleChangePage = (event, page) => {
