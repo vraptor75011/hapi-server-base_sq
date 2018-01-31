@@ -1,7 +1,7 @@
 import React from 'react';
 //import App  from './App';
 import App from './Layout/AppBar.js';
-import HomeComponent from '../components/Home';
+import DashBoardComponent from '../components/DashBoard';
 import UsersComponent from './Users/Users';
 import Broadcrumbs from '../components/Breadcrumbs'
 
@@ -14,12 +14,12 @@ const styles = {
     }
 };
 
-export const Home = () => (
+export const DashBoard = () => (
     <div>
         <App/>
-        <Broadcrumbs linkName={'Home'}/>
+        <Broadcrumbs linkName={'Dashboard'}/>
         <div style={styles.rootContainer}>
-            <HomeComponent/>
+            <DashBoardComponent/>
         </div>
 
     </div>

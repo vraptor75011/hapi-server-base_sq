@@ -43,7 +43,7 @@ export function signInUser(fields) {
 
                 console.log('REDIRECT')
                 //redirect to retstricted area by dispatch push
-                dispatch(push("/"));
+                dispatch(push("/dashboard"));
 
 
             }).catch((error) => {
@@ -58,7 +58,7 @@ export function signInUser(fields) {
 
 }
 
-export function signoutUser() {
+export function signOut() {
 
     return function (dispatch) {
 

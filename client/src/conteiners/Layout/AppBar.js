@@ -5,7 +5,6 @@ import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
 import {withStyles} from 'material-ui/styles';
-import * as actions from '../../actions/index';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router';
 import UserButton from './UserButton'
@@ -88,7 +87,7 @@ class TopBar extends Component {
                         <IconButton
                             aria-label="open drawer"
                             onClick={this.handleDrawerOpen}
-                            className={classes.menuButton} color="primary">
+                            className={classes.menuButton} color="inherit">
                             <MenuIcon/>
                         </IconButton>
                         <Typography type="title" color="inherit" className={classes.flex}>
@@ -106,6 +105,6 @@ class TopBar extends Component {
 }
 
 
-export default connect(null, actions)(withStyles(styles)(TopBar));
+export default connect(null, null)(withStyles(styles)(TopBar));
 
 

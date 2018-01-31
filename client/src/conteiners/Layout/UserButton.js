@@ -8,7 +8,7 @@ import Popover from 'material-ui/Popover';
 import Divider from 'material-ui/Divider';
 import {findDOMNode} from 'react-dom';
 import {withStyles} from 'material-ui/styles';
-import * as actions from '../../actions/index';
+import { signOut } from '../../actions/auth';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router';
 
@@ -87,7 +87,7 @@ class UserButton extends Component {
     };
 
     handleQuit = () => {
-        this.props.signoutUser();
+        this.props.signOut();
     };
 
     render() {
@@ -131,6 +131,6 @@ class UserButton extends Component {
 }
 
 
-export default withRouter(connect(null, actions)(withStyles(styles)(UserButton)));
+export default withRouter(connect(null, {signOut})(withStyles(styles)(UserButton)));
 
 

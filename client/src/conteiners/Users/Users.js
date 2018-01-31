@@ -277,7 +277,7 @@ console.log(data)
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.cancelDelete} color="primary">Cancel</Button>
-                        <Button onClick={()=>this.props.deleteUser(currentUserData.id)} color="accent">Delete</Button>
+                        <Button onClick={()=>this.props.deleteUser(currentUserData.id)} color="primary">Delete</Button>
                     </DialogActions>
                 </Dialog>
                 {openEditDialog && <UserForm {...this.state} cancelEdit={this.cancelEdit} getUsers={this.getUsers}/>}

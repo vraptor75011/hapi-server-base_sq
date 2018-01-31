@@ -46,8 +46,8 @@ class UserForm extends Component {
     componentWillMount() {
         const currentUserData = this.props.currentUserData;
 
-        console.log('ddd', currentUserData)
-        const newUser = !currentUserData._id;
+
+        const newUser = !currentUserData.id;
         this.setState({currentUserData, newUser});
     }
 
@@ -176,7 +176,7 @@ class UserForm extends Component {
             </DialogContent>
             <DialogActions>
                 <Button onClick={cancelEdit} color="primary">Cancel</Button>
-                <Button onClick={this.saveUser} color="accent">Save</Button>
+                <Button onClick={this.saveUser} color="primary">Save</Button>
             </DialogActions>
         </Dialog>)
     }

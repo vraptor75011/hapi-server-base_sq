@@ -1,7 +1,7 @@
 import jwtDecode from "jwt-decode";
 import {push} from "react-router-redux";
 import {AUTH_USER} from "../actions/types";
-import {authError} from "../actions";
+import {authError} from "../actions/auth";
 import axios from "axios/index";
 import { tokenName, refreshTokenName, profileName } from '../config';
 

@@ -4,7 +4,7 @@ import {Provider} from 'react-redux';
 import {applyMiddleware, combineReducers, createStore} from 'redux';
 import {createMuiTheme, MuiThemeProvider} from 'material-ui/styles';
 import purple from 'material-ui/colors/purple';
-import {Home, Users} from './conteiners/ComposedPages';
+import {DashBoard, Users} from './conteiners/ComposedPages';
 import RequiredAuth from './conteiners/auth/Required_auth';
 import reducers from './reducers';
 import './index.css';
@@ -51,7 +51,7 @@ ReactDOM.render(
         <ConnectedRouter history={history}>
             <MuiThemeProvider theme={theme}>
                 <Route exact path="/login" component={Login}/>
-                <Route exact path="/" component={RequiredAuth(Home)}/>
+                <Route exact path="/dashboard" component={RequiredAuth(DashBoard)}/>
                 <Route exact path="/users" component={RequiredAuth(Users)}/>
             </MuiThemeProvider>
         </ConnectedRouter>

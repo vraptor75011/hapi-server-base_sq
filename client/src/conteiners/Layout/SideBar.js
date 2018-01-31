@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 
 import {withStyles} from 'material-ui/styles';
-import * as actions from '../../actions/index';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router';
 
@@ -128,14 +127,15 @@ class SideBar extends Component {
 
     handleClickLink = (type) =>{
 
-        this.props.history.push("/"+type);
+        const link = "/"+type;
+        console.log(link)
+        this.props.history.push(link);
     };
 
     render() {
         const {classes, theme, open} = this.props;
         const {anchor} = this.state;
 
-        console.log(this.props);
         return (
             <Drawer
                 type="persistent"
@@ -152,7 +152,7 @@ class SideBar extends Component {
                         </IconButton>
                     </div>
                     <Divider/>
-                    <ListItem button onClick={()=>this.handleClickLink('')}>
+                    <ListItem button onClick={()=>this.handleClickLink('dashboard')}>
                         <ListItemIcon >
                             <DashboardIcon/>
                         </ListItemIcon>
@@ -184,4 +184,4 @@ class SideBar extends Component {
     }
 }
 
-export default withRouter(connect(null, actions)(withStyles(styles)(SideBar)));
+export default withRouter(connect(null, null)(withStyles(styles)(SideBar)));
