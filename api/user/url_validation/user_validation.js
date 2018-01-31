@@ -76,7 +76,7 @@ module.exports = {
 	postPayload:  Joi.object().keys(_.assign({}, UserValidationBase.postPayloadObj, postRelation)),
 
 	//PUT
-	putPayload:  Joi.object().keys(_.assign({}, BaseValidation.payloadId, UserValidationBase.postPayloadObj, putRelation)),
+	putPayload:  Joi.object().keys(_.assign({}, BaseValidation.payloadId, UserValidationBase.putPayloadObj, putRelation)),
 
 	//DELETE
 	deleteOnePayload: Joi.alternatives().try(
