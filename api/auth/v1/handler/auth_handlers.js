@@ -59,6 +59,8 @@ module.exports =
 				email: userPre.email,
 				fullName: userPre.fullName,
 				username: userPre.username,
+				firstName: userPre.firstName,
+				lastName: userPre.lastName,
 				realms,
 				roles,
 			};
@@ -111,6 +113,8 @@ module.exports =
 				email: request.auth.credentials.user.email,
 				fullName: request.auth.credentials.user.fullName,
 				username: request.auth.credentials.user.username,
+				firstName: request.auth.credentials.user.firstName,
+				lastName: request.auth.credentials.user.lastName,
 				realms: request.auth.credentials.realms,
 				roles: request.auth.credentials.roles,
 			};

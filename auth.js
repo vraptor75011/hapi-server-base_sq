@@ -29,6 +29,8 @@ module.exports.register = (server, options, next) => {
 				username: Creds.user.username,
 				email: Creds.user.email,
 				fullName: Creds.user.fullName,
+				firstName: Creds.firstName,
+				lastName: Creds.lastName,
 				roles: Creds.roles,
 				realms: Creds.realms,
 			};
@@ -95,8 +97,6 @@ module.exports.register = (server, options, next) => {
 							scope = scope.concat(realm.name+'-'+roleName);
 						}
 					});
-					delete user.dataValues.firstName;
-					delete user.dataValues.lastName;
 					delete user.dataValues.password;
 					delete user.dataValues.isActive;
 					delete user.dataValues.resetPasswordToken;
