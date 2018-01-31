@@ -9,7 +9,7 @@ const pwdRegExp = new RegExp(pwdString);
 module.exports = {
 	postPayloadObj: {
 		username: Joi.string().min(3).max(64).regex(usrRegExp),
-		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
+		password: Joi.string().min(3).max(64).regex(pwdRegExp),
 		email: Joi.string().email().required(),
 		isActive: Joi.boolean().valid(true, false).default(false),
 		firstName: Joi.string().min(1).max(64).required(),
@@ -19,7 +19,7 @@ module.exports = {
 	putPayloadObj: {
 		id: Joi.number().integer().min(1).required(),
 		username: Joi.string().min(3).max(64).regex(usrRegExp),
-		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),
+		password: Joi.string().min(3).max(64).regex(pwdRegExp),
 		email: Joi.string().email().required(),
 		isActive: Joi.boolean().valid(true, false).default(false),
 		firstName: Joi.string().min(1).max(64).required(),
