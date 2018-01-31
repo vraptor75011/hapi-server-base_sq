@@ -1,13 +1,13 @@
 import axios from 'axios';
-import { GET_USERS, DELETE_USER, EDIT_USER, EDIT_USER_ERROR  } from './types';
+import { GET_USERS, DELETE_USER, EDIT_USER, EDIT_USER_ERROR, MODAL_CLOSE  } from './types';
 import { tokenName, refreshTokenName, profileName } from '../config';
 import authHelper from '../helpers/auth_helper';
 
 import { push } from 'react-router-redux';
 
 export function getUsers() {
-  return async (dispatch, getState) => {
 
+  return async (dispatch, getState) => {
 
       const token = await authHelper();
       if(token) {
@@ -60,13 +60,10 @@ export function editUser(data) {
             try {
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
 
-
-
-                console.log(data)
                 const response = await axios.put(`/api/v1/users/${data.id}`, data);
 
-
-                return dispatch({type: 'EDIT_USER', payload: response.data});
+                dispatch(getUsers());
+                return dispatch({type: MODAL_CLOSE });
 
 
             } catch (error) {

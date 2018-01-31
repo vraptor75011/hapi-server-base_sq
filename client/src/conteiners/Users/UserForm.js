@@ -72,7 +72,7 @@ class UserForm extends Component {
         const {currentUserData, newUser} = this.state;
 
         if (!newUser) {
-            console.log(currentUserData, newUser)
+
             const data = {
                 id: currentUserData.id,
                 firstName: currentUserData.firstName,
@@ -115,12 +115,12 @@ class UserForm extends Component {
 
 
     render() {
-        const {classes, openEditDialog, cancelEdit} = this.props;
+        const {classes, modal, cancelEdit} = this.props;
         const {currentUserData, newUser} = this.state;
 
 
         return (<Dialog
-            open={openEditDialog}
+            open={modal}
             onClose={this.cancelEdit}
             classes={{paper: classes.dialog}}
         >
