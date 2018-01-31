@@ -1,22 +1,14 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
-
+import {compose} from 'redux';
 import LoginForm from '../../components/LoginForm';
+import {reduxForm} from 'redux-form';
+import { signInUser } from '../../actions/auth';
+import {connect} from 'react-redux';
 
-import {authErrors, isAuthenticated} from '../../reducers';
-import * as actions from "../../actions/auth";
-
-import {compose} from "redux";
-import {reduxForm} from "redux-form";
 
 
 const Login = (props) => {
 
-    console.log(props.isAuthenticated)
-    if(props.isAuthenticated) {
-        return  <Redirect to='/' />
-    }
 
     return (
         <div>
@@ -25,16 +17,14 @@ const Login = (props) => {
     )
 };
 
-const mapStateToProps = (state) => {
-    console.log(state)
-    return({ errors: authErrors(state),
-        isAuthenticated: isAuthenticated(state)
+function mapStateToProps(state) {
 
-})};
 
-export default compose(connect(mapStateToProps, actions),
+    return {errorMessage: state.reducers.auth};
+}
+
+export default compose(connect(mapStateToProps, {signInUser}),
     reduxForm({
-        form: 'LoginForm',
-        login: ['email', 'password'],
-    })
-)(Login)
+        form: 'signin',
+        fields: ['email', 'password', 'rememberMe'],
+    }))(Login)

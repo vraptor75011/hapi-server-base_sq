@@ -19,8 +19,8 @@ import authMiddleware  from './middleware/authMiddleware';
 
 import ReduxPromise from 'redux-promise'
 
-//import Login from './components/LoginForm';
-import SignIn from './conteiners/auth/SignIn';
+import Login from './conteiners/auth/Login';
+
 
 // Create a history of your choosing (we're using a browser history in this case)
 const history = createHistory();
@@ -35,10 +35,7 @@ const store = createStore(
         reducers,
         router: routerReducer
     }),
-    applyMiddleware(middleware,ReduxPromise,reduxThunk, authMiddleware)
-
-
-
+    applyMiddleware(middleware,ReduxPromise,reduxThunk)
 
 
 );
@@ -53,7 +50,7 @@ ReactDOM.render(
     <Provider store={store}>
         <ConnectedRouter history={history}>
             <MuiThemeProvider theme={theme}>
-                <Route exact path="/login" component={SignIn}/>
+                <Route exact path="/login" component={Login}/>
                 <Route exact path="/" component={RequiredAuth(Home)}/>
                 <Route exact path="/users" component={RequiredAuth(Users)}/>
             </MuiThemeProvider>

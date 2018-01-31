@@ -114,9 +114,9 @@ class UserButton extends Component {
                     }}
                 >
                     <div className={classes.account}>
-                        <Avatar className={classes.avatar}>{firstName.charAt(0)}{lastName.charAt(0)}</Avatar>
+                        <Avatar className={classes.avatar}>{firstName && firstName.charAt(0)}{firstName && lastName.charAt(0)}</Avatar>
                         <div>
-                            <Typography className={classes.typography}>{firstName + ' ' + lastName}</Typography>
+                            <Typography className={classes.typography}>{(firstName || '') + ' ' + (lastName || '')}</Typography>
                             <Typography className={classes.typography}>{email}</Typography>
                         </div>
                     </div>

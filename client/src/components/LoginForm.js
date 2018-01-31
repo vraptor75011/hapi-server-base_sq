@@ -81,17 +81,18 @@ class LoginForm extends React.Component {
 
     handleFormSubmit = event => {
         const {email, password, rememberMe} = this.state;
-        this.props.login({email, password, rememberMe});
+        this.props.signInUser({email, password, rememberMe});
     };
     handleClickShowPasssword = () => {
         this.setState({ showPassword: !this.state.showPassword });
     };
 
     render() {
-        const {classes, handleSubmit, errorMessage, login: {email, password}} = this.props;
+        const {classes, handleSubmit, errorMessage, fields: {email, password, rememberMe}} = this.props;
+        console.log('SignIn', this.props)
         return (
             <div className={classes.container}>
-                <div className={classes.backgroundContainer}/>
+                <div className={classes.backgroundContainer}></div>
                 <div className={classes.card}>
                     <CardContent>
                         <div style={{display: 'flex', justifyContent: 'center'}}><AccountCircle
@@ -144,7 +145,7 @@ class LoginForm extends React.Component {
 
                                 <FormHelperText error={true}>{this.state.passwordError}</FormHelperText>
                             </FormControl>
-                            <Button type="submit" className={classes.button} raised color="contrast">
+                            <Button type="submit" className={classes.button} raised color="primary">
                                 Login
                             </Button>
                         </form>

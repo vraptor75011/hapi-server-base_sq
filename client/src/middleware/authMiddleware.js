@@ -8,10 +8,9 @@ import { tokenName, refreshTokenName, profileName } from '../config';
 
 
 export default function authMiddleware({ dispatch, getState }) {
-
+console.log('*****CALLLL MIDDLEWERE*********************')
     return (next) => (action) => {
             let state = getState();
-
 
 if(action) {
     const token = localStorage.getItem(tokenName) !== 'undefined' || null ? localStorage.getItem(tokenName) : null;
@@ -39,51 +38,28 @@ console.log('il token esiste')
                 else{
                     console.log('API CALL REFRESH....')
 
-                    const authorization = localStorage.getItem(refreshTokenName);
-                    console.log(state)
-                    if(true){
-                    //dispatch({ type: 'LOADING_TOKEN', fetching: true });
-                    console.log(action, action.type === 'LOADING_TOKEN', action.fetching)
+                    if(refreshTokenName){
+
                     axios({
                         method: 'post',
                         url: '/api/v1/auth/refresh',
-                        headers: {"Accept": "application/json","authorization": authorization}
+                        headers: {"Accept": "application/json","authorization": refreshTokenName}
                     }).then(response => {
                         // If request is good...
-                        // - Update state to indicate user is authenticated
-                        console.log(response)
-                        //dispatch({ type: 'LOADING_TOKEN', fetching: false });
                         ///save the jwt token
                         localStorage.setItem(tokenName, response.data.meta.authHeader);
                         localStorage.setItem(refreshTokenName, response.data.meta.refreshToken);
                         localStorage.setItem(profileName, JSON.stringify(response.data.doc.user));
-
                         return next(action);
-
-                        //redirect to retstricted area by dispatch push
-                        //dispatch(push("/"));
-
                     }).catch((error) => {
 
-                        if (error.response.status === 400) {
-                            console.log(error.response.data);
-                            //dispatch(push("/login"));
-                            localStorage.removeItem(refreshTokenName);
-                            localStorage.removeItem(tokenName);
-                            localStorage.removeItem(profileName);
-                            dispatch(push("/login"));
-                            return next(action);
-                        }
-                        else if (error.response.status === 401) {
-                            console.log(error.response.data, 'token non valido / scaduto');
-                            //dispatch(push("/login"));
                             localStorage.removeItem(refreshTokenName);
                             localStorage.removeItem(tokenName);
                             localStorage.removeItem(profileName);
                             dispatch(push("/login"));
                             return next(action);
 
-                        }
+
                     });
                 }
                 }
@@ -92,6 +68,7 @@ console.log('il token esiste')
 
 
         }
+
 
     }
 
@@ -103,16 +80,10 @@ console.log('il token esiste')
 
 
 function isTokenExpired(token) {
-    const dateNow = new Date();
+
     if(token) {
         return token.exp < Date.now() / 1000
     }
     return true
 }
 
-
-
-
-function getRefreshToken(){
-        //call some api
-}

@@ -19,7 +19,7 @@ import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
 
 
-import { getUsers } from '../../actions/users';
+import { getUsers, deleteUser } from '../../actions/users';
 
 
 const styles = theme => ({
@@ -108,47 +108,7 @@ class Users extends React.PureComponent {
 
     }
 
-    /*getUsers = () => {
 
-        axios.defaults.headers.common['Authorization'] = localStorage.getItem('token');
-
-        axios.get(`http://localhost:4000/api/v1/users`).then(response => {
-            console.log('response', response);
-            const users = response.data.docs;
-            const pages = response.data.pages;
-            console.log(pages)
-            this.setState({users})
-        }).catch((error) => {
-
-
-            if (error.response && error.response.status === 401) {
-                //if request is unauthorized redirect to login page
-                this.props.dispatch(push("/login"));
-            }
-        });
-    };*/
-
-    deleteUser = () => {
-
-        const {currentUserData} = this.state;
-
-        axios.defaults.headers.common['Authorization'] = localStorage.getItem('token');
-
-        axios.delete(`http://localhost:8000/user/${currentUserData._id}`, {
-            "hardDelete": true
-        }).then(response => {
-            console.log('response', response);
-            this.cancelDelete();
-            this.getUsers();
-        }).catch((error) => {
-
-
-            if (error.response && error.response.status === 401) {
-                //if request is unauthorized redirect to login page
-                this.props.dispatch(push("/login"));
-            }
-        });
-    };
 
     handleClickButtons = (type, data) => {
 
@@ -243,7 +203,7 @@ console.log(data)
     }
 
     render() {
-        const { classes, users } = this.props;
+        const { classes, users, deleteUser } = this.props;
         const {
             rows,
             pages,
@@ -264,7 +224,7 @@ console.log(data)
 
 
 
-console.log(users.pages, users.pages.total )
+
 
         return (<div>
                 <Paper className={classes.root}>
@@ -317,7 +277,7 @@ console.log(users.pages, users.pages.total )
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.cancelDelete} color="primary">Cancel</Button>
-                        <Button onClick={this.deleteUser} color="accent">Delete</Button>
+                        <Button onClick={()=>this.props.deleteUser(currentUserData.id)} color="accent">Delete</Button>
                     </DialogActions>
                 </Dialog>
                 {openEditDialog && <UserForm {...this.state} cancelEdit={this.cancelEdit} getUsers={this.getUsers}/>}
@@ -333,14 +293,14 @@ Users.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers }, dispatch);
+    return bindActionCreators({getUsers, deleteUser }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
-    console.log(state)
-    return {users: state.reducers.users, pippo: 'pippo' };
+
+    return {users: state.reducers.users, deleteSingleUser: state.reducers.deleteUser };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));

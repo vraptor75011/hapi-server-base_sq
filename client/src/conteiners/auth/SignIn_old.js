@@ -167,7 +167,7 @@ SignIn.propTypes = {
 
 function mapStateToProps(state) {
 
-    //console.log('auth', state.reducers.auth)
+
     return {errorMessage: state.reducers.auth};
 }
 
