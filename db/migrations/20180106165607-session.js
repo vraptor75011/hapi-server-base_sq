@@ -13,11 +13,11 @@ module.exports = {
 				},
 				key: {
 					type: Sequelize.STRING,
-					required: true
+					allowNull: false,
 				},
 				passwordHash: {
 					type: Sequelize.STRING,
-					required: true
+					allowNull: false,
 				},
 				userId: {
 					type: Sequelize.INTEGER,

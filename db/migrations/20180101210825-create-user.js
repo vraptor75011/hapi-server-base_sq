@@ -13,6 +13,7 @@ module.exports = {
 			},
 			username: {
 				type: Sequelize.STRING(64),
+				allowNull: true,
 				unique: true,
 			},
 			email: {
