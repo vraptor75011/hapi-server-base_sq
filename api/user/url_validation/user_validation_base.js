@@ -25,7 +25,6 @@ module.exports = {
 		firstName: Joi.string().min(1).max(64).required(),
 		lastName: Joi.string().min(1).max(64).required(),
 	},
-
 	registrationPayloadObj: {
 		username: Joi.string().min(3).max(64).regex(usrRegExp),
 		password: Joi.string().min(3).max(64).regex(pwdRegExp).required(),

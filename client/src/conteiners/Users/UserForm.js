@@ -6,6 +6,11 @@ import {withStyles} from 'material-ui/styles';
 import axios from "axios/index";
 import {push} from "react-router-redux";
 
+import {connect} from "react-redux";
+import {editUser, newUser} from "../../actions/users";
+import {bindActionCreators} from "redux";
+
+
 
 const styles = theme => ({
     root: {
@@ -66,30 +71,17 @@ class UserForm extends Component {
 
         const {currentUserData, newUser} = this.state;
 
-        axios.defaults.headers.common['Authorization'] = localStorage.getItem('token');
-        console.log(localStorage.getItem('token'))
         if (!newUser) {
 
             const data = {
-                "firstName": currentUserData.firstName,
-                "lastName": currentUserData.lastName,
-                "email": currentUserData.email
+                id: currentUserData.id,
+                firstName: currentUserData.firstName,
+                lastName: currentUserData.lastName,
+                email: currentUserData.email,
+                password: currentUserData.password
             };
 
-
-            axios.put(`http://localhost:8000/user/${currentUserData._id}`, data)
-                .then(response => {
-                    console.log('response', response);
-                    this.props.getUsers();
-                    this.props.cancelEdit();
-                }).catch((error) => {
-
-
-                if (error.response && error.response.status === 401) {
-                    //if request is unauthorized redirect to login page
-                    this.props.dispatch(push("/login"));
-                }
-            });
+            this.props.editUser(data);
         }
         else {
             let config = {
@@ -123,12 +115,12 @@ class UserForm extends Component {
 
 
     render() {
-        const {classes, openEditDialog, cancelEdit} = this.props;
+        const {classes, modal, cancelEdit} = this.props;
         const {currentUserData, newUser} = this.state;
 
 
         return (<Dialog
-            open={openEditDialog}
+            open={modal}
             onClose={this.cancelEdit}
             classes={{paper: classes.dialog}}
         >
@@ -182,4 +174,17 @@ class UserForm extends Component {
     }
 }
 
-export default withStyles(styles)(UserForm);
+
+function mapDispatchToProps(dispatch){
+
+    return bindActionCreators({editUser, newUser }, dispatch);
+
+}
+
+
+function mapStateToProps(state) {
+
+    return {editUser: state.reducers.editUser };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UserForm));

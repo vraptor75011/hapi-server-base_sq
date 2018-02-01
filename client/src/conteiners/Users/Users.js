@@ -20,6 +20,8 @@ import {withStyles} from 'material-ui/styles';
 
 
 import { getUsers, deleteUser } from '../../actions/users';
+import { openModal, closeModal } from '../../actions/modals';
+import modal from "../../reducers/modal_reducer";
 
 
 const styles = theme => ({
@@ -78,10 +80,10 @@ class Users extends React.PureComponent {
             users: [],
             pages: {current: 1, hasNext: false, hasPrev: false, next: 2, prev: 0, total: 1},
             columns: [
-                {name: 'firstName', title: 'Nome'},
-                {name: 'lastName', title: 'Cognome'},
-                {name: 'email', title: 'Email'},
-                {name: 'lastLogin', title: 'Lastest Login'}
+                {eng: 'First name', italian: 'Nome'},
+                {eng: 'Last name', italian: 'Cognome'},
+                {eng: 'Email', italian: 'Email'},
+                {eng: 'Last login', italian: 'Ultimo Login'}
             ],
             rows: [],
             sorting: [],
@@ -93,8 +95,7 @@ class Users extends React.PureComponent {
             currentUserData: {_id: "", "firstName": '', "lastName": '', "email": '', 'password': ''},
             pageSize: 0,
             allowedPageSizes: [5, 10, 15],
-            openDeleteDialog: false,
-            openEditDialog: false
+            openDeleteDialog: false
         };
 
 
@@ -116,12 +117,13 @@ class Users extends React.PureComponent {
             this.setState({openDeleteDialog: true, currentUserData: data});
         }
         if (type === 'edit') {
-            this.setState({openEditDialog: true, currentUserData: data});
+            this.props.openModal();
+            this.setState({ currentUserData: data});
         }
         if (type === 'new') {
             this.setState({
                 openEditDialog: true,
-                currentUserData: {_id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
+                currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
             });
         }
     };
@@ -130,23 +132,22 @@ class Users extends React.PureComponent {
 
         this.setState({
             openDeleteDialog: false,
-            currentUserData: {_id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
+            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
         });
 
     };
 
     cancelEdit = () => {
-
+        this.props.closeModal();
         this.setState({
-            openEditDialog: false,
-            currentUserData: {_id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
+            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
         });
 
     };
 
 
     renderRowTable = (data) => {
-console.log(data)
+
         const id = data.id;
         return (<TableRow
             tabIndex={-1}
@@ -172,7 +173,7 @@ console.log(data)
 
     renderRowHeader = (data, index) => {
 
-        return (<TableCell key={index + '-headerRow'}>{data.name}</TableCell>)
+        return (<TableCell key={index + '-headerRow'}>{data.eng}</TableCell>)
     };
 
     handleChangePage = (event, page) => {
@@ -203,7 +204,7 @@ console.log(data)
     }
 
     render() {
-        const { classes, users, deleteUser } = this.props;
+        const { classes, users, deleteUser, modal } = this.props;
         const {
             rows,
             pages,
@@ -221,7 +222,6 @@ console.log(data)
             openEditDialog,
             currentUserData
         } = this.state;
-
 
 
 
@@ -280,7 +280,7 @@ console.log(data)
                         <Button onClick={()=>this.props.deleteUser(currentUserData.id)} color="primary">Delete</Button>
                     </DialogActions>
                 </Dialog>
-                {openEditDialog && <UserForm {...this.state} cancelEdit={this.cancelEdit} getUsers={this.getUsers}/>}
+                {modal  && <UserForm {...this.state} modal={this.props.modal} cancelEdit={this.cancelEdit} getUsers={this.getUsers}/>}
             </div>
         );
     }
@@ -293,14 +293,14 @@ Users.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers, deleteUser }, dispatch);
+    return bindActionCreators({getUsers, deleteUser, openModal, closeModal }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
-
-    return {users: state.reducers.users, deleteSingleUser: state.reducers.deleteUser };
+console.log('modal',  state.reducers.modal)
+    return {users: state.reducers.users, deleteSingleUser: state.reducers.deleteUser, modal: state.reducers.modal };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
