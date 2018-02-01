@@ -6,7 +6,6 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
 import UserForm from '../../components/UserForm';
-import UsersTable from '../../components/UsersTable';
 
 
 import Table, {TableBody, TableCell, TableFooter, TableHead, TablePagination, TableRow,} from 'material-ui/Table';
@@ -20,7 +19,7 @@ import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
 
 
-import {getUsers, deleteUser, editUser, newUser, singleUser} from '../../actions/users';
+import {getUsers, deleteUser, editUser, newUser} from '../../actions/users';
 import { openModal, closeModal } from '../../actions/modals';
 
 
@@ -93,7 +92,7 @@ class Users extends React.PureComponent {
             changedRows: {},
             currentPage: 0,
             deletingRows: [],
-            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''},
+            currentUserData: {_id: "", "firstName": '', "lastName": '', "email": '', 'password': ''},
             pageSize: 0,
             allowedPageSizes: [5, 10, 15],
             openDeleteDialog: false
@@ -112,7 +111,22 @@ class Users extends React.PureComponent {
 
 
 
+    handleClickButtons = (type, data) => {
 
+        if (type === 'delete') {
+            this.setState({openDeleteDialog: true, currentUserData: data});
+        }
+        if (type === 'edit') {
+            this.props.openModal();
+            this.setState({ currentUserData: data});
+        }
+        if (type === 'new') {
+            this.setState({
+                openEditDialog: true,
+                currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
+            });
+        }
+    };
 
     cancelDelete = () => {
 
@@ -130,16 +144,32 @@ class Users extends React.PureComponent {
         });
 
     };
-    openDeleteDialog = () => {
 
 
-        this.setState({
-            openDeleteDialog: true
-        });
+    renderRowTable = (data) => {
+
+        const id = data.id;
+        return (<TableRow
+            tabIndex={-1}
+            key={id+'-key-user'}
+        >
+            <TableCell>
+                <div style={{display: 'flex'}}>
+                <EditButton onExecute={() => {
+                    this.handleClickButtons('edit', data)
+                }}/>
+                <DeleteButton onExecute={() => {
+                    this.handleClickButtons('delete', data)
+                }}/>
+                </div>
+            </TableCell>
+            <TableCell>{data.firstName}</TableCell>
+            <TableCell>{data.lastName}</TableCell>
+            <TableCell>{data.email}</TableCell>
+            <TableCell></TableCell>
+
+        </TableRow>)
     };
-
-
-
 
     renderRowHeader = (data, index) => {
 
@@ -197,7 +227,39 @@ class Users extends React.PureComponent {
 
 
         return (<div>
-                <UsersTable {...this.props} openDeleteDialog={this.openDeleteDialog}/>
+                <Paper className={classes.root}>
+                    <div className={classes.tableWrapper}>
+                        <Table className={classes.table}>
+
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell><AddButton onExecute={() => {
+                                        this.handleClickButtons('new')
+                                    }}/></TableCell>
+                                    {columns.map(this.renderRowHeader)}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {!users.docs && <TableRow/>}
+                                {users.docs && users.docs.map(this.renderRowTable)}
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TablePagination
+                                        count={users.pages && users.pages.total}
+                                        rowsPerPage={10}
+                                        rowsPerPageOptions={allowedPageSizes}
+                                        page={users.pages && users.pages.current}
+                                        onChangePage={this.handleChangePage}
+                                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                                    />
+
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
+                    </div>
+                </Paper>
+
 
                 <Dialog
                     open={openDeleteDialog}
@@ -219,8 +281,7 @@ class Users extends React.PureComponent {
                     </DialogActions>
                 </Dialog>
                 {modal  && <UserForm {...this.state} modal={this.props.modal} editUser={this.props.editUser}
-                                     newUser={this.props.newUser} userData={this.props.userData}
-                                     cancelEdit={this.cancelEdit} getUsers={this.getUsers} />}
+                                     newUser={this.props.newUser} cancelEdit={this.cancelEdit} getUsers={this.getUsers}/>}
             </div>
         );
     }
@@ -233,7 +294,7 @@ Users.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser, singleUser }, dispatch);
+    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser }, dispatch);
 
 }
 
@@ -241,7 +302,7 @@ function mapDispatchToProps(dispatch){
 function mapStateToProps(state) {
 
     return {users: state.reducers.users, deleteSingleUser: state.reducers.deleteUser,
-        modal: state.reducers.modal, editUser: state.reducers.editUser, userData: state.reducers.singleUser };
+        modal: state.reducers.modal, editUser: state.reducers.editUser };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));

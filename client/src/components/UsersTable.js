@@ -1,13 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import {push} from 'react-router-redux';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-
-import UserForm from '../../components/UserForm';
-import UsersTable from '../../components/UsersTable';
-
 
 import Table, {TableBody, TableCell, TableFooter, TableHead, TablePagination, TableRow,} from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
@@ -18,10 +10,8 @@ import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogT
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
+import {singleUser} from "../actions/users";
 
-
-import {getUsers, deleteUser, editUser, newUser, singleUser} from '../../actions/users';
-import { openModal, closeModal } from '../../actions/modals';
 
 
 
@@ -112,16 +102,24 @@ class Users extends React.PureComponent {
 
 
 
+    handleClickButtons = (type, data) => {
 
-
-    cancelDelete = () => {
-
-        this.setState({
-            openDeleteDialog: false,
-            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
-        });
-
+        if (type === 'delete') {
+            this.props.openModal();
+            this.props.singleUser({type:'delete', user: data});
+        }
+        if (type === 'edit') {
+            this.props.openModal();
+            this.props.singleUser({type:'edit', user: data});
+        }
+        if (type === 'new') {
+            const user = {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''};
+            this.props.openModal();
+            this.props.singleUser({type:'new', user});
+        }
     };
+
+
 
     cancelEdit = () => {
         this.props.closeModal();
@@ -130,16 +128,32 @@ class Users extends React.PureComponent {
         });
 
     };
-    openDeleteDialog = () => {
 
 
-        this.setState({
-            openDeleteDialog: true
-        });
+    renderRowTable = (data) => {
+
+        const id = data.id;
+        return (<TableRow
+            tabIndex={-1}
+            key={id+'-key-user'}
+        >
+            <TableCell>
+                <div style={{display: 'flex'}}>
+                <EditButton onExecute={() => {
+                    this.handleClickButtons('edit', data)
+                }}/>
+                <DeleteButton onExecute={() => {
+                    this.handleClickButtons('delete', data)
+                }}/>
+                </div>
+            </TableCell>
+            <TableCell>{data.firstName}</TableCell>
+            <TableCell>{data.lastName}</TableCell>
+            <TableCell>{data.email}</TableCell>
+            <TableCell/>
+
+        </TableRow>)
     };
-
-
-
 
     renderRowHeader = (data, index) => {
 
@@ -155,23 +169,7 @@ class Users extends React.PureComponent {
     };
 
 
-    handleChangeUserForm = (event, type) => {
-        const currentUserData = this.state;
 
-        if (type === 'firstName') {
-            currentUserData.firstName = event.target.value;
-
-            //this.setState({ currentUserData: { ...this.state.currentUserData } });
-        }
-        if (type === 'lastName') {
-            currentUserData.lastName = event.target.value;
-        }
-        if (type === 'email') {
-            currentUserData.email = event.target.value;
-        }
-
-        //this.setState({currentUserData});
-    }
 
     render() {
         const { classes, users, deleteUser, modal } = this.props;
@@ -196,32 +194,38 @@ class Users extends React.PureComponent {
 
 
 
-        return (<div>
-                <UsersTable {...this.props} openDeleteDialog={this.openDeleteDialog}/>
+        return (<Paper className={classes.root}>
+                    <div className={classes.tableWrapper}>
+                        <Table className={classes.table}>
 
-                <Dialog
-                    open={openDeleteDialog}
-                    onClose={this.cancelDelete}
-                    classes={{paper: classes.dialog}}
-                >
-                    <DialogTitle>Delete User</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            Are you sure to delete the following row?
-                        </DialogContentText>
-                        <Paper>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell><AddButton onExecute={() => {
+                                        this.handleClickButtons('new')
+                                    }}/></TableCell>
+                                    {columns.map(this.renderRowHeader)}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {!users.docs && <TableRow/>}
+                                {users.docs && users.docs.map(this.renderRowTable)}
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TablePagination
+                                        count={users.pages && users.pages.total}
+                                        rowsPerPage={10}
+                                        rowsPerPageOptions={allowedPageSizes}
+                                        page={users.pages && users.pages.current}
+                                        onChangePage={this.handleChangePage}
+                                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                                    />
 
-                        </Paper>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.cancelDelete} color="primary">Cancel</Button>
-                        <Button onClick={()=>this.props.deleteUser(currentUserData.id)} color="primary">Delete</Button>
-                    </DialogActions>
-                </Dialog>
-                {modal  && <UserForm {...this.state} modal={this.props.modal} editUser={this.props.editUser}
-                                     newUser={this.props.newUser} userData={this.props.userData}
-                                     cancelEdit={this.cancelEdit} getUsers={this.getUsers} />}
-            </div>
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
+                    </div>
+                </Paper>
         );
     }
 }
@@ -231,17 +235,5 @@ Users.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser, singleUser }, dispatch);
-
-}
-
-
-function mapStateToProps(state) {
-
-    return {users: state.reducers.users, deleteSingleUser: state.reducers.deleteUser,
-        modal: state.reducers.modal, editUser: state.reducers.editUser, userData: state.reducers.singleUser };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
+export default withStyles(styles)(Users);

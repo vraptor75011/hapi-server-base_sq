@@ -3,12 +3,9 @@ import TextField from 'material-ui/TextField';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle,} from 'material-ui';
 
 import {withStyles} from 'material-ui/styles';
-import axios from "axios/index";
-import {push} from "react-router-redux";
+import {SINGLE_USER} from "../actions/types";
 
-import {connect} from "react-redux";
-import {editUser, newUser} from "../../actions/users";
-import {bindActionCreators} from "redux";
+
 
 
 
@@ -49,11 +46,9 @@ class UserForm extends Component {
     }
 
     componentWillMount() {
-        const currentUserData = this.props.currentUserData;
+        const currentUserData = this.props.userData.user;
 
-
-        const newUser = !currentUserData.id;
-        this.setState({currentUserData, newUser});
+        this.setState({currentUserData});
     }
 
 
@@ -69,54 +64,40 @@ class UserForm extends Component {
 
     saveUser = () => {
 
-        const {currentUserData, newUser} = this.state;
+        const {currentUserData} = this.state;
+        const data = {
+            id: currentUserData.id,
+            firstName: currentUserData.firstName,
+            lastName: currentUserData.lastName,
+            email: currentUserData.email,
+            password: currentUserData.password
+        };
 
-        if (!newUser) {
+                switch (this.props.userData.type) {
 
-            const data = {
-                id: currentUserData.id,
-                firstName: currentUserData.firstName,
-                lastName: currentUserData.lastName,
-                email: currentUserData.email,
-                password: currentUserData.password
-            };
-
-            this.props.editUser(data);
-        }
-        else {
-            let config = {
-                responseType: 'json'
-            };
-
-            const data = [{
-                firstName: currentUserData.firstName,
-                lastName: currentUserData.lastName,
-                email: currentUserData.email,
-                password: currentUserData.password
-            }];
-            console.log(`http://localhost:8000/user/`, data, config)
-            axios.post('http://localhost:8000/user', data, config)
-                .then(response => {
-                    console.log('response', response);
-                    this.props.getUsers();
-                    this.props.cancelEdit();
-                }).catch((error) => {
+                    case 'edit':
+                        this.props.editUser(data);
+                        break;
+                    case 'new':
+                        delete data.id;
+                        this.props.newUser(data);
+                        break;
+                    case 'delete':
+                        this.props.deleteUser(data.id);
+                        break;
 
 
-                if (error.response && error.response.status === 401) {
-                    //if request is unauthorized redirect to login page
-                    this.props.dispatch(push("/login"));
                 }
-            });
-        }
+
+
 
 
     };
 
 
     render() {
-        const {classes, modal, cancelEdit} = this.props;
-        const {currentUserData, newUser} = this.state;
+        const {classes, modal, cancelEdit, userData} = this.props;
+        const {currentUserData} = this.state;
 
 
         return (<Dialog
@@ -124,9 +105,9 @@ class UserForm extends Component {
             onClose={this.cancelEdit}
             classes={{paper: classes.dialog}}
         >
-            <DialogTitle>{newUser ? 'New User' : 'Edit User'}</DialogTitle>
+            <DialogTitle>{userData.type === 'delete'? 'Delete User' : userData.type === 'edit' ? 'Edit User': 'New User' }</DialogTitle>
             <DialogContent>
-                <form noValidate autoComplete="off">
+                {userData.type !== 'delete' && <form noValidate autoComplete="off">
                     <TextField
                         id="firstName"
                         label="First Name"
@@ -154,7 +135,7 @@ class UserForm extends Component {
                         margin="normal"
                         fullWidth={true}
                     />
-                    {newUser && <TextField
+                    {!currentUserData.id  && <TextField
                         id="password"
                         label="Password"
                         className={classes.textField}
@@ -164,27 +145,19 @@ class UserForm extends Component {
                         fullWidth={true}
                     />}
 
-                </form>
+                </form>}
+                {userData.type === 'delete' && <div>Are you sure to delete this user?</div>}
             </DialogContent>
             <DialogActions>
                 <Button onClick={cancelEdit} color="primary">Cancel</Button>
-                <Button onClick={this.saveUser} color="primary">Save</Button>
+                {userData.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
+                {userData.type === 'delete' && <Button onClick={this.delete} color="primary">Delete</Button>}
             </DialogActions>
         </Dialog>)
     }
 }
 
 
-function mapDispatchToProps(dispatch){
-
-    return bindActionCreators({editUser, newUser }, dispatch);
-
-}
 
 
-function mapStateToProps(state) {
-
-    return {editUser: state.reducers.editUser };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UserForm));
+export default withStyles(styles)(UserForm);

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_USERS, DELETE_USER, EDIT_USER, EDIT_USER_ERROR, MODAL_CLOSE  } from './types';
+import {GET_USERS, DELETE_USER, EDIT_USER, EDIT_USER_ERROR, MODAL_CLOSE, MODAL_OPEN, SINGLE_USER, NEW_USER_ERROR} from './types';
 import { tokenName, refreshTokenName, profileName } from '../config';
 import authHelper from '../helpers/auth_helper';
 
@@ -80,23 +80,33 @@ export function editUser(data) {
     };
 }
 
-export function newUser() {
+export function newUser(data) {
     return async (dispatch, getState) => {
 
         const token = await authHelper();
         if(token) {
             try {
+                const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-                const response = await axios.get(`http://localhost:4000/api/v1/users`);
-                return dispatch({type: 'GET_USERS', payload: response.data});
+                const response = await axios.post('/api/v1/users', data, config);
+                dispatch(getUsers());
+                return dispatch({type: MODAL_CLOSE });
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     dispatch(push('/login'));
-                } else {
-                    dispatch(push('/login'));
-                    console.log('ERRORE............');
+                }
+                else if (error.response && error.response.status === 400) {
+                    dispatch({type: 'NEW_USER_ERROR', payload: error.response});
                 }
             }
         }
     };
+}
+
+
+export function singleUser(data) {
+    return function (dispatch) {
+        dispatch({type: SINGLE_USER, payload: data});
+    }
+
 }
