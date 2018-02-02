@@ -22,13 +22,13 @@ const Options = {
 
 const SwaggerPack = {
 	inert: {
-		register: Inert,
+		plugin: Inert,
 	},
 	vision: {
-		register: Vision,
+		plugin: Vision,
 	},
 	swagger: {
-		register: Swagger,
+		plugin: Swagger,
 		options: Options,
 	}
 };

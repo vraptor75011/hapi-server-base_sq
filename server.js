@@ -1,9 +1,12 @@
 const Hapi = require('hapi');
+const AuthJWT2 = require('hapi-auth-jwt2');
 
 const Plugins = require('./plugins');
 const Routes = require('./routes');
-const Auth = require('./auth');
+const AuthValidation = require('./auth');
 const DB = require('./config/sequelize');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 const Log = require('./utilities/logging/logging');
 const Chalk = require('chalk');
@@ -15,31 +18,10 @@ const Handlebars = require('handlebars');
 const HOST = Config.get('/host');
 const PORT = Config.get('/port');
 
-const internals = {
-	templatePath: '.'
-};
-
-// Create a server with a host and port
-const server = new Hapi.Server({
-	debug: {
-		request: ['error'],
-	},
-	connections: {
-		routes: {
-			security: true,
-			cors: true,
-		},
-	},
-});
-
-server.connection({
-	host: HOST,
-	port: PORT,
-});
-server.realm.modifiers.route.prefix = '/api';
+let authStrategy = Config.get('/serverHapiConfig/authStrategy');
 
 createDB();
-startServer(server);
+startServer();
 
 
 //
@@ -58,28 +40,74 @@ async function createDB() {
 	return tables;
 }
 
-async function startServer(server) {
+async function startServer() {
 	try {
-		await server.register(Auth);
+		const server = await new Hapi.Server({
+			debug: {
+				request: ['error'],
+			},
+			host: HOST,
+			port: PORT,
+			routes: {
+				cors: true,
+				security: true,
+			}
+		});
+
+		server.realm.modifiers.route.prefix = '/api';
+
+		await server.register(AuthJWT2);
+
+		server.auth.strategy(authStrategy, 'jwt',
+			{
+				key: Config.get('/jwtSecret'),          // Never Share your secret key
+				validate: AuthValidation,                 // validate function defined above
+				verifyOptions: {algorithms: ['HS256']}  // pick a strong algorithm
+			});
+
+		server.auth.default(authStrategy);
+
+		server.ext('onPreResponse', function (request, h) {
+
+			const Creds = request.auth.credentials;
+
+			// EXPL: if the auth credentials contain session info (i.e. a refresh store), respond with a fresh set of tokens in the header.
+			// Otherwise, clear the header tokens.
+			if (Creds && Creds.session && request.response.header) {
+				request.response.header('X-Auth-Header', Creds.standardToken);
+				request.response.header('X-Refresh-Token', Creds.refreshToken);
+
+				let user = {
+					id: Creds.user.id,
+					username: Creds.user.username,
+					email: Creds.user.email,
+					fullName: Creds.user.fullName,
+					firstName: Creds.firstName,
+					lastName: Creds.lastName,
+					roles: Creds.roles,
+					realms: Creds.realms,
+				};
+				request.response.header('X-User', JSON.stringify(user));
+			}
+
+			return h.continue;
+		});
+		// await server.register({
+		// 	plugin: Auth,
+		// });
 		Log.apiLogger.info(Chalk.cyan('Auth loaded'));
 
 		await server.register(Plugins);
 		Log.apiLogger.info(Chalk.cyan('Plugins loaded'));
 
-		await server.register(Vision, (err) => {
-			if (err) {
-				Log.apiLogger.error(Chalk.red('Cannot register vision'));
-			}
-		});
-
 		server.views({
 			engines: { html: Handlebars },
 			relativeTo: __dirname,
-			path: `templates/${internals.templatePath}`
+			path: `templates/.}`
 		});
 		Log.apiLogger.info(Chalk.cyan('View loaded'));
 
-		await server.register(Routes);
+		await server.route(Routes);
 		Log.apiLogger.info(Chalk.cyan('Routes loaded'));
 
 		// Start Server

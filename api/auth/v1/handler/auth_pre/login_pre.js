@@ -41,7 +41,7 @@ const LoginPre = [
 	// },
 	{
 		assign: 'user',
-		method: async function (request, reply) {
+		method: async function (request, h) {
 			const email = request.payload.email || request.payload.username;
 			const username = request.payload.username;
 			const password = request.payload.password;
@@ -59,23 +59,23 @@ const LoginPre = [
 							}
 					});
 				if (!user) {
-					return reply(Boom.unauthorized('Invalid username or password'));
+					return Boom.unauthorized('Invalid username or password');
 				}
 				let match = Bcrypt.compareSync(password, user.password);
 				if (match) {
-					return reply(user);
+					return h.response(user);
 				}
-				return reply(Boom.unauthorized('Invalid username or password'));
+				return h.response(Boom.unauthorized('Invalid username or password'));
 			}	catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		}
 	},
 	{
 		assign: 'realm',
-		method: async function (request, reply) {
+		method: async function (request, h) {
 			let realmName = request.payload.realm || 'WebApp';
 			let realm = {};
 
@@ -85,14 +85,14 @@ const LoginPre = [
 						{name: realmName}
 				});
 				if (!realm) {
-					return reply(Boom.unauthorized('Invalid realm'));
+					return h.response(Boom.unauthorized('Invalid realm'));
 				} else {
-					return reply(realm);
+					return h.response(realm);
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		}
 	},
@@ -119,41 +119,41 @@ const LoginPre = [
 // },
 	{
 		assign: 'isActive',
-		method: async function (request, reply) {
+		method: async function (request, h) {
 			let user = await request.pre.user;
 
 			if (user.isActive) {
-				return reply();
+				return h.continue
 			}
 			else {
-				return reply(Boom.unauthorized('Account is inactive.'));
+				return h.response(Boom.unauthorized('Account is inactive.'));
 			}
 		}
 	},
 	{
 		assign: 'session',
-		method: async function (request, reply) {
+		method: async function (request, h) {
 			let user = request.pre.user;
 			let realm = request.pre.realm;
 			let session = {};
 			try {
 				if (authStrategy === AUTH_STRATEGIES.TOKEN) {
-					reply(null);
+					return h.response(null);
 				} else {
 					session = await Session.createInstance(user, realm);
 					Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
-					return reply(session);
+					return h.response(session);
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		}
 	},
 	{
 		assign: 'roles',
-		method: async function (request, reply) {
+		method: async function (request, h) {
 			let user = request.pre.user;
 			let realm = request.pre.realm;
 			let result;
@@ -171,42 +171,42 @@ const LoginPre = [
 				});
 				roles = result.roles;
 				if(roles && roles.length){
-					return reply(roles);
+					return h.response(roles);
 				} else {
-					return reply(Boom.unauthorized('No roles'));
+					return h.response(Boom.unauthorized('No roles'));
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		}
 	},
 	{
 		assign: 'scope',
-		method: async function (request, reply) {
+		method: async function (request, h) {
 			let realm = request.pre.realm;
 			let roles = request.pre.roles;
-			let standardScope = [];
+			let scope = [];
 
 			// Add 'Logged' to scope
-			standardScope = standardScope.concat('Logged');
+			scope = scope.concat('Logged');
 			// Add Realm-Roles to Scope
 			roles.forEach(function (role){
 				if (role.name.indexOf('User') !== -1) {
-					standardScope = standardScope.concat(realm.name+'-'+role.name+'-'+request.pre.user.id)
+					scope = scope.concat(realm.name+'-'+role.name+'-'+request.pre.user.id)
 				} else {
-					standardScope = standardScope.concat(realm.name+'-'+role.name);
+					scope = scope.concat(realm.name+'-'+role.name);
 				}
 			});
 
-			return reply(standardScope);
+			return h.response(scope);
 
 		}
 	},
 	{
 		assign: 'standardToken',
-		method: function (request, reply) {
+		method: function (request, h) {
 
 			let user = request.pre.user;
 			let roles = [];
@@ -219,11 +219,9 @@ const LoginPre = [
 
 			switch (authStrategy) {
 				case AUTH_STRATEGIES.REFRESH_TOKEN:
-					reply(Token(user, null, scope, roles, realms, expirationPeriod.short));
-					break;
+					return h.response(Token(user, null, scope, roles, realms, expirationPeriod.short));
 				case AUTH_STRATEGIES.SESSION_TOKEN:
-					reply(Token(user, null, scope, roles, realms, expirationPeriod.short));
-					break;
+					return h.response(Token(user, null, scope, roles, realms, expirationPeriod.short));
 				default:
 					break;
 			}
@@ -249,7 +247,7 @@ const LoginPre = [
 	// },
 	{
 		assign: 'refreshToken',
-		method: function (request, reply) {
+		method: function (request, h) {
 
 			let roles = [];
 			let scope = request.pre.scope;
@@ -262,11 +260,9 @@ const LoginPre = [
 
 			switch (authStrategy) {
 				case AUTH_STRATEGIES.REFRESH_TOKEN:
-					reply(Token(null, session, scope, roles, realms, expirationPeriod.long));
-					break;
+					return h.response(Token(null, session, scope, roles, realms, expirationPeriod.long));
 				case AUTH_STRATEGIES.SESSION_TOKEN:
-					reply(Token(null, session, scope, roles, realms, expirationPeriod.long));
-					break;
+					return h.response(Token(null, session, scope, roles, realms, expirationPeriod.long));
 				default:
 					break;
 			}

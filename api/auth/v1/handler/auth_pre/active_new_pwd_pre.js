@@ -14,18 +14,18 @@ const User = DB.User;
 module.exports = [
 	{
 		assign: 'decoded',
-		method: async (request, reply) => {
+		method: async (request, h) => {
 			Jwt.verify(request.query.token, Config.get('/jwtSecret'), function (err, decoded) {
 				if (err) {
-					return reply(Boom.badRequest('Invalid email or key.'));
+					return h.response(Boom.badRequest('Invalid email or key.'));
 				}
-				return reply(decoded);
+				return h.response(decoded);
 			});
 		}
 	},
 	{
 		assign: 'user',
-		method: async (request, reply) => {
+		method: async (request, h) => {
 			try{
 				const conditions = { where: {
 						email: request.pre.decoded.email,
@@ -34,12 +34,12 @@ module.exports = [
 				};
 				let user = await User.findOne(conditions);
 				if (!user) {
-					return reply(Boom.badRequest('Invalid email or key.'));
+					return h.response(Boom.badRequest('Invalid email or key.'));
 				}
-				return reply(user);
+				return h.response(user);
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
-				return reply(Boom.badImplementation('There was an error accessing the database.'));
+				return h.response(Boom.badImplementation('There was an error accessing the database.'));
 			}
 		}
 	}

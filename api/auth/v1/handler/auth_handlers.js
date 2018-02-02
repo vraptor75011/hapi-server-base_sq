@@ -25,7 +25,7 @@ const Session = DB.Session;
 
 module.exports =
 	{
-		login: async function (request, reply) {
+		login: async function (request, h) {
 			let authHeader = "";
 			let refreshToken = "";
 			let scope = "";
@@ -76,11 +76,11 @@ module.exports =
 					user,
 				},
 			};
-			return reply(mapperOptions);
+			return h.response(mapperOptions);
 
 		},
 
-		logout: async function (request, reply) {
+		logout: async function (request, h) {
 			let user = request.auth.credentials.user;
 			let sessionKey = request.payload.sessionKey;
 
@@ -94,16 +94,16 @@ module.exports =
 				} else {
 					Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' failed to log out'));
 					let error = Session.name + ' key: ' + sessionKey + ' not present';
-					return reply(Boom.notFound(error));
+					return h.response(Boom.notFound(error));
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		},
 
-		refresh: async function (request, reply) {
+		refresh: async function (request, h) {
 			// Take new two tokens from Request Auth
 			let authHeader = request.auth.credentials.standardToken;
 			let refreshToken = request.auth.credentials.refreshToken;
@@ -128,10 +128,10 @@ module.exports =
 					user: user,
 				},
 			};
-			return reply(response);
+			return h.response(response);
 		},
 
-		accountRegistration: async function (request, reply) {
+		accountRegistration: async function (request, h) {
 			try {
 				let user = request.payload.user;
 				let result;
@@ -171,16 +171,16 @@ module.exports =
 
 					Mailer.sendMail(emailOptions, template, context);
 					Log.apiLogger.info(Chalk.cyan('sending welcome email to: ', user.email));
-					return reply(result);
+					return h.response(result);
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		},
 
-		accountInvitation: async function (request, reply) {
+		accountInvitation: async function (request, h) {
 			try {
 				let user = request.payload.user;
 				let result;
@@ -224,16 +224,16 @@ module.exports =
 
 					Mailer.sendMail(emailOptions, template, context);
 					Log.apiLogger.info(Chalk.cyan('sending welcome email to: ', user.email));
-					return reply(result);
+					return h.response(result);
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		},
 
-		accountActivation: async (request, reply) => {
+		accountActivation: async (request, h) => {
 			try {
 				let key = request.pre.decoded.key;
 				let user = request.pre.user;
@@ -241,7 +241,7 @@ module.exports =
 
 				let keyMatch = await Bcrypt.compare(key, token);
 				if (!keyMatch) {
-					return reply(Boom.badRequest('Invalid email or key.'));
+					return h.response(Boom.badRequest('Invalid email or key.'));
 				}
 
 				const id = request.pre.user.id;
@@ -258,18 +258,18 @@ module.exports =
 				let result = await HandlerHelper.update(User, id, attributes);
 
 				if (result) {
-					return  reply.view('register_ok', context);
+					return  h.view('register_ok', context);
 				}	else {
-					return  reply.view('register_error');
+					return  h.view('register_error');
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		},
 
-		resetPWDRequest: async function (request, reply) {
+		resetPWDRequest: async function (request, h) {
 			try {
 				let condition = {where: {email: {[Op.eq]: request.payload.email}}};
 				let user = await User.findOne(condition);
@@ -308,16 +308,16 @@ module.exports =
 
 					Mailer.sendMail(emailOptions, template, context);
 					Log.apiLogger.info(Chalk.cyan('sending reset password email to: ', user.email));
-					return reply(result);
+					return h.response(result);
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		},
 
-		activeNewPWD: async (request, reply) => {
+		activeNewPWD: async (request, h) => {
 			try {
 				let key = request.pre.decoded.key;
 				let user = request.pre.user;
@@ -325,7 +325,7 @@ module.exports =
 
 				let keyMatch = await Bcrypt.compare(key, token);
 				if (!keyMatch) {
-					return reply(Boom.badRequest('Invalid email or key.'));
+					return h.response(Boom.badRequest('Invalid email or key.'));
 				}
 
 				const id = request.pre.user.id;
@@ -344,14 +344,14 @@ module.exports =
 				let result = await HandlerHelper.update(User, id, attributes);
 
 				if (result) {
-					return  reply.view('reset_pwd_ok', context);
+					return  h.view('reset_pwd_ok', context);
 				}	else {
-					return  reply.view('reset_pwd_error');
+					return  h.view('reset_pwd_error');
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return reply(Boom.gatewayTimeout(errorMsg));
+				return h.response(Boom.gatewayTimeout(errorMsg));
 			}
 		},
 

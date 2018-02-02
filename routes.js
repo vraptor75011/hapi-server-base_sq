@@ -1,25 +1,27 @@
-const AuthRoutes = require('./api/auth/v1/routes/auth_routes');
-const RealmRoutes = require('./api/realm/v1/routes/realm_routes');
-const RealmsRolesUsersRoutes = require('./api/realms_roles_users/v1/routes/realms_roles_users_routes');
-const RoleRoutes = require('./api/role/v1/routes/role_routes');
-const UserRoutes = require('./api/user/v1/routes/user_routes');
-const SessionRoutes = require('./api/session/v1/routes/session_routes');
+const FS = require('fs');
+const _ = require('lodash');
+
+let routes = [];
+
+let getFiles = function(dir, fileList = []) {
+//
+	let	files = FS.readdirSync(dir);
+	files.forEach(function(file) {
+		if (FS.statSync(dir + '/' + file).isDirectory()) {
+			getFiles(dir + '/' + file, fileList);
+		}
+		else if (_.includes(file, '_routes.js')) {
+			fileList.push(dir + '/' + file);
+		}
+	});
+	return fileList;
+};
+
+let routesFiles = getFiles('api');
+
+routesFiles.forEach((route) => {
+	routes = routes.concat(require('./' + route));
+});
 
 
-const Routes = [
-	// Authentication Routes
-	{ register: AuthRoutes},
-    // Realm Routes
-    { register: RealmRoutes},
-    // Realms Roles Users Routes
-    { register: RealmsRolesUsersRoutes},
-	// Role Routes
-	{ register: RoleRoutes},
-	// User Routes
-	{ register: UserRoutes},
-	// Session Routes
-	{ register: SessionRoutes},
-
-];
-
-module.exports = Routes;
+module.exports = routes;
