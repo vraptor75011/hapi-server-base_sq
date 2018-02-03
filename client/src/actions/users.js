@@ -33,18 +33,22 @@ export function deleteUser(id) {
       axios.defaults.headers.common['Authorization'] = localStorage.getItem(
         tokenName,
       );
-      const response = await axios.delete(`http://localhost:8000/user/${id}`);
-      return dispatch(
-        { type: 'DELETE_USER', payload: response.data },
-        getUsers(),
-      );
+
+
+      const response = await axios.delete(`/api/v1/users/${id}`, { data: { "$hardDelete": true }});
+        dispatch(getUsers());
+        return dispatch({type: MODAL_CLOSE });
+
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        //if request is unauthorized redirect to login page
-        dispatch(push('/login'));
-      } else {
-        console.log('ERRORE............');
-      }
+        if (error.response && error.response.status === 401) {
+            dispatch(push('/login'));
+        }
+        else if (error.response && error.response.status === 400) {
+            dispatch({type: 'DELETE_ERROR', payload: error.response});
+        }
+
+
+
     }
   };
 }
