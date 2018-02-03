@@ -54,24 +54,31 @@ module.exports = function(sequelize, DataTypes) {
 	// CreateInstance
 	Session.createInstance = async (user, realm) => {
 
-		let params = {
-			userId: user.id,
-			realmId: realm.id,
-			key: Uuid.v4(),
-			passwordHash: user.password,
-		};
-
-		let newSession = await Session.create(params);
-
-		let option = {
+		let [session, initialized] = await Session.findOrBuild({
 			where: {
 				userId: user.id,
 				realmId: realm.id,
-				key: { [Op.ne]: newSession.key }
 			}
-		};
-		await Session.destroy(option);
-		return newSession;
+		});
+
+		if (session) {
+			session.key = Uuid.v4();
+			session.passwordHash = user.password;
+
+			session = await session.save();
+
+			let option = {
+				where: {
+					userId: user.id,
+					realmId: realm.id,
+					key: { [Op.ne]: session.key }
+				}
+			};
+			await Session.destroy(option);
+			return session;
+		} else {
+			return null
+		}
 
 	};
 

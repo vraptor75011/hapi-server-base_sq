@@ -71,6 +71,7 @@ module.exports =
 				meta: {
 					authHeader,
 					refreshToken,
+					user,
 				},
 				doc: {
 					user,
@@ -105,30 +106,28 @@ module.exports =
 
 		refresh: async (request, h) => {
 			// Take new two tokens from Request Auth
-			let authHeader = request.auth.credentials.standardToken;
-			let refreshToken = request.auth.credentials.refreshToken;
-
-			let user = {
-				id: request.auth.credentials.user.id,
-				email: request.auth.credentials.user.email,
-				fullName: request.auth.credentials.user.fullName,
-				username: request.auth.credentials.user.username,
-				firstName: request.auth.credentials.user.firstName,
-				lastName: request.auth.credentials.user.lastName,
-				realms: request.auth.credentials.realms,
-				roles: request.auth.credentials.roles,
-			};
-
-			const response = {
-				meta: {
-					authHeader,
-					refreshToken,
-				},
-				doc: {
-					user: user,
-				},
-			};
-			return h.response(response);
+			// let authHeader = request.auth.credentials.standardToken;
+			// let refreshToken = request.auth.credentials.refreshToken;
+			//
+			// let user = {
+			// 	id: request.auth.credentials.user.id,
+			// 	email: request.auth.credentials.user.email,
+			// 	fullName: request.auth.credentials.user.fullName,
+			// 	username: request.auth.credentials.user.username,
+			// 	firstName: request.auth.credentials.user.firstName,
+			// 	lastName: request.auth.credentials.user.lastName,
+			// 	realms: request.auth.credentials.realms,
+			// 	roles: request.auth.credentials.roles,
+			// };
+			//
+			// const response = {
+			// 	meta: {
+			// 		authHeader,
+			// 		refreshToken,
+			// 		user,
+			// 	},
+			// };
+			return h.continue;
 		},
 
 		accountRegistration: async (request, h) => {

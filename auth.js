@@ -1,4 +1,3 @@
-const AuthJWT2 = require('hapi-auth-jwt2');
 const Chalk = require('chalk');
 const Sequelize = require('sequelize');
 const Token = require('./utilities/token/token');
@@ -80,13 +79,12 @@ module.exports = async (decodedToken, request, h) => {
 				delete user.dataValues.deletedAt;
 				user.roles = roles;
 				user.realms = realms;
-				user.scope = scope;
 
-				let standardToken = 'Bearer ' + Token(user, null, scope, roles, realms, expirationPeriod.short);
+				let authHeader = 'Bearer ' + Token(user, null, scope, roles, realms, expirationPeriod.short);
 				let refreshToken = Token(null, session, scope, roles, realms, expirationPeriod.long);
 
 				Log.session.info(Chalk.grey('User: ' + user.fullName + ' has refreshed Tokens'));
-				return {isValid: Boolean(user), credential: {user, scope, roles, realms, session, standardToken, refreshToken}};
+				return {isValid: Boolean(user), credentials: {user, scope, roles, realms, session, authHeader, refreshToken}};
 			}
 		} else {
 			return {isValid: false}

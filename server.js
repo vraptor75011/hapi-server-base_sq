@@ -5,13 +5,10 @@ const Plugins = require('./plugins');
 const Routes = require('./routes');
 const AuthValidation = require('./auth');
 const DB = require('./config/sequelize');
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
 
 const Log = require('./utilities/logging/logging');
 const Chalk = require('chalk');
 const Config = require('./config/config');
-const Vision = require('vision');
 const Handlebars = require('handlebars');
 
 
@@ -24,9 +21,6 @@ createDB();
 startServer();
 
 
-//
-// //EXPORT
-// module.exports = server;
 
 async function createDB() {
 	let tables = await DB.sequelize.showAllSchemas();
@@ -54,10 +48,13 @@ async function startServer() {
 			}
 		});
 
+		// API prefix for Route
 		server.realm.modifiers.route.prefix = '/api';
 
+		// Load Auth Plugin
 		await server.register(AuthJWT2);
 
+		// Config the Auth strategy
 		server.auth.strategy(authStrategy, 'jwt',
 			{
 				key: Config.get('/jwtSecret'),          // Never Share your secret key
@@ -67,39 +64,51 @@ async function startServer() {
 
 		server.auth.default(authStrategy);
 
-		server.ext('onPreResponse', function (request, h) {
+		// Add to server Response Refreshed Tokens (if they exist!)
+		server.ext('onPreResponse', (request, h) => {
 
 			const Creds = request.auth.credentials;
 
-			// EXPL: if the auth credentials contain session info (i.e. a refresh store), respond with a fresh set of tokens in the header.
-			// Otherwise, clear the header tokens.
-			if (Creds && Creds.session && request.response.header) {
-				request.response.header('X-Auth-Header', Creds.standardToken);
-				request.response.header('X-Refresh-Token', Creds.refreshToken);
+			// EXPL: if the auth credentials contain session info (refresh tokens), respond with a fresh set of tokens in the header.
+			if (Creds && Creds.session && request.response.header && Creds.authHeader) {
 
 				let user = {
 					id: Creds.user.id,
 					username: Creds.user.username,
 					email: Creds.user.email,
 					fullName: Creds.user.fullName,
-					firstName: Creds.firstName,
-					lastName: Creds.lastName,
+					firstName: Creds.user.firstName,
+					lastName: Creds.user.lastName,
 					roles: Creds.roles,
 					realms: Creds.realms,
 				};
-				request.response.header('X-User', JSON.stringify(user));
-			}
 
-			return h.continue;
+				let source = request.response.source;
+				if (!source) {
+					source = {};
+				}
+				source['meta'] = {
+					authHeader: Creds.authHeader,
+					refreshToken: Creds.refreshToken,
+					user,
+				};
+
+				return h.response(source)
+					.header('auth-header', Creds.authHeader)
+					.header('refresh-token', Creds.refreshToken)
+					.header('user', JSON.stringify(user));
+			} else {
+				return h.continue
+			}
 		});
-		// await server.register({
-		// 	plugin: Auth,
-		// });
+
 		Log.apiLogger.info(Chalk.cyan('Auth loaded'));
 
+		// Load other Plugins: Vision, Inert and Swagger
 		await server.register(Plugins);
 		Log.apiLogger.info(Chalk.cyan('Plugins loaded'));
 
+		// Config views for the HTML response
 		server.views({
 			engines: { html: Handlebars },
 			relativeTo: __dirname,
@@ -107,6 +116,7 @@ async function startServer() {
 		});
 		Log.apiLogger.info(Chalk.cyan('View loaded'));
 
+		// Import in server all endpoints
 		await server.route(Routes);
 		Log.apiLogger.info(Chalk.cyan('Routes loaded'));
 
