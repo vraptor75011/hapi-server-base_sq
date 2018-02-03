@@ -77,150 +77,25 @@ class Users extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.state = {
-            users: [],
-            pages: {current: 1, hasNext: false, hasPrev: false, next: 2, prev: 0, total: 1},
-            columns: [
-                {eng: 'First name', italian: 'Nome'},
-                {eng: 'Last name', italian: 'Cognome'},
-                {eng: 'Email', italian: 'Email'},
-                {eng: 'Last login', italian: 'Ultimo Login'}
-            ],
-            rows: [],
-            sorting: [],
-            editingRows: [],
-            addedRows: [],
-            changedRows: {},
-            currentPage: 0,
-            deletingRows: [],
-            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''},
-            pageSize: 0,
-            allowedPageSizes: [5, 10, 15],
-            openDeleteDialog: false
-        };
 
 
     }
 
-
-    componentDidMount() {
-
-        this.props.getUsers();
-
-
-    }
-
-
-
-
-
-    cancelDelete = () => {
-
-        this.setState({
-            openDeleteDialog: false,
-            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
-        });
-
-    };
 
     cancelEdit = () => {
         this.props.closeModal();
-        this.setState({
-            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
-        });
 
     };
-    openDeleteDialog = () => {
 
 
-        this.setState({
-            openDeleteDialog: true
-        });
-    };
-
-
-
-
-    renderRowHeader = (data, index) => {
-
-        return (<TableCell key={index + '-headerRow'}>{data.eng}</TableCell>)
-    };
-
-    handleChangePage = (event, page) => {
-        this.setState({page});
-    };
-
-    handleChangeRowsPerPage = event => {
-        this.setState({rowsPerPage: event.target.value});
-    };
-
-
-    handleChangeUserForm = (event, type) => {
-        const currentUserData = this.state;
-
-        if (type === 'firstName') {
-            currentUserData.firstName = event.target.value;
-
-            //this.setState({ currentUserData: { ...this.state.currentUserData } });
-        }
-        if (type === 'lastName') {
-            currentUserData.lastName = event.target.value;
-        }
-        if (type === 'email') {
-            currentUserData.email = event.target.value;
-        }
-
-        //this.setState({currentUserData});
-    }
 
     render() {
-        const { classes, users, deleteUser, modal } = this.props;
-        const {
-            rows,
-            pages,
-            columns,
-            sorting,
-            editingRows,
-            addedRows,
-            changedRows,
-            currentPage,
-            deletingRows,
-            pageSize,
-            allowedPageSizes,
-            columnOrder,
-            openDeleteDialog,
-            openEditDialog,
-            currentUserData
-        } = this.state;
-
-
-
-
+        const { modal } = this.props;
         return (<div>
-                <UsersTable {...this.props} openDeleteDialog={this.openDeleteDialog}/>
-
-                <Dialog
-                    open={openDeleteDialog}
-                    onClose={this.cancelDelete}
-                    classes={{paper: classes.dialog}}
-                >
-                    <DialogTitle>Delete User</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            Are you sure to delete the following row?
-                        </DialogContentText>
-                        <Paper>
-
-                        </Paper>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.cancelDelete} color="primary">Cancel</Button>
-                        <Button onClick={()=>this.props.deleteUser(currentUserData.id)} color="primary">Delete</Button>
-                    </DialogActions>
-                </Dialog>
+                <UsersTable {...this.props}/>
                 {modal  && <UserForm {...this.state} modal={this.props.modal} editUser={this.props.editUser}
                                      newUser={this.props.newUser} userData={this.props.userData}
-                                     cancelEdit={this.cancelEdit} getUsers={this.getUsers} />}
+                                     cancelEdit={this.cancelEdit} getUsers={this.getUsers} deleteUser={this.props.deleteUser} />}
             </div>
         );
     }
@@ -233,7 +108,7 @@ Users.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser, singleUser }, dispatch);
+    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser, singleUser  }, dispatch);
 
 }
 

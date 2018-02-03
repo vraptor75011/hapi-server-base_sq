@@ -10,7 +10,7 @@ import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogT
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
-import {singleUser} from "../actions/users";
+
 
 
 
@@ -192,7 +192,7 @@ class Users extends React.PureComponent {
         } = this.state;
 
 
-
+console.log(users)
 
         return (<Paper className={classes.root}>
                     <div className={classes.tableWrapper}>
@@ -220,6 +220,7 @@ class Users extends React.PureComponent {
                                         onChangePage={this.handleChangePage}
                                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
                                     />
+
 
                                 </TableRow>
                             </TableFooter>

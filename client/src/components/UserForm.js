@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
 import TextField from 'material-ui/TextField';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle,} from 'material-ui';
-
 import {withStyles} from 'material-ui/styles';
-import {SINGLE_USER} from "../actions/types";
+
 
 
 
@@ -53,8 +52,6 @@ class UserForm extends Component {
 
 
     handleChangeUserForm = (event, type) => {
-        console.log(this.state.currentUserData, event.target.value)
-
 
         let currentUserData = {...this.state.currentUserData, [type]: event.target.value};
         this.setState({currentUserData});
@@ -83,6 +80,7 @@ class UserForm extends Component {
                         this.props.newUser(data);
                         break;
                     case 'delete':
+                        console.log('delete***')
                         this.props.deleteUser(data.id);
                         break;
 
@@ -151,7 +149,7 @@ class UserForm extends Component {
             <DialogActions>
                 <Button onClick={cancelEdit} color="primary">Cancel</Button>
                 {userData.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
-                {userData.type === 'delete' && <Button onClick={this.delete} color="primary">Delete</Button>}
+                {userData.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
             </DialogActions>
         </Dialog>)
     }
