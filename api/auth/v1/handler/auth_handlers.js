@@ -25,7 +25,7 @@ const Session = DB.Session;
 
 module.exports =
 	{
-		login: async function (request, h) {
+		login: async (request, h) => {
 			let authHeader = "";
 			let refreshToken = "";
 			let scope = "";
@@ -80,7 +80,7 @@ module.exports =
 
 		},
 
-		logout: async function (request, h) {
+		logout: async (request, h) => {
 			let user = request.auth.credentials.user;
 			let sessionKey = request.payload.sessionKey;
 
@@ -103,7 +103,7 @@ module.exports =
 			}
 		},
 
-		refresh: async function (request, h) {
+		refresh: async (request, h) => {
 			// Take new two tokens from Request Auth
 			let authHeader = request.auth.credentials.standardToken;
 			let refreshToken = request.auth.credentials.refreshToken;
@@ -131,7 +131,7 @@ module.exports =
 			return h.response(response);
 		},
 
-		accountRegistration: async function (request, h) {
+		accountRegistration: async (request, h) => {
 			try {
 				let user = request.payload.user;
 				let result;
@@ -180,7 +180,7 @@ module.exports =
 			}
 		},
 
-		accountInvitation: async function (request, h) {
+		accountInvitation: async (request, h) => {
 			try {
 				let user = request.payload.user;
 				let result;
@@ -269,7 +269,7 @@ module.exports =
 			}
 		},
 
-		resetPWDRequest: async function (request, h) {
+		resetPWDRequest: async (request, h) => {
 			try {
 				let condition = {where: {email: {[Op.eq]: request.payload.email}}};
 				let user = await User.findOne(condition);

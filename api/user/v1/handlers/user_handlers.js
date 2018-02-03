@@ -11,119 +11,119 @@ const User = DB.User;
 
 
 module.exports = {
-	findAll: function (request, reply) {
+	findAll: async (request, h) => {
 		// Call listAll async function with await inside handler-helper
 		// call LIST Handler for CRUD function valid for all present models
-		let result = HandlerHelper.list(User, request.query);
-		return reply(result);
+		let result = await HandlerHelper.list(User, request.query);
+		return h.response(result);
 
 	},
 
-	findOne: function (request, reply) {
+	findOne: async (request, h) => {
 		// Call an async function with await inside in handler-helper
 		// call FIND ONE Handler for CRUD function valid for all present models
-		let user = HandlerHelper.find(User, request.params.userId, request.query);
-		return reply(user);
+		let user = await HandlerHelper.find(User, request.params.userId, request.query);
+		return h.response(user);
 
 	},
 
-	create: function (request, reply) {
+	create: async (request, h) => {
 		// Call an async function with await inside in handler-helper
 		// Only for Admin to Add a new User without free registration
 
-		request.payload.password = User.hashPassword(request.payload.password);
+		request.payload.password = await User.hashPassword(request.payload.password);
 		// call CREATE Handler for CRUD function valid for all present models
-		let user = HandlerHelper.create(User, request.payload);
-		return reply(user);
+		let user = await HandlerHelper.create(User, request.payload);
+		return h.response(user);
 
 	},
 
-	update: function (request, reply) {
+	update: async (request, h) => {
 		// Admin and User can update an User, but User can't change his roles and realms
 		// Call an async function with await inside in handler-helper
 
 		// call CREATE Handler for CRUD function valid for all present models
-		let user = HandlerHelper.update(User, request.params.userId, request.payload);
-		return reply(user);
+		let user = await HandlerHelper.update(User, request.params.userId, request.payload);
+		return h.response(user);
 	},
 
-	delete: function (request, reply) {
+	delete: async (request, h) => {
 		// Admin can delete an User
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE Handler for CRUD function valid for all present models
-		let response = HandlerHelper.deleteOne(User, request.params.userId, request.payload);
-		return reply(response);
+		let response = await HandlerHelper.deleteOne(User, request.params.userId, request.payload);
+		return h.response(response);
 	},
 
-	deleteMany: function (request, reply) {
+	deleteMany: async (request, h) => {
 		// Admin can delete an User
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE MANY Handler for EXTRA CRUD function valid for all present models
-		let response = HandlerHelper.deleteMany(User, request.payload);
-		return reply(response);
+		let response = await HandlerHelper.deleteMany(User, request.payload);
+		return h.response(response);
 	},
 
-	addOne: function (request, reply) {
+	addOne: async (request, h) => {
 		// Admin can add one child model to an User
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-		let response = HandlerHelper.addOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
-		return reply(response);
+		let response = await HandlerHelper.addOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
+		return h.response(response);
 	},
 
-	removeOne: function (request, reply) {
+	removeOne: async (request, h) => {
 		// Admin can remove one child model from an User
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-		let response = HandlerHelper.removeOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
-		return reply(response);
+		let response = await HandlerHelper.removeOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
+		return h.response(response);
 	},
 
-	addMany: function (request, reply) {
+	addMany: async (request, h) => {
 		// Admin can add one or more child model to an User
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-		let response = HandlerHelper.addMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
-		return reply(response);
+		let response = await HandlerHelper.addMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
+		return h.response(response);
 	},
 
-	removeMany: function (request, reply) {
+	removeMany: async (request, h) => {
 		// Admin can remove one or more child model from an User
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-		let response = HandlerHelper.removeMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
-		return reply(response);
+		let response = await HandlerHelper.removeMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
+		return h.response(response);
 	},
 
-	getAll: function (request, reply) {
+	getAll: async (request, h) => {
 		// Admin can get list of Child model related to User
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
-		let response = HandlerHelper.getAll(User, request.params.userId, childModel, request.params.childModel, request.query);
-		return reply(response);
+		let response = await HandlerHelper.getAll(User, request.params.userId, childModel, request.params.childModel, request.query);
+		return h.response(response);
 	},
 
 	// EXTRA Handlers
-	checkEmail: async (request, reply) => {
+	checkEmail: async (request, h) => {
 		try {
 			let condition = {where: {email: {[Op.eq]: request.payload.email}}};
 			let user = await User.findOne(condition);
 			if (user) {
-				return reply(true);
+				return h.response(true);
 			}
 			else {
-				return reply(false);
+				return h.response(false);
 			}
 		} catch (error) {
 			Log.apiLogger.error(Chalk.red(error));
-			return reply(Boom.badImplementation('There was an error accessing the database.'));
+			return h.response(Boom.badImplementation('There was an error accessing the database.'));
 		}
 	},
 

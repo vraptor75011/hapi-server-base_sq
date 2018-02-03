@@ -219,9 +219,9 @@ const LoginPre = [
 
 			switch (authStrategy) {
 				case AUTH_STRATEGIES.REFRESH_TOKEN:
-					return h.response(Token(user, null, scope, roles, realms, expirationPeriod.short));
+					return h.response(Token(user, null, scope, roles, realms, expirationPeriod.long));
 				case AUTH_STRATEGIES.SESSION_TOKEN:
-					return h.response(Token(user, null, scope, roles, realms, expirationPeriod.short));
+					return h.response(Token(user, null, scope, roles, realms, expirationPeriod.long));
 				default:
 					break;
 			}

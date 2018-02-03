@@ -10,7 +10,7 @@ const DB = require('./config/sequelize');
 const Op = Sequelize.Op;
 
 
-module.exports = async (decodedToken, request, callback) => {
+module.exports = async (decodedToken, request, h) => {
 	let expirationPeriod = Config.get('/expirationPeriod');
 	try {
 		let user = decodedToken.user;
@@ -19,7 +19,7 @@ module.exports = async (decodedToken, request, callback) => {
 		let realms = decodedToken.realms;
 
 		if (decodedToken.user) {
-			callback(null, Boolean(user), { user, scope, roles, realms });
+			return {isValid: Boolean(user), credentials: { user, scope, roles, realms }};
 		} else if (decodedToken.sessionUser.sessionId) {
 			const Session = DB.Session;
 			const Realm = DB.Realm;
@@ -30,18 +30,18 @@ module.exports = async (decodedToken, request, callback) => {
 
 			let session = await Session.findByCredentials(decodedToken.sessionUser.sessionId, decodedToken.sessionUser.sessionKey);
 			if (!session) {
-				return callback(null, false);
+				return {isValid: false}
 			}
 
 			Log.session.info(Chalk.grey('User: ' + session.user.fullName + ' try to refresh Token'));
 			if (session.user.password !== decodedToken.sessionUser.passwordHash) {
-				return callback(null, false);
+				return {isValid: false}
 			}
 
 			let realm = await Realm.findOne({where: {name: {[Op.like]: decodedToken.realms[0]}}});
 
 			if (!realm) {
-				return callback(null, false);
+				return {isValid: false}
 			} else {
 				session = await Session.createInstance(session.user, realm);
 				let user = await session.getUser({include: [{
@@ -86,16 +86,14 @@ module.exports = async (decodedToken, request, callback) => {
 				let refreshToken = Token(null, session, scope, roles, realms, expirationPeriod.long);
 
 				Log.session.info(Chalk.grey('User: ' + user.fullName + ' has refreshed Tokens'));
-				callback(null, Boolean(user), {user, scope, roles, realms, session, standardToken, refreshToken});
+				return {isValid: Boolean(user), credential: {user, scope, roles, realms, session, standardToken, refreshToken}};
 			}
 		} else {
-			const Session = DB.Session;
-			let session = await Session.findByCredentials(decodedToken.sessionUser.sessionId, decodedToken.sessionUser.sessionKey);
-			callback(null, Boolean(user), {user, scope, roles, realms, session});
+			return {isValid: false}
 		}
 	} catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		return callback(null, false);
+		return {isValid: false}
 	}
 
 };

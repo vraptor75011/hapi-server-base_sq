@@ -17,7 +17,9 @@ const Options = {
 	pathPrefixSize: 3,
 	basePath: BaseOptions.basePath,
 
-	deReference: false
+	deReference: false,
+
+	expanded: 'none',
 };
 
 const SwaggerPack = {

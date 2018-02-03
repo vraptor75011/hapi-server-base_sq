@@ -6,103 +6,102 @@ const RealmsRolesUsers = DB.RealmsRolesUsers;
 
 const Handler =
 	{
-		findAll: function (request, reply) {
+		findAll: async (request, h) => {
 			// Call listAll async function with await inside handler-helper
 			// call LIST Handler for CRUD function valid for all present models
-			let result = HandlerHelper.list(RealmsRolesUsers, request.query);
-			return reply(result);
+			let result = await HandlerHelper.list(RealmsRolesUsers, request.query);
+			return h.response(result);
 
 		},
 
-		findOne: function (request, reply) {
+		findOne: async (request, h) => {
 			// Call an async function with await inside in handler-helper
 			// call FIND ONE Handler for CRUD function valid for all present models
-			let user = HandlerHelper.find(RealmsRolesUsers, request.params.realmsRolesUsersId, request.query);
-			return reply(user);
+			let user = await HandlerHelper.find(RealmsRolesUsers, request.params.realmsRolesUsersId, request.query);
+			return h.response(user);
 
 		},
 
-		create: function (request, reply) {
+		create: async (request, h) => {
 			// Call an async function with await inside in handler-helper
 			// Only for Admin to Add a new RealmsRolesUsers without free registration
 
-			request.payload.password = RealmsRolesUsers.hashPassword(request.payload.password);
 			// call CREATE Handler for CRUD function valid for all present models
-			let user = HandlerHelper.create(RealmsRolesUsers, request.payload);
-			return reply(user);
+			let user = await HandlerHelper.create(RealmsRolesUsers, request.payload);
+			return h.response(user);
 
 		},
 
-		update: function (request, reply) {
+		update: async (request, h) => {
 			// Admin and RealmsRolesUsers can update an RealmsRolesUsers, but RealmsRolesUsers can't change his roles and realms
 			// Call an async function with await inside in handler-helper
 
 			// call CREATE Handler for CRUD function valid for all present models
-			let user = HandlerHelper.update(RealmsRolesUsers, request.params.realmsRolesUsersId, request.payload);
-			return reply(user);
+			let user = await HandlerHelper.update(RealmsRolesUsers, request.params.realmsRolesUsersId, request.payload);
+			return h.response(user);
 		},
 
-		delete: function (request, reply) {
+		delete: async (request, h) => {
 			// Admin can delete an RealmsRolesUsers
 			// Call an async function with await inside in handler-helper
 
 			// call DELETE Handler for CRUD function valid for all present models
-			let response = HandlerHelper.deleteOne(RealmsRolesUsers, request.params.realmsRolesUsersId, request.payload);
-					return reply(response);
+			let response = await HandlerHelper.deleteOne(RealmsRolesUsers, request.params.realmsRolesUsersId, request.payload);
+					return h.response(response);
 		},
 
-		deleteMany: function (request, reply) {
+		deleteMany: async (request, h) => {
 			// Admin can delete an RealmsRolesUsers
 			// Call an async function with await inside in handler-helper
 
 			// call DELETE MANY Handler for EXTRA CRUD function valid for all present models
-			let response = HandlerHelper.deleteMany(RealmsRolesUsers, request.payload);
-			return reply(response);
+			let response = await HandlerHelper.deleteMany(RealmsRolesUsers, request.payload);
+			return h.response(response);
 		},
 
-		addOne: function (request, reply) {
+		addOne: async (request, h) => {
 			// Admin can add one child model to an RealmsRolesUsers
 			// Call an async function with await inside in handler-helper
 			let childModel = RealmsRolesUsers.associations[request.params.childModel].target;
 			// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = HandlerHelper.addOne(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childId, request.params.childModel);
-			return reply(response);
+			let response = await HandlerHelper.addOne(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childId, request.params.childModel);
+			return h.response(response);
 		},
 
-		removeOne: function (request, reply) {
+		removeOne: async (request, h) => {
 			// Admin can remove one child model from an RealmsRolesUsers
 			// Call an async function with await inside in handler-helper
 			let childModel = RealmsRolesUsers.associations[request.params.childModel].target;
 			// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = HandlerHelper.removeOne(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childId, request.params.childModel);
-			return reply(response);
+			let response = await HandlerHelper.removeOne(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childId, request.params.childModel);
+			return h.response(response);
 		},
 
-		addMany: function (request, reply) {
+		addMany: async (request, h) => {
 			// Admin can add one or more child model to an RealmsRolesUsers
 			// Call an async function with await inside in handler-helper
 			let childModel = RealmsRolesUsers.associations[request.params.childModel].target;
 			// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = HandlerHelper.addMany(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childModel, request.payload);
-			return reply(response);
+			let response = await HandlerHelper.addMany(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childModel, request.payload);
+			return h.response(response);
 		},
 
-		removeMany: function (request, reply) {
+		removeMany: async (request, h) => {
 			// Admin can remove one or more child model from an RealmsRolesUsers
 			// Call an async function with await inside in handler-helper
 			let childModel = RealmsRolesUsers.associations[request.params.childModel].target;
 			// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = HandlerHelper.removeMany(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childModel, request.payload);
-			return reply(response);
+			let response = await HandlerHelper.removeMany(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childModel, request.payload);
+			return h.response(response);
 		},
 
-		getAll: function (request, reply) {
+		getAll: async (request, h) => {
 			// Admin can get list of Child model related to RealmsRolesUsers
 			// Call an async function with await inside in handler-helper
 			let childModel = RealmsRolesUsers.associations[request.params.childModel].target;
 			// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = HandlerHelper.getAll(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childModel, request.query);
-			return reply(response);
+			let response = await HandlerHelper.getAll(RealmsRolesUsers, request.params.realmsRolesUsersId, childModel, request.params.childModel, request.query);
+			return h.response(response);
 		},
 	};
 
