@@ -83,16 +83,14 @@ module.exports = {
 		// requestData.queryData.fields = ['id'];
 
 		let filtersQuery = ModelValidation(model).filters;
+		let fullTextSearch = ModelValidation(model).fullTextSearch;
 		let sortQuery = ModelValidation(model).sort;
 		let mathQuery = ModelValidation(model).math;
-		let fieldsQuery = ModelValidation(model).fields;
-		let relatedQuery = ModelValidation(model).withRelated;
-		let relFieldsQuery = ModelValidation(model).withRelFields;
 		let relFiltersQuery = ModelValidation(model).withRelFilters;
 		let relCountQuery = ModelValidation(model).withRelCount;
 		let relSortQuery = ModelValidation(model).withRelSort;
 		let fields4Select = ModelValidation(model).fields4Select;
-		let extraQuery = _.assign({}, fieldsQuery, fields4Select, relatedQuery, relFieldsQuery, relFiltersQuery, relCountQuery, relSortQuery);
+		let extraQuery = _.assign({}, fields4Select, relFiltersQuery, relCountQuery, relSortQuery);
 
 		Object.keys(query).map((e) => {
 			// Filters
@@ -104,7 +102,11 @@ module.exports = {
 				}
 				sequelizeQuery = HandlerBase.filterParser(sequelizeQuery, e, query[e], model);
 			}
-
+			//
+			// FULL TEXT SEARCH Operation
+			if (_.has(fullTextSearch, e)) {
+				sequelizeQuery = HandlerBase.fullTextSearchParser(sequelizeQuery, query[e], model);
+			}
 			if (_.has(sortQuery, e)) {
 				if (_.isString(query[e])) {
 					let tmp = [];
@@ -151,7 +153,6 @@ module.exports = {
 			let pageSize = parseInt(query['$pageSize']) || 10;
 			sequelizeQuery.offset = pageSize * (page - 1);
 			sequelizeQuery.limit = pageSize;
-			Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
 		}
 
 		// }

@@ -19,6 +19,10 @@ module.exports = {
 					type: Sequelize.STRING,
 					allowNull: false,
 				},
+				userAgent: {
+					type: Sequelize.STRING,
+					allowNull: false,
+				},
 				userId: {
 					type: Sequelize.INTEGER,
 					allowNull: false,
@@ -34,7 +38,7 @@ module.exports = {
 					type: Sequelize.DATE
 				},
 			});
-			await queryInterface.addIndex('sessions', ['key', 'userId', 'realmId']);
+			await queryInterface.addIndex('sessions', ['key', 'userAgent', 'sender', 'userId', 'realmId']);
 
 	},
 

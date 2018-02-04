@@ -148,6 +148,8 @@ async function _list(model, query) {
 		let totalCount;
 		let filteredCount;
 
+		Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
+
 		// First Query count everything
 		totalCount = await model.count(sequelizeQuery);
 
@@ -959,6 +961,7 @@ function queryFilteredSort(query, model) {
 function queryFilteredRest(query, model) {
 	let filtersList = ModelValidation(model).filters;
 	let relatedList = ModelValidation(model).withRelated;
+	let fullTextSearch = ModelValidation(model).fullTextSearch;
 	let fieldsList = ModelValidation(model).fields;
 	let withRelFields = ModelValidation(model).withRelFields;
 	let withRelFilters = ModelValidation(model).withRelFilters;
@@ -966,7 +969,7 @@ function queryFilteredRest(query, model) {
 	let withRelSort = ModelValidation(model).withRelSort;
 	let fields4Select = ModelValidation(model).fields4Select;
 
-	let queryAll = (_.assign({}, filtersList, relatedList, fieldsList, fields4Select,
+	let queryAll = (_.assign({}, filtersList, fullTextSearch, relatedList, fieldsList, fields4Select,
 		withRelFields, withRelFilters, withRelCount, withRelSort));
 
 	const queryResponse = {};
@@ -1008,25 +1011,177 @@ function queryWithDeleted(query, sequelizeQuery, model) {
  */
 function queryAttributes(query, sequelizeQuery, model) {
 	let attributesList = ModelValidation(model).Attributes;
+	let allAttributesList = ModelValidation(model).AllAttributes;
+	let associationsArray = ModelValidation(model).RelationsArray;
 	let attributesArray = attributesList.split(', ');
-	let excludedArray = [];
+	let allAttributesArray = allAttributesList.split(', ');
 
-	if (!_.has(sequelizeQuery, 'attributes') ||
-		(_.isArray(sequelizeQuery['attributes']) && sequelizeQuery['attributes'].length === 0)) {
-		sequelizeQuery['attributes'] = attributesArray;
-	} else if (sequelizeQuery['attributes'].length === 1 && _.isArray(sequelizeQuery['attributes'][0])) {
-		sequelizeQuery['attributes'] = _.concat(attributesArray, sequelizeQuery['attributes']);
-	}
+	sequelizeQuery['attributes'] = [];
 
-	if (query.$withExcludedFields === true) {
-		let fields = model.attributes;
-		Object.keys(fields).map((attr) => {
-			let attribute = fields[attr];
-			if (attribute.exclude === true) {
-				excludedArray.push(attr);
+	// Select Fields to pass in JSON
+	if (_.has(query, '$fields')) {
+		let tmp = [];
+
+		if (!_.isArray(query['$fields'])) {
+			tmp = _.split(query['$fields'], ',');
+		} else {
+			tmp = query['$fields'];
+		}
+
+		tmp.forEach((col) => {
+			col = _.replace(col, '{'+model.name+'}', '');
+			if (query.$withExcludedFields === true && _.includes(allAttributesList, col)) {
+				sequelizeQuery['attributes'].push(col);
+			} else if (query.$withExcludedFields === false && _.includes(attributesList, col)) {
+				sequelizeQuery['attributes'].push(col);
 			}
 		});
-		sequelizeQuery.attributes = _.concat(sequelizeQuery.attributes, excludedArray);
+	} else {
+		if (query.$withExcludedFields === true) {
+			sequelizeQuery['attributes'] = allAttributesArray;
+		} else {
+			sequelizeQuery['attributes'] = attributesArray;
+		}
+	}
+
+	// Select related fields to pass in JSON
+	if (_.has(query, '$withFields')) {
+		sequelizeQuery['include'] = sequelizeQuery.include || [];
+		let relation = '';
+		let prefix = '';
+
+		let tmp = [];
+
+		if (!_.isArray(query['$withFields'])) {
+			tmp = _.split(query['$withFields'], ',');
+		} else {
+			tmp = query['$withFields'];
+		}
+		
+		tmp.forEach((attr) => {
+			associationsArray.forEach(function(rel){
+				if (_.includes(attr, rel.name)) {
+					relation = rel.name;
+					prefix = '{' + relation + '}';
+				}
+			});
+
+			let realValue = _.replace(attr, prefix, '');
+
+			let includeLevel = sequelizeQuery.include;
+			let schemaClone = _.clone(model);
+			let relTree = _.split(relation,'.');
+			relTree.forEach(function(levelRel, level){
+				let targetAssociation = schemaClone.associations[levelRel];
+				let targetModel = targetAssociation.target;
+
+				if (!_.some(includeLevel, {model: targetModel})) {
+					if (level === 0) {
+						let tmp = {};
+						tmp.model = targetModel;
+						includeLevel.push(tmp);
+						includeLevel = tmp;
+					} else if (level > 0) {
+						if (!_.has(includeLevel, 'include')) {
+							includeLevel['include'] = [];
+						}
+						if (!_.some(includeLevel['include'], {model: targetModel})) {
+							let tmp = {};
+							tmp.model = targetModel;
+							includeLevel['include'].push(tmp);
+							includeLevel = tmp;
+						}
+					}
+				} else {
+					includeLevel.forEach(function(include){
+						if (!_.some(include, {model: targetModel})) {
+							includeLevel = include;
+						}
+					});
+				}
+				schemaClone = targetModel;
+			});
+
+			let attributesList = ModelValidation(schemaClone).Attributes;
+			let allAttributesList = ModelValidation(schemaClone).AllAttributes;
+
+			let columns = _.split(realValue, ',');
+
+			if (!_.has(includeLevel, 'attributes')) {
+				includeLevel['attributes'] = [];
+			}
+			columns.forEach(function(col){
+				if (query.$withRelExcludedFields === true && _.includes(allAttributesList, col)) {
+					includeLevel['attributes'].push(col);
+				} else if (query.$withExcludedFields === false && _.includes(attributesList, col)) {
+					includeLevel['attributes'].push(col);
+				}
+			});			
+		});
+	}
+
+	if (_.has(query, '$withRelated')) {
+		sequelizeQuery['include'] = sequelizeQuery.include || [];
+		let includeLevel = sequelizeQuery.include;
+		let schemaClone = _.clone(model);
+		let tmp = [];
+
+		if (!_.isArray(query['$withRelated'])) {
+			tmp = _.split(query['$withRelated'], ',');
+		} else {
+			tmp = query['$withRelated'];
+		}
+
+		tmp.forEach((rel) => {
+			let relTree = _.split(rel,'.');
+			relTree.forEach(function(levelRel, level){
+				let targetAssociation = schemaClone.associations[levelRel];
+				let targetModel = targetAssociation.target;
+
+				if (!_.some(includeLevel, {model: targetModel})) {
+					if (level === 0) {
+						let tmp = {};
+						tmp.model = targetModel;
+						includeLevel.push(tmp);
+						includeLevel = tmp;
+					} else if (level > 0) {
+						if (!_.has(includeLevel, 'include')) {
+							includeLevel['include'] = [];
+						}
+						if (!_.some(includeLevel['include'], {model: targetModel})) {
+							let tmp = {};
+							tmp.model = targetModel;
+							includeLevel['include'].push(tmp);
+							includeLevel = tmp;
+						}
+					}
+				} else {
+					includeLevel.forEach(function(include){
+						if (!_.some(include, {model: targetModel})) {
+							includeLevel = include;
+						}
+					});
+				}
+				schemaClone = targetModel;
+
+				let attributesList = ModelValidation(schemaClone).Attributes;
+				let allAttributesList = ModelValidation(schemaClone).AllAttributes;
+				let attributesArray = attributesList.split(', ');
+				let allAttributesArray = allAttributesList.split(', ');
+
+				if (!includeLevel['attributes'] || !includeLevel['attributes'].length) {
+					includeLevel['attributes'] = [];
+
+					if (query.$withRelExcludedFields === true) {
+						includeLevel['attributes'] = allAttributesArray;
+					} else {
+						includeLevel['attributes'] = attributesArray;
+					}
+
+				}
+			});
+		});
+
 	}
 
 	return sequelizeQuery;

@@ -73,7 +73,75 @@ const PreHandlerBase = {
 		return response;
 	},
 
-	extraParser: function(response, op, value, schema) {
+	fullTextSearchParser: (response, value, schema) => {
+		response['where'] = response.where || {};
+
+		Object.keys(schema.attributes).map((attr) => {
+			let actualLevel = response.where;
+			let attribute = schema.attributes[attr];
+			let type = attribute.type.key;
+			if (type === 'STRING' && !attribute.exclude) {
+				if (!_.has(actualLevel, SQOrOperators['{or}'])) {
+					_.set(actualLevel, SQOrOperators['{or}'], []);
+				}
+				actualLevel = actualLevel[SQOrOperators['{or}']];
+
+				let toTake = true;
+				LikeOperators.forEach((op) => {
+					if (_.includes(value, op)) {
+						toTake = false;
+						let tmp = {};
+						tmp[attr] = {};
+						actualLevel.push(tmp);
+						actualLevel = tmp[attr];
+
+						tmp = '';
+						switch (op) {
+							case '{%like}': {
+								tmp = '%' + _.replace(value, op, '');
+								break
+							}
+							case '{like}': {
+								tmp = '%' + _.replace(value, op, '') +'%';
+								break;
+							}
+							case '{like%}': {
+								tmp = _.replace(value, op, '') + '%';
+								break;
+							}
+							case '{not%like}': {
+								tmp = '%' + _.replace(value, op, '');
+								break
+							}
+							case '{notlike}': {
+								tmp = '%' + _.replace(value, op, '') +'%';
+								break;
+							}
+							case '{notlike%}': {
+								tmp = _.replace(value, op, '') + '%';
+								break;
+							}
+						}
+
+						if (!_.has(actualLevel, SQLikeOperators[op])) {
+							_.set(actualLevel, SQLikeOperators[op], tmp);
+						}
+					}
+				});
+				if (toTake) {
+					let tmp = '%' + value +'%';
+					if (!_.has(actualLevel, SQLikeOperators['{like}'])) {
+						_.set(actualLevel, SQLikeOperators['{like}'], tmp);
+					}
+				}
+
+			}
+
+		});
+		return response;
+	},
+
+	extraParser: (response, op, value, schema) => {
 		let models = schema.sequelize.models;
 
 		value.forEach(function(el){
@@ -508,6 +576,18 @@ let filterParser = (response, key, value, schema) => {
 							break;
 						}
 						case '{like%}': {
+							tmp = _.replace(realValue, op, '') + '%';
+							break;
+						}
+						case '{not%like}': {
+							tmp = '%' + _.replace(realValue, op, '');
+							break
+						}
+						case '{notlike}': {
+							tmp = '%' + _.replace(realValue, op, '') +'%';
+							break;
+						}
+						case '{notlike%}': {
 							tmp = _.replace(realValue, op, '') + '%';
 							break;
 						}

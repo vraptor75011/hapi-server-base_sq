@@ -140,7 +140,7 @@ const LoginPre = [
 				if (authStrategy === AUTH_STRATEGIES.TOKEN) {
 					return h.response(null);
 				} else {
-					session = await Session.createInstance(user, realm);
+					session = await Session.createOrRefreshInstance(request, null, user, realm);
 					Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
 					return h.response(session);
 				}

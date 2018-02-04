@@ -12,6 +12,7 @@ const Validations = ModelValidation(DB.User);
 let filters = Validations.filters;
 let ids = Validations.ids;
 let pagination = Validations.pagination;
+let fulTextSearch = Validations.fullTextSearch;
 let sort = Validations.sort;
 let math = Validations.math;
 let softDeleted = Validations.softDeleted;
@@ -21,12 +22,13 @@ let count = Validations.sort;
 let fields = Validations.fields;
 let fields4Select = Validations.fields4Select;
 let withRelated = Validations.withRelated;
+let withRelExcludedFields = Validations.withRelExcludedFields;
 let withRelFields = Validations.withRelFields;
 let withRelFilters = Validations.withRelFilters;
 let withRelCount = Validations.withRelCount;
 let withRelSort = Validations.withRelSort;
-let val4QueryAll = Object.assign({}, filters, pagination, sort, math, softDeleted, excludedFields, count, fields,
-	withRelated, withRelFields, withRelFilters, withRelCount, withRelSort);
+let val4QueryAll = Object.assign({}, filters, pagination, fulTextSearch, sort, math, softDeleted, excludedFields,
+	count, fields, withRelated, withRelExcludedFields, withRelFields, withRelFilters, withRelCount, withRelSort);
 let val4Select = Object.assign({}, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
 
 let FLRelations = Validations.FLRelations;

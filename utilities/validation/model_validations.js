@@ -202,7 +202,9 @@ module.exports = function(model) {
 	const FLRelations = SchemaHelper.relationsFromSchema(model, 1, 1);
 	const SLRelations = SchemaHelper.relationsFromSchema(model, 2, 2);
 	const ALLRelations = SchemaHelper.relationsFromSchema(model, 1, 2);
+	const RelationsArray = SchemaHelper.relationFromSchema(model, 2);
 	const Attributes = SchemaHelper.createAttributesList(model);
+	const AllAttributes = SchemaHelper.createAllAttributesList(model);
 	const Attributes4Select = SchemaHelper.createAttributesList4Select(model);
 
 	const filters = getFilters(model);
@@ -258,11 +260,19 @@ module.exports = function(model) {
 	};
 
 	const excludedFields = {
-		$withExcludedFields: Joi.boolean().description('includes soft deleted record').default(false),
+		$withExcludedFields: Joi.boolean().description('includes excluded attributes').default(false),
 	};
 
 	const count = {
 		$count: Joi.boolean().description('only number of records found'),
+	};
+
+	const fullTextSearch = {
+		$fullTextSearch:
+			Joi.string().description('search text in ALL string attributes')
+				.max(255)
+				.regex(ValidationHelper.fullTextSearchRegExp())
+				.example('qulsiasi cosa')
 	};
 
 	const fields = {
@@ -304,6 +314,10 @@ module.exports = function(model) {
 				.regex(ValidationHelper.withRelatedRegExp(model))
 				.example('Realms'),
 		),
+	};
+
+	const withRelExcludedFields = {
+		$withRelExcludedFields: Joi.boolean().description('includes excluded related attributes').default(false),
 	};
 
 	const withRelFields = {
@@ -356,28 +370,32 @@ module.exports = function(model) {
 	};
 
 	const modelValidations = {
-		filters: filters,
-		ids: ids,
-		pagination: pagination,
-		sort: sort,
-		math: math,
-		softDeleted: softDeleted,
-		hardDelete: hardDelete,
-		excludedFields: excludedFields,
-		count: count,
-		fields: fields,
-		fields4Select: fields4Select,
-		withRelated: withRelated,
-		withRelFields: withRelFields,
-		withRelFilters: withRelFilters,
-		withRelCount: withRelCount,
-		withRelSort: withRelSort,
+		filters,
+		ids,
+		pagination,
+		sort,
+		math,
+		fullTextSearch,
+		softDeleted,
+		hardDelete,
+		excludedFields,
+		count,
+		fields,
+		fields4Select,
+		withRelated,
+		withRelExcludedFields,
+		withRelFields,
+		withRelFilters,
+		withRelCount,
+		withRelSort,
 
-		FLRelations: FLRelations,
-		SLRelations: SLRelations,
-		ALLRelations: ALLRelations,
-		Attributes: Attributes,
-		Attributes4Select: Attributes4Select,
+		FLRelations,
+		SLRelations,
+		ALLRelations,
+		RelationsArray,
+		Attributes,
+		AllAttributes,
+		Attributes4Select,
 	};
 
 	return modelValidations;

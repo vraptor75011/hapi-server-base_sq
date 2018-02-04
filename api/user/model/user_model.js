@@ -85,7 +85,11 @@ module.exports = function(sequelize, DataTypes) {
 				type: DataTypes.VIRTUAL(DataTypes.STRING, ['lastName', 'firstName']),
 				default4Select: true,
 				get: function() {
-					return this.get('lastName') + ' ' + this.get('firstName')
+					if (this.get('lastName') && this.get('firstName')) {
+						return this.get('lastName') + ' ' + this.get('firstName')
+					} else {
+						return null;
+					}
 				},
 			}
 		},

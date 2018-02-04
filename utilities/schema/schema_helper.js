@@ -84,6 +84,24 @@ const SchemaUtility = {
 	},
 
 	/**
+	 * Create a list of model attributes.
+	 * @param model: A mongoose model object.
+	 * @returns {string}
+	 */
+	createAllAttributesList: (model) => {
+		let attributesFilter = [];
+		let fields = model.attributes;
+
+		let fieldNames = Object.keys(fields);
+
+		fieldNames.forEach((attr) => {
+			attributesFilter.push(attr);
+		});
+
+		return _.join(attributesFilter, ', ');
+	},
+
+	/**
 	 * Create a list of model attributes for input select.
 	 * @param model: A mongoose model object.
 	 * @returns {string}

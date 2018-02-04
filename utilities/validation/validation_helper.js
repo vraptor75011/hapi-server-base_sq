@@ -92,6 +92,20 @@ const ValidationBase = {
 		return new RegExp(result);
 	},
 
+	// STRING admitted in Full Text Search. Full Text Search is an Operation on Model String Attributes
+	fullTextSearchRegExp: () => {
+		let result = '';
+
+		likeOperators.forEach(function(operator, index){
+			if (index > 0) {
+				result += '|';
+			}
+			result += "^" + operator + ".+$";
+		});
+
+		return new RegExp(result);
+	},
+
 	// STRING admitted in Field for all Attributes not Excluded. Model Fields to select
 	field4SelectRegExp: (schema) => {
 		let result = '';

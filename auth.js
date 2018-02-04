@@ -42,7 +42,7 @@ module.exports = async (decodedToken, request, h) => {
 			if (!realm) {
 				return {isValid: false}
 			} else {
-				session = await Session.createInstance(session.user, realm);
+				session = await Session.createOrRefreshInstance(request, session, session.user, realm);
 				let user = await session.getUser({include: [{
 						model: Role,
 						through: {

@@ -1,6 +1,7 @@
 const Uuid = require('node-uuid');
 const Sequelize = require('sequelize');
 const Bcrypt = require('bcrypt');
+const _ = require('lodash');
 const QueryHelper = require('../../../utilities/query/query-helper');
 
 const Op = Sequelize.Op;
@@ -35,6 +36,11 @@ module.exports = function(sequelize, DataTypes) {
 					len: [8, 128]
 				},
 			},
+			userAgent: {
+				type: DataTypes.STRING,
+				allowNull: false,
+				query: Query.userAgent,
+			},
 		},
 		{
 			tableName: 'sessions',
@@ -52,23 +58,38 @@ module.exports = function(sequelize, DataTypes) {
 
 	// Special Methods:
 	// CreateInstance
-	Session.createInstance = async (user, realm) => {
+	Session.createOrRefreshInstance = async (request, oldSession, user, realm) => {
+		// const { method, url } = request;
+		let { headers } = request;
+		// let { info } = request;
+		let userAgent = headers['user-agent'];
+		let option = {};
+		let oldSessionId = null;
+		if (oldSession) {
+			oldSessionId = oldSession.id;
+		}
 
 		let [session, initialized] = await Session.findOrBuild({
 			where: {
+				id: oldSessionId,
 				userId: user.id,
 				realmId: realm.id,
 			}
 		});
 
 		if (session) {
+			if (initialized) {
+				delete session.dataValues.id;
+			}
 			session.key = Uuid.v4();
 			session.passwordHash = user.password;
+			session.userAgent = userAgent;
 
 			session = await session.save();
 
-			let option = {
+			option = {
 				where: {
+					userAgent: userAgent,
 					userId: user.id,
 					realmId: realm.id,
 					key: { [Op.ne]: session.key }
@@ -164,6 +185,24 @@ const Query = {
 			regex: '',
 			min: 3,
 			example: ['{like}dwr6-cdr5', '{<>}drt6-844z']
+		},
+	},
+	userAgent: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					min: 3,
+					example: '{like}Mozilla',
+				},
+			},
+			description: 'the User Agent: Chrome vs [{=}Chrome,{<>}Chrome,{like}Chrome]',
+			example: ['{like}Firefox', '{like}Chrome'],
+		},
+		string: {
+			regex: '',
+			min: 3,
+			example: ['{like}Firefox', '{<>}Chrome']
 		},
 	},
 };
