@@ -1,5 +1,4 @@
 const Joi = require('joi');
-const DB = require('../../config/sequelize');
 const ValidationHelper = require('./validation_helper');
 const SchemaHelper = require('../schema/schema_helper');
 const Sequelize = require('sequelize');
@@ -63,11 +62,10 @@ let joiCompile = (key, element, model) => {
 
 	if (key === 'array') {
 		let schema = Joi.array();
-		let joiArray = [];
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 			if (key === 'items') {
-				Object.keys(element02).map((key, index) => {
+				Object.keys(element02).map((key) => {
 					schema = schema.items(joiCompile(key, element02[key], model));
 				});
 			}
@@ -87,7 +85,7 @@ let joiCompile = (key, element, model) => {
 	if (key === 'string') {
 		let schema = Joi.string();
 
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 
 			if (key === 'regex') {
@@ -118,7 +116,7 @@ let joiCompile = (key, element, model) => {
 	if (key === 'integer') {
 		let schema = Joi.number().integer();
 
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 
 			if (key === 'min') {
@@ -144,7 +142,7 @@ let joiCompile = (key, element, model) => {
 	if (key === 'any') {
 		let schema = Joi.any();
 
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 
 			if (key === 'forbidden') {
@@ -159,7 +157,7 @@ let joiCompile = (key, element, model) => {
 	if (key === 'boolean') {
 		let schema = Joi.boolean();
 
-		Object.keys(element01).map((key, index) => {
+		Object.keys(element01).map((key) => {
 			let element02 = element01[key];
 
 			if (key === 'valid') {
@@ -182,7 +180,7 @@ let addJoiAnyExample = (schema, example) => {
 		return schema.example(example);
 };
 
-let addJoiAnyForbidden = (schema, value) => {
+let addJoiAnyForbidden = (schema) => {
 	return schema.forbidden();
 };
 
