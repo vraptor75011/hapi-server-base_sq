@@ -91,7 +91,8 @@ let joiCompile = (key, element, model) => {
 			let element02 = element01[key];
 
 			if (key === 'regex') {
-				schema = schema.regex(ValidationHelper.filterRegExp(model));
+				let test = ValidationHelper.filterRegExp(model);
+				schema = schema.regex(test);
 			}
 
 			if (key === 'description') {
@@ -107,7 +108,7 @@ let joiCompile = (key, element, model) => {
 			}
 
 			if (key === 'max') {
-				schema = addJoiAnyMin(schema, element02);
+				schema = addJoiAnyMax(schema, element02);
 			}
 		});
 

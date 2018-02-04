@@ -38,7 +38,7 @@ module.exports = {
 					type: Sequelize.DATE
 				},
 			});
-			await queryInterface.addIndex('sessions', ['key', 'userAgent', 'sender', 'userId', 'realmId']);
+			await queryInterface.addIndex('sessions', ['key', 'userAgent', 'userId', 'realmId']);
 
 	},
 
