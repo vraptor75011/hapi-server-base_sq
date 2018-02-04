@@ -304,14 +304,14 @@ module.exports = function(model) {
 
 	const withRelated = {
 		$withRelated: Joi.alternatives().try(
-			Joi.array().description('includes relationships: Roles, [Roles.models, Realms]')
+			Joi.array().description('includes relationships: model, [model.models, models]')
 				.items(
 					Joi.string().max(255)
 						.regex(ValidationHelper.withRelatedRegExp(model)))
-				.example(['Realms','Roles']),
+				.example(['model','models']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withRelatedRegExp(model))
-				.example('Realms'),
+				.example('models'),
 		),
 	};
 
@@ -321,38 +321,38 @@ module.exports = function(model) {
 
 	const withRelFields = {
 		$withFields: Joi.alternatives().try(
-			Joi.array().description('selects relationships fields: {Roles}name, [{Realms}name,description]')
+			Joi.array().description('selects relationships fields: {model}name, [{models}name,description]')
 				.items(Joi.string().max(255)
 					.regex(ValidationHelper.withRelatedFieldRegExp(model)))
-				.example(['{Realms}name','{Roles}id']),
+				.example(['{models}name','{model}id']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withRelatedFieldRegExp(model))
-				.example('{Realms.Roles}name,description'),
+				.example('{models.model}name,description'),
 		),
 	};
 
 	const withRelFilters = {
 		$withFilter: Joi.alternatives().try(
-			Joi.array().description('filter by relationships fields: {Roles}[{or|not}]{name}[{=}], [{Realms}{not}{name}{like}]')
+			Joi.array().description('filter by relationships fields: {model}[{or|not}]{name}[{=}], [{model}{not}{name}{like}]')
 				.items(Joi.string().max(255)
 					.regex(ValidationHelper.withFilterRegExp(model)))
-				.example(['{Roles}{id}{=}3', '{Realms}{name}{like}App']),
+				.example(['{model}{id}{=}3', '{models}{name}{like}App']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withFilterRegExp(model))
-				.example('{Roles.models}{not}{username}{null}')
+				.example('{model.models}{not}{username}{null}')
 		),
 	};
 
 	const withRelCount = {
 		$withCount: Joi.alternatives().try(
-			Joi.array().description('count relationships occurrences: Roles, [Roles, Realms]')
+			Joi.array().description('count relationships occurrences: model, [model, models]')
 				.items(
 					Joi.string().max(255)
 						.regex(ValidationHelper.withCountRegExp(model)))
-				.example(['Realms','Roles']),
-			Joi.string().max(255).description('relationships: Roles, [Roles.models, Realms]')
+				.example(['models','model']),
+			Joi.string().max(255).description('relationships: model, [model.models, models]')
 				.regex(ValidationHelper.withCountRegExp(model))
-				.example('Realms')
+				.example('models')
 		),
 	};
 
@@ -361,10 +361,10 @@ module.exports = function(model) {
 			Joi.array().description('sort related field: {Realms}[+,-]id vs [-id, -name]')
 				.items(Joi.string().max(255)
 					.regex(ValidationHelper.withSortRegExp(model)))
-				.example(['{Roles}+name','{Roles.models}-username']),
+				.example(['{model}+name','{model.models}-username']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withSortRegExp(model))
-				.example('{Realms}description')
+				.example('{model}description')
 		),
 	};
 
