@@ -61,12 +61,6 @@ module.exports = function(sequelize, DataTypes) {
 				defaultValue: false,
 				query: Query.isActive,
 			},
-			authCount: {
-				type: DataTypes.INTEGER,
-				defaultValue: 0,
-				allowNull: false,
-				query: Query.authCount,
-			},
 			currentLoginAt: {
 				type: DataTypes.DATE,
 				query: Query.currentLoginAt,
