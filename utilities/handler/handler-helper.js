@@ -148,8 +148,10 @@ async function _list(model, query) {
 		let totalCount;
 		let filteredCount;
 
+		Log.apiLogger.info('RequestData: ' + JSON.stringify(query));
+
 		// First Query count everything
-		Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
+		sequelizeQuery = queryWithDeleted(query, sequelizeQuery, model);
 		totalCount = await model.count(sequelizeQuery);
 
 		// Second Query
@@ -159,7 +161,6 @@ async function _list(model, query) {
 		if (query.$count) {
 			let queryCount = queryFilteredCount(query, model);
 			sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
-			Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
 			filteredCount = await model.count(sequelizeQuery);
 
 			const items = {
@@ -177,14 +178,12 @@ async function _list(model, query) {
 			// 2b) Count the with $filters and $withFilters
 			let queryCount = queryFilteredCount(query, model);
 			sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
-			Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
 			filteredCount = await model.count(sequelizeQuery);
 
 			// 3a) Query find MIN with all URL query params
 			let queryMath = queryFilteredMath(query, model);
 			let attr = QueryHelper.createSequelizeFilter(model, queryMath, '');
 			if (query.$min) {
-				Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
 				result = await model.min(attr, sequelizeQuery);
 
 				const items = {
@@ -199,7 +198,6 @@ async function _list(model, query) {
 
 			// 3b) Query find MAX with all URL query params
 			if (query.$max) {
-				Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
 				result = await model.max(attr, sequelizeQuery);
 
 				const items = {
@@ -214,7 +212,6 @@ async function _list(model, query) {
 
 			// 3c) Query find SUM with all URL query params
 			if (query.$sum) {
-				Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
 				result = await model.sum(attr, sequelizeQuery);
 
 				const items = {
@@ -233,7 +230,6 @@ async function _list(model, query) {
 		// Only the right URL query params will use to building the Seq. query string
 		let queryCount = queryFilteredCount(query, model);
 		sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
-		Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
 		filteredCount = await model.count(sequelizeQuery);
 
 		// 3) Query findAll record with all URL query params
@@ -242,9 +238,7 @@ async function _list(model, query) {
 		let queryRest = queryFilteredRest(query, model);
 		let queryInclude = _.assign({}, queryPagination, querySort, queryRest);
 		sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryInclude, sequelizeQuery);
-		sequelizeQuery = queryWithDeleted(query, sequelizeQuery, model);
 		sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
-		Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
 		result = await model.findAll(sequelizeQuery);
 
 		const pages = {
@@ -262,7 +256,7 @@ async function _list(model, query) {
 			pageSize: Number(query.$pageSize),
 		};
 
-		pages.total = Math.ceil(filteredCount / query.$pageSize);
+		pages.total = Math.ceil(filteredCount / Number(query.$pageSize));
 		pages.next = pages.current + 1;
 		pages.hasNext = pages.next <= pages.total;
 		pages.prev = pages.current - 1;
@@ -292,7 +286,7 @@ async function _find(model, id, query) {
 		sequelizeQuery = QueryHelper.createSequelizeFilter(model, query, sequelizeQuery);
 		sequelizeQuery = queryWithDeleted(query, sequelizeQuery, model);
 		sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
-		Log.apiLogger.info('RequestData: ' + JSON.stringify(sequelizeQuery));
+		Log.apiLogger.info('RequestData: ' + JSON.stringify(query));
 		result = await model.findOne(sequelizeQuery);
 		if (result){
 			return {doc: result}
@@ -336,7 +330,6 @@ async function _create(model, payload) {
 		sequelizeQuery = queryAttributes({}, sequelizeQuery, model);
 
 		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-		Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 		result = await model.create(payload, sequelizeQuery);
 		if (result) {
 			//Delete excluded attributes
@@ -374,7 +367,7 @@ async function _update(model, id, payload) {
 		let sequelizeQuery = {where: {id: id}};
 
 		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-		Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
+		Log.apiLogger.info('Id: ' + id);
 		result = await model.update(payload, sequelizeQuery);
 		if (result) {
 			return {doc: result};
@@ -404,7 +397,7 @@ async function _deleteOne(model, id, payload) {
 		let result;
 
 		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-		Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
+		Log.apiLogger.info('Id: ' + id);
 		sequelizeQuery = queryWithDeleted(payload, sequelizeQuery, model);
 		result = await model.destroy(sequelizeQuery);
 		if (result){
@@ -435,7 +428,6 @@ async function _deleteMany(model, payload) {
 		let result;
 
 		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-		Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 		sequelizeQuery = queryWithDeleted(payload, sequelizeQuery, model);
 		result = await model.destroy(sequelizeQuery);
 		if (result){
@@ -476,8 +468,6 @@ async function _addOne(ownerModel, ownerId, childModel, childId, associationName
 		if (ownerObject) {
 			let payload = {};
 			payload['ids'] = [childId];
-			Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-			Log.apiLogger.info('Association: ' + JSON.stringify(associationName));
 			result = await _setAssociation(ownerObject, childModel, associationName, payload);
 			if (result.errors) {
 				let error = Boom.badRequest(result);
@@ -520,8 +510,6 @@ async function _removeOne(ownerModel, ownerId, childModel, childId, associationN
 		}
 
 		if (ownerObject) {
-			Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-			Log.apiLogger.info('Association: ' + JSON.stringify(associationName));
 			result = await _removeAssociation(ownerModel, ownerId, childModel, childId, associationName, payload);
 			if (result.errors) {
 				let error = Boom.badRequest(result);
@@ -567,8 +555,6 @@ async function _addMany(ownerModel, ownerId, childModel, associationName, payloa
 			if (!payload) {
 				payload = {};
 			}
-			Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-			Log.apiLogger.info('Association: ' + JSON.stringify(associationName));
 			result = await _setAssociation(ownerObject, childModel, associationName, payload);
 			if (result.errors) {
 				let error = Boom.badRequest(result);
@@ -614,8 +600,6 @@ async function _removeMany(ownerModel, ownerId, childModel, associationName, pay
 		}
 
 		if (ownerObject) {
-			Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-			Log.apiLogger.info('Association: ' + JSON.stringify(associationName));
 			result = await _removeAssociation(ownerModel, ownerId, childModel, ids, associationName, payload);
 			if (result.errors) {
 				let error = Boom.badRequest(result);
@@ -656,6 +640,8 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 		let realQuery = {};
 		let result;
 
+		Log.apiLogger.info('Query: ' + JSON.stringify(query));
+
 		Object.keys(query).map((param) => {
 			if (_.includes(param, associationName + '.')) {
 				let realParam = param.replace(associationName + '.', '');
@@ -672,7 +658,6 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 				sequelizeQuery = queryWithDeleted(realQuery, sequelizeQuery, model);
 				sequelizeQuery = queryAttributes(realQuery, sequelizeQuery, model);
 				let action = 'get'+_.upperFirst(associationName);
-				Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 				result = await ownerObject[action](sequelizeQuery);
 			} else if (relation.associationType === 'BelongsToMany' || relation.associationType === 'hasMany') {
 				sequelizeQuery = {};
@@ -683,7 +668,6 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 				if (realQuery.$count) {
 					let queryCount = queryFilteredCount(realQuery, model);
 					sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
-					Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 					filteredCount = await model.count(sequelizeQuery);
 
 					result = {
@@ -693,14 +677,12 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 				} else if (realQuery.$min || realQuery.$max || realQuery.$sum) {
 					let queryCount = queryFilteredCount(realQuery, model);
 					sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
-					Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 					filteredCount = await model.count(sequelizeQuery);
 
 					let queryMath = queryFilteredMath(realQuery, model);
 					let attr = QueryHelper.createSequelizeFilter(model, queryMath, '');
 
 					if (realQuery.$min) {
-						Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 						let min = await model.min(attr, sequelizeQuery);
 
 						result = {
@@ -711,7 +693,6 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 					}
 
 					if (realQuery.$max) {
-						Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 						let max = await model.max(attr, sequelizeQuery);
 
 						result = {
@@ -722,7 +703,6 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 					}
 
 					if (realQuery.$sum) {
-						Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 						let sum = await model.sum(attr, sequelizeQuery);
 
 						result = {
@@ -734,7 +714,6 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 				} else {
 					let queryCount = queryFilteredCount(realQuery, model);
 					sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryCount, sequelizeQuery);
-					Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 					filteredCount = await model.count(sequelizeQuery);
 
 					// 3) Query findAll record with all URL query params
@@ -747,11 +726,10 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 					sequelizeQuery = queryAttributes(realQuery, sequelizeQuery, model);
 
 					let action = 'get'+_.upperFirst(associationName);
-					Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 					let childDocs = await ownerObject[action](sequelizeQuery);
 
 					const pages = {
-						current: realQuery.$page || 1,
+						current: Number(realQuery.$page) || 1,
 						prev: 0,
 						hasPrev: false,
 						next: 0,
@@ -761,11 +739,11 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 					const items = {
 						total: totalCount,
 						filtered: filteredCount,
-						page: realQuery.$page,
-						pageSize: realQuery.$pageSize,
+						page: Number(realQuery.$page),
+						pageSize: Number(realQuery.$pageSize),
 					};
 
-					pages.total = Math.ceil(filteredCount / realQuery.$pageSize);
+					pages.total = Math.ceil(filteredCount / Number(realQuery.$pageSize));
 					pages.next = pages.current + 1;
 					pages.hasNext = pages.next <= pages.total;
 					pages.prev = pages.current - 1;
@@ -824,6 +802,7 @@ async function _setAssociation(ownerObject, childModel, associationName, payload
 
 		let action = 'add'+_.upperFirst(associationName);
 		Log.apiLogger.info('Add: ' + JSON.stringify(targetModels));
+		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
 		result = await ownerObject[action](targetModels, {transaction: t});
 		if (result) {
 			let action = 'get'+_.upperFirst(associationName);
@@ -861,10 +840,15 @@ async function _removeAssociation(ownerModel, ownerId, childModel, childId, asso
 
 	try {
 		let result;
+
 		let ownerObject = await ownerModel.findById(ownerId);
 		if (!_.isArray(childId)) {
 			childId = [childId];
 		}
+
+		Log.apiLogger.info('Remove: ' + JSON.stringify(childId));
+		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
+
 		let relation = ownerModel.associations[associationName];
 		let foreignKey = relation.foreignKey;
 
@@ -872,7 +856,6 @@ async function _removeAssociation(ownerModel, ownerId, childModel, childId, asso
 			// Destroy all hasMany side objects: 1 -> N, Destroy all N objects
 			let sequelizeQuery = {where: {id: {[Op.in]: childId}, [foreignKey]: {[Op.eq]: ownerId}}};
 			sequelizeQuery = queryWithDeleted(payload, sequelizeQuery, childModel);
-			Log.apiLogger.info('Query: ' + JSON.stringify(sequelizeQuery));
 			result = await childModel.destroy(sequelizeQuery);
 		} else if (relation.associationType === 'BelongsToMany') {
 			// Destroy all through table instances of belongsToMany: 1 -> N <- 1, Destroy all N row in the table.
@@ -908,9 +891,11 @@ function queryFilteredCount(query, model) {
 	let filtersList = ModelValidation(model).filters;
 	let fullTextSearch = ModelValidation(model).fullTextSearch;
 	let withRelFilters = ModelValidation(model).withRelFilters;
+	let withDeleted = ModelValidation(model).softDeleted;
+	let hardDelete = ModelValidation(model).hardDelete;
 	let queryResponse = {};
 
-	let queryOne = (_.assign({}, filtersList, fullTextSearch, withRelFilters));
+	let queryOne = (_.assign({}, filtersList, fullTextSearch, withRelFilters, withDeleted, hardDelete));
 
 	Object.keys(queryOne).map((key) => {
 		if (_.has(query, key)) {

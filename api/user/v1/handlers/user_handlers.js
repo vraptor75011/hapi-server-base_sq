@@ -14,6 +14,7 @@ module.exports = {
 	findAll: async (request, h) => {
 		// Call listAll async function with await inside handler-helper
 		// call LIST Handler for CRUD function valid for all present models
+		Log.apiLogger.info('Method: %s - Request: %s', request.method, request.path);
 		let result = await HandlerHelper.list(User, request.query);
 		return h.response(result);
 

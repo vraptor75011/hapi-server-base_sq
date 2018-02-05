@@ -1,6 +1,7 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const UserValidation = require('../../url_validation/user_validation');
 const UserHandler = require('../handlers/user_handlers');
+const ErrorHelper = require('../../../../utilities/error/error-helper');
 
 module.exports = [
 	{
@@ -23,17 +24,7 @@ module.exports = [
 				query: UserValidation.queryAll,
 				// query: UserValidations.query,
 				headers: HeaderValidation.headerRequired,
-				failAction: async (request, h, err) => {
-					if (process.env.NODE_ENV === 'production') {
-						// In prod, log a limited error message and throw the default Bad Request error.
-						console.error('ValidationError:', err.message); // Better to use an actual logger here.
-						throw Boom.badRequest(`Invalid request payload input`);
-					} else {
-						// During development, log and respond with the full error.
-						console.error(err);
-						throw err;
-					}
-				}
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
