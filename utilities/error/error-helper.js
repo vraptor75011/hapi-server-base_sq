@@ -78,11 +78,11 @@ module.exports = {
 	failAction: async (request, h, err) => {
 		if (process.env.NODE_ENV === 'production') {
 			// In prod, log a limited error message and throw the default Bad Request error.
-			Log.apiLogger.error(Chalk.red('ValidationError:', err.message)); // Better to use an actual logger here.
+			Log.apiLogger.error(Chalk.blue('ValidationError:', err.message)); // Better to use an actual logger here.
 			throw Boom.badRequest(`Invalid request validation input`);
 		} else {
 			// During development, log and respond with the full error.
-			Log.apiLogger.error(Chalk.red('ValidationError:', err.message));
+			Log.apiLogger.error(Chalk.blue('ValidationError:', err.message));
 			throw Boom.badRequest(err.message);
 		}
 	}

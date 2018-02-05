@@ -37,11 +37,6 @@ module.exports = {
 				type: Sequelize.BOOLEAN,
 				defaultValue: false
 			},
-			authCount: {
-				type: Sequelize.INTEGER,
-				defaultValue: 0,
-				allowNull: false,
-			},
 			currentLoginAt: {
 				type: Sequelize.DATE,
 			},

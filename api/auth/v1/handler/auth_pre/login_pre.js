@@ -17,16 +17,44 @@ const User = DB.User;
 const Realm = DB.Realm;
 const Role = DB.Role;
 const Session = DB.Session;
+const AuthAttempt = DB.AuthAttempt;
 
 const LoginPre = [
 	// {
 	// 	assign: 'abuseDetected',
-	// 	method: function (request, reply) {
+	// 	method: async (request, reply) => {
 	//
 	// 		const ip = request.info.remoteAddress;
 	// 		const email = request.payload.email;
+	// 		const username = request.payload.username;
 	//
-	// 		AuthAttempt.abuseDetected(ip, email, Log)
+	// 		try {
+	// 			let authAttempt = await AuthAttempt.findOne(
+	// 				{where:
+	// 						{
+	// 							ip: {[Op.eq]: ip},
+	// 							[Op.or]: [
+	// 								{	username: {[Op.eq]: username} },
+	// 								{	email: {[Op.eq]: email}	}
+	// 							],
+	// 						}
+	// 				});
+	//
+	// 			if (!user) {
+	// 				return Boom.unauthorized('Invalid username or password');
+	// 			}
+	// 			let match = Bcrypt.compareSync(password, user.password);
+	// 			if (match) {
+	// 				return h.response(user);
+	// 			}
+	// 			return h.response(Boom.unauthorized('Invalid username or password'));
+	// 		}	catch(error) {
+	// 			Log.apiLogger.error(Chalk.red(error));
+	// 			let errorMsg = error.message || 'An error occurred';
+	// 			return h.response(Boom.gatewayTimeout(errorMsg));
+	// 		}
+	//
+	// 		let detected = await AuthAttempt.abuseDetected(ip, email, username)
 	// 			.then(function (detected) {
 	// 				if (detected) {
 	// 					return reply(Boom.badRequest('Maximum number of auth attempts reached. Please try again later.'));
@@ -41,7 +69,7 @@ const LoginPre = [
 	// },
 	{
 		assign: 'user',
-		method: async function (request, h) {
+		method: async (request, h) => {
 			const email = request.payload.email || request.payload.username;
 			const username = request.payload.username;
 			const password = request.payload.password;

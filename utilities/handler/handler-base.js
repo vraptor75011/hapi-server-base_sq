@@ -80,7 +80,7 @@ const PreHandlerBase = {
 			let actualLevel = response.where;
 			let attribute = schema.attributes[attr];
 			let type = attribute.type.key;
-			if (type === 'STRING' && !attribute.exclude) {
+			if ((type === 'STRING' || type === 'TEXT') && !attribute.exclude) {
 				if (!_.has(actualLevel, SQOrOperators['{or}'])) {
 					_.set(actualLevel, SQOrOperators['{or}'], []);
 				}
