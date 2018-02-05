@@ -5,7 +5,7 @@ module.exports = {
 		await queryInterface.createTable('sessions',
 			{
 				id: {
-					type: Sequelize.INTEGER,
+					type: Sequelize.INTEGER.UNSIGNED,
 					allowNull: false,
 					primaryKey: true,
 					autoIncrement: true,
@@ -38,7 +38,7 @@ module.exports = {
 					type: Sequelize.DATE
 				},
 			});
-			await queryInterface.addIndex('sessions', ['key', 'userAgent', 'userId', 'realmId']);
+		await queryInterface.addIndex('sessions', ['key', 'userAgent', 'userId', 'realmId']);
 
 	},
 

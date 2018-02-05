@@ -5,7 +5,7 @@ module.exports = {
 
 			// ATTRIBUTES
 			id: {
-				type: Sequelize.INTEGER,
+				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
@@ -36,6 +36,23 @@ module.exports = {
 			isActive: {
 				type: Sequelize.BOOLEAN,
 				defaultValue: false
+			},
+			authCount: {
+				type: Sequelize.INTEGER,
+				defaultValue: 0,
+				allowNull: false,
+			},
+			currentLoginAt: {
+				type: Sequelize.DATE,
+			},
+			lastLoginAt: {
+				type: Sequelize.DATE,
+			},
+			currentLoginIP: {
+				type: Sequelize.STRING(16),
+			},
+			lastLoginIP: {
+				type: Sequelize.STRING(16),
 			},
 			resetPasswordToken: {
 				type: Sequelize.STRING,

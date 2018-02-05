@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
 
 			// ATTRIBUTES
 			id: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
@@ -60,6 +60,34 @@ module.exports = function(sequelize, DataTypes) {
 				type: DataTypes.BOOLEAN,
 				defaultValue: false,
 				query: Query.isActive,
+			},
+			authCount: {
+				type: DataTypes.INTEGER,
+				defaultValue: 0,
+				allowNull: false,
+				query: Query.authCount,
+			},
+			currentLoginAt: {
+				type: DataTypes.DATE,
+				query: Query.currentLoginAt,
+			},
+			lastLoginAt: {
+				type: DataTypes.DATE,
+				query: Query.lastLoginAt,
+			},
+			currentLoginIP: {
+				type: DataTypes.STRING,
+				validation: {
+					len: [3, 15]
+				},
+				query: Query.currentLoginIP,
+			},
+			lastLoginIP: {
+				type: DataTypes.STRING,
+				validation: {
+					len: [3, 15]
+				},
+				query: Query.lastLoginIP
 			},
 			resetPasswordToken: {
 				type: DataTypes.STRING,
@@ -205,6 +233,7 @@ const Query = {
 			example: ['{<>}Mario']
 		},
 	},
+
 	lastName: {
 		array: {
 			items: {
@@ -225,6 +254,7 @@ const Query = {
 			example: ['{<>}Mariotti']
 		},
 	},
+
 	isActive: {
 		array: {
 			items: {
@@ -240,4 +270,100 @@ const Query = {
 		},
 	},
 
+	authCount: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					min: 0,
+					example: '{=}1',
+				},
+			},
+			description: 'the user Auth count Attempted: 5 vs [{or}{=}3,{or}{=}2,{>=}4]',
+			example: ['{<}5', '{=}5'],
+		},
+		string: {
+			regex: '',
+			min: 0,
+			example: ['{<>}0']
+		},
+	},
+
+	currentLoginAt: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					max: 255,
+					example: 'the current date: 2017-08-15 09:00:00] vs [{or}{btw}2017-08-17 09:00:00,2017-08-17 23:30:00, ' +
+					'{or}{btw}2017-12-25 09:00:00,2018-01-06 23:30:00]',
+				},
+			},
+			description: 'the Current login Date: 2017-08-15 09:00:00 vs [{=}2017-08-17 09:00:00,{<>}2017-12-25 09:00:00]',
+			example: ['{>=}2017-12-25 09:00:00', '{>=}2017-12-25 09:00:00'],
+		},
+		string: {
+			regex: '',
+			max: 255,
+			example: ['{=}2017-08-17 09:00:00,{>=}2017-12-25 09:00:00']
+		},
+	},
+
+	lastLoginAt: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					max: 255,
+					example: 'the last date: 2017-08-15 09:00:00] vs [{or}{btw}2017-08-17 09:00:00,2017-08-17 23:30:00, ' +
+					'{or}{btw}2017-12-25 09:00:00,2018-01-06 23:30:00]',
+				},
+			},
+			description: 'the Last login Date: 2017-08-15 09:00:00 vs [{=}2017-08-17 09:00:00,{<>}2017-12-25 09:00:00]',
+			example: ['{>=}2017-12-25 09:00:00', '{>=}2017-12-25 09:00:00'],
+		},
+		string: {
+			regex: '',
+			max: 255,
+			example: ['{=}2017-08-17 09:00:00,{>=}2017-12-25 09:00:00']
+		},
+	},
+
+	currentLoginIP: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					max: 25,
+					example: 'the current IP: 10.20.40.120] vs [{or}{btw}192.168.1.1,192.168.1.254, {or}{=}192.168.0.1',
+				},
+			},
+			description: 'the Current login IP: 192.168.1.254 vs [{=}192.168.0.1,{<=}192.168.1.254]',
+			example: ['{>=}10.20.40.120', '{>=}192.168.1.1'],
+		},
+		string: {
+			regex: '',
+			max: 255,
+			example: ['{=}192.168.1.1,{like}192.168.1.1']
+		},
+	},
+
+	lastLoginIP: {
+		array: {
+			items: {
+				string: {
+					regex: '',
+					max: 25,
+					example: 'the last IP: 10.20.40.120] vs [{or}{btw}192.168.1.1,192.168.1.254, {or}{=}192.168.0.1',
+				},
+			},
+			description: 'the last login IP: 192.168.1.254 vs [{=}192.168.0.1,{<=}192.168.1.254]',
+			example: ['{>=}10.20.40.120', '{>=}192.168.1.1'],
+		},
+		string: {
+			regex: '',
+			max: 255,
+			example: ['{=}192.168.1.1,{like}192.168.1.1']
+		},
+	},
 };
