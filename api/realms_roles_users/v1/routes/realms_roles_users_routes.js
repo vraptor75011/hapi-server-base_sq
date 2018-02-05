@@ -1,6 +1,7 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const RealmsRolesUsersValidation = require('../../url_validation/realms_roles_users_validation');
 const RealmsRolesUsersHandler = require('../handlers/realms_roles_users_handlers');
+const ErrorHelper = require('../../../../utilities/error/error-helper');
 
 module.exports = [
 	{
@@ -23,6 +24,7 @@ module.exports = [
 				query: RealmsRolesUsersValidation.queryAll,
 				// query: RealmsRolesUsersValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -45,6 +47,7 @@ module.exports = [
 				query: RealmsRolesUsersValidation.queryOne,
 				// query: RealmsRolesUsersValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -65,6 +68,7 @@ module.exports = [
 			validate: {
 				payload: RealmsRolesUsersValidation.postPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -84,6 +88,7 @@ module.exports = [
 				params: RealmsRolesUsersValidation.oneParams,
 				payload: RealmsRolesUsersValidation.putPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -103,6 +108,7 @@ module.exports = [
 				params: RealmsRolesUsersValidation.oneParams,
 				payload: RealmsRolesUsersValidation.deleteOnePayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -123,6 +129,7 @@ module.exports = [
 				// params: RealmsRolesUsersValidation.paramOne,
 				payload: RealmsRolesUsersValidation.deleteManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -142,6 +149,7 @@ module.exports = [
 			validate: {
 				params: RealmsRolesUsersValidation.addOneParams,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -163,6 +171,7 @@ module.exports = [
 				params: RealmsRolesUsersValidation.removeOneParams,
 				payload: RealmsRolesUsersValidation.removeOnePayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -184,6 +193,7 @@ module.exports = [
 				params: RealmsRolesUsersValidation.addManyParams,
 				payload: RealmsRolesUsersValidation.addManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -205,6 +215,7 @@ module.exports = [
 				params: RealmsRolesUsersValidation.removeManyParams,
 				payload: RealmsRolesUsersValidation.removeManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -224,6 +235,7 @@ module.exports = [
 				params: RealmsRolesUsersValidation.getAllParams,
 				query: RealmsRolesUsersValidation.queryGetAll,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -247,6 +259,7 @@ module.exports = [
 				query: RealmsRolesUsersValidation.query4Select,
 				// query: UserValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},

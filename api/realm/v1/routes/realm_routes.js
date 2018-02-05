@@ -1,6 +1,7 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const RealmValidation = require('../../url_validation/realm_validation');
 const RealmHandler = require('../handler/realm_handlers');
+const ErrorHelper = require('../../../../utilities/error/error-helper');
 
 module.exports = [
 	{
@@ -23,6 +24,7 @@ module.exports = [
 				query: RealmValidation.queryAll,
 				// query: RealmValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -45,6 +47,7 @@ module.exports = [
 				query: RealmValidation.queryOne,
 				// query: RealmValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -65,6 +68,7 @@ module.exports = [
 			validate: {
 				payload: RealmValidation.postPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -84,6 +88,7 @@ module.exports = [
 				params: RealmValidation.oneParams,
 				payload: RealmValidation.putPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -103,6 +108,7 @@ module.exports = [
 				params: RealmValidation.oneParams,
 				payload: RealmValidation.deleteOnePayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -123,6 +129,7 @@ module.exports = [
 				// params: RealmValidation.paramOne,
 				payload: RealmValidation.deleteManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -142,6 +149,7 @@ module.exports = [
 			validate: {
 				params: RealmValidation.addOneParams,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -163,6 +171,7 @@ module.exports = [
 				params: RealmValidation.removeOneParams,
 				payload: RealmValidation.removeOnePayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -184,6 +193,7 @@ module.exports = [
 				params: RealmValidation.addManyParams,
 				payload: RealmValidation.addManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -205,6 +215,7 @@ module.exports = [
 				params: RealmValidation.removeManyParams,
 				payload: RealmValidation.removeManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -224,6 +235,7 @@ module.exports = [
 				params: RealmValidation.getAllParams,
 				query: RealmValidation.queryGetAll,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -247,6 +259,7 @@ module.exports = [
 				query: RealmValidation.query4Select,
 				// query: UserValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},

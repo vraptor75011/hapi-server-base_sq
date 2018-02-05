@@ -1,6 +1,7 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const AuthLogin = require('../handler/auth_handlers');
 const AuthValidations = require('../../url_validation/auth_validations');
+const ErrorHelper = require('../../../../utilities/error/error-helper');
 
 const LoginPre = require('../handler/auth_pre/login_pre');
 const ActivationPre = require('../handler/auth_pre/activation_pre');
@@ -18,7 +19,8 @@ module.exports= [
 			description: 'User login.',
 			notes: ['Returns TOKENS after User authentication'],
 			validate: {
-				payload: AuthValidations.loginPayload
+				payload: AuthValidations.loginPayload,
+				failAction: ErrorHelper.failAction,
 			},
 			pre: LoginPre,
 		},
@@ -37,6 +39,7 @@ module.exports= [
 			validate: {
 				headers: HeaderValidation.headerRequired,
 				payload: AuthValidations.logoutPayload,
+				failAction: ErrorHelper.failAction,
 			},
 
 		},
@@ -55,6 +58,7 @@ module.exports= [
 			validate: {
 				headers: HeaderValidation.headerRequired,
 				// payload: AuthValidations.logoutPayload,
+				failAction: ErrorHelper.failAction,
 			},
 
 		},
@@ -69,7 +73,8 @@ module.exports= [
 			description: 'Register new User (no active).',
 			notes: ['Returns the new User object no active'],
 			validate: {
-				payload: AuthValidations.registrationPayload
+				payload: AuthValidations.registrationPayload,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -85,7 +90,8 @@ module.exports= [
 			description: 'Admin invites a new User (no active).',
 			notes: ['Returns the new User object no active'],
 			validate: {
-				payload: AuthValidations.invitationPayload
+				payload: AuthValidations.invitationPayload,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -100,7 +106,8 @@ module.exports= [
 			validate: {
 				query: {
 					token: AuthValidations.activationQuery,
-				}
+				},
+				failAction: ErrorHelper.failAction,
 			},
 			pre: ActivationPre,
 		}
@@ -115,7 +122,8 @@ module.exports= [
 			description: 'Everybody can send request to reset his pwd.',
 			notes: ['Returns the updated User object with new pwd not active'],
 			validate: {
-				payload: AuthValidations.resetPWDPayload
+				payload: AuthValidations.resetPWDPayload,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -130,7 +138,8 @@ module.exports= [
 			validate: {
 				query: {
 					token: AuthValidations.activationQuery,
-				}
+				},
+				failAction: ErrorHelper.failAction,
 			},
 			pre: ActiveNewPWDPre,
 		}

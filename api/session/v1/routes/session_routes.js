@@ -1,6 +1,7 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const SessionValidation = require('../../url_validation/session_validation');
 const SessionHandler = require('../handlers/session_handlers');
+const ErrorHelper = require('../../../../utilities/error/error-helper');
 
 module.exports = [
 	{
@@ -23,6 +24,7 @@ module.exports = [
 				query: SessionValidation.queryAll,
 				// query: SessionValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -45,6 +47,7 @@ module.exports = [
 				query: SessionValidation.queryOne,
 				// query: SessionValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -65,6 +68,7 @@ module.exports = [
 			validate: {
 				payload: SessionValidation.postPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -84,6 +88,7 @@ module.exports = [
 				params: SessionValidation.oneParams,
 				payload: SessionValidation.putPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -103,6 +108,7 @@ module.exports = [
 				params: SessionValidation.oneParams,
 				payload: SessionValidation.deleteOnePayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -123,6 +129,7 @@ module.exports = [
 				// params: SessionValidation.paramOne,
 				payload: SessionValidation.deleteManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -142,6 +149,7 @@ module.exports = [
 			validate: {
 				params: SessionValidation.addOneParams,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -163,6 +171,7 @@ module.exports = [
 				params: SessionValidation.removeOneParams,
 				payload: SessionValidation.removeOnePayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -184,6 +193,7 @@ module.exports = [
 				params: SessionValidation.addManyParams,
 				payload: SessionValidation.addManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -205,6 +215,7 @@ module.exports = [
 				params: SessionValidation.removeManyParams,
 				payload: SessionValidation.removeManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -224,6 +235,7 @@ module.exports = [
 				params: SessionValidation.getAllParams,
 				query: SessionValidation.queryGetAll,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -247,6 +259,7 @@ module.exports = [
 				query: SessionValidation.query4Select,
 				// query: UserValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},

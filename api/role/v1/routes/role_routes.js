@@ -1,6 +1,7 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const RoleValidation = require('../../url_validation/role_validation');
 const RoleHandler = require('../../v1/handler/role_handlers');
+const ErrorHelper = require('../../../../utilities/error/error-helper');
 
 module.exports = [
 	{
@@ -23,6 +24,7 @@ module.exports = [
 				query: RoleValidation.queryAll,
 				// query: RoleValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -45,6 +47,7 @@ module.exports = [
 				query: RoleValidation.queryOne,
 				// query: RoleValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -65,6 +68,7 @@ module.exports = [
 			validate: {
 				payload: RoleValidation.postPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -84,6 +88,7 @@ module.exports = [
 				params: RoleValidation.oneParams,
 				payload: RoleValidation.putPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -103,6 +108,7 @@ module.exports = [
 				params: RoleValidation.oneParams,
 				payload: RoleValidation.deleteOnePayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -123,6 +129,7 @@ module.exports = [
 				// params: RoleValidation.paramOne,
 				payload: RoleValidation.deleteManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -142,6 +149,7 @@ module.exports = [
 			validate: {
 				params: RoleValidation.addOneParams,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -163,6 +171,7 @@ module.exports = [
 				params: RoleValidation.removeOneParams,
 				payload: RoleValidation.removeOnePayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -184,6 +193,7 @@ module.exports = [
 				params: RoleValidation.addManyParams,
 				payload: RoleValidation.addManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -205,6 +215,7 @@ module.exports = [
 				params: RoleValidation.removeManyParams,
 				payload: RoleValidation.removeManyPayload,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -224,6 +235,7 @@ module.exports = [
 				params: RoleValidation.getAllParams,
 				query: RoleValidation.queryGetAll,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
@@ -247,6 +259,7 @@ module.exports = [
 				query: RoleValidation.query4Select,
 				// query: UserValidations.query,
 				headers: HeaderValidation.headerRequired,
+				failAction: ErrorHelper.failAction,
 			},
 		},
 	},
