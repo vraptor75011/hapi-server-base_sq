@@ -20,53 +20,84 @@ const Session = DB.Session;
 const AuthAttempt = DB.AuthAttempt;
 
 const LoginPre = [
-	// {
-	// 	assign: 'abuseDetected',
-	// 	method: async (request, reply) => {
-	//
-	// 		const ip = request.info.remoteAddress;
-	// 		const email = request.payload.email;
-	// 		const username = request.payload.username;
-	//
-	// 		try {
-	// 			let authAttempt = await AuthAttempt.findOne(
-	// 				{where:
-	// 						{
-	// 							ip: {[Op.eq]: ip},
-	// 							[Op.or]: [
-	// 								{	username: {[Op.eq]: username} },
-	// 								{	email: {[Op.eq]: email}	}
-	// 							],
-	// 						}
-	// 				});
-	//
-	// 			if (!user) {
-	// 				return Boom.unauthorized('Invalid username or password');
-	// 			}
-	// 			let match = Bcrypt.compareSync(password, user.password);
-	// 			if (match) {
-	// 				return h.response(user);
-	// 			}
-	// 			return h.response(Boom.unauthorized('Invalid username or password'));
-	// 		}	catch(error) {
-	// 			Log.apiLogger.error(Chalk.red(error));
-	// 			let errorMsg = error.message || 'An error occurred';
-	// 			return h.response(Boom.gatewayTimeout(errorMsg));
-	// 		}
-	//
-	// 		let detected = await AuthAttempt.abuseDetected(ip, email, username)
-	// 			.then(function (detected) {
-	// 				if (detected) {
-	// 					return reply(Boom.badRequest('Maximum number of auth attempts reached. Please try again later.'));
-	// 				}
-	// 				return reply();
-	// 			})
-	// 			.catch(function (error) {
-	// 				Log.error(error);
-	// 				return reply(Boom.gatewayTimeout('An error occurred.'));
-	// 			});
-	// 	}
-	// },
+	{
+		assign: 'authAttempt',
+		method: async (request, h) => {
+
+			const ip = request.info.remoteAddress;
+			const email = request.payload.email;
+			const username = request.payload.username;
+			let attempt = {};
+			let initialized = false;
+			let ipSum;
+
+			let lockOutPeriod = Config.get('/lockOutPeriod');
+			let authAttemptsConfig = Config.get('/authAttempts');
+			let expirationDate = lockOutPeriod ? Date.now() - lockOutPeriod * 60000 : Date.now();
+			let blockDate;
+
+			try {
+				if (email) {
+					[attempt, initialized] = await AuthAttempt.findOrBuild({
+						where:
+							{
+								ip: ip,
+								email: email,
+							}
+					});
+				} else if (username) {
+					[attempt, initialized] = await AuthAttempt.findOrBuild({
+						where:
+							{
+								ip: ip,
+								username: username,
+							}
+					});
+				}
+				let attr = 'count';
+				let option = {
+					where: {
+						ip: {[Op.eq]: ip},
+					}
+				};
+
+				ipSum = await AuthAttempt.sum(attr, option);
+
+				if (ipSum) {
+					ipSum += 1;
+					if (ipSum > authAttemptsConfig.forIp) {
+						let error = 'Exceeded the IP maximum attempts';
+						Log.apiLogger.error(Chalk.red(error));
+						return Boom.unauthorized(error);
+					}
+
+				}
+
+				if (attempt) {
+					blockDate = attempt.updatedAt.getTime();
+					attempt.count += 1;
+					if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate > expirationDate) {
+						let error = 'Exceeded the User maximum attempts';
+						Log.apiLogger.error(Chalk.red(error));
+						return Boom.unauthorized(error);
+					} else if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate <= expirationDate) {
+						attempt.count = 1;
+					}
+
+					await attempt.save();
+					return h.response(attempt);
+				} else {
+					let error = 'Un error occurred';
+					Log.apiLogger.error(Chalk.red(error));
+					return Boom.badGateway(error);
+				}
+			}	catch(error) {
+				Log.apiLogger.error(Chalk.red(error));
+				let errorMsg = error.message || 'An error occurred';
+				return Boom.gatewayTimeout(errorMsg);
+			}
+		}
+	},
 	{
 		assign: 'user',
 		method: async (request, h) => {
@@ -93,11 +124,11 @@ const LoginPre = [
 				if (match) {
 					return h.response(user);
 				}
-				return h.response(Boom.unauthorized('Invalid username or password'));
+				return Boom.unauthorized('Invalid username or password');
 			}	catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.gatewayTimeout(errorMsg);
 			}
 		}
 	},

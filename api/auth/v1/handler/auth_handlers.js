@@ -30,6 +30,7 @@ module.exports =
 			let refreshToken = "";
 			let scope = "";
 			let userPre = request.pre.user;
+			let attempt = request.pre.authAttempt;
 			let roles = [];
 			let realms = [];
 			realms.push(request.pre.realm.name);
@@ -37,6 +38,9 @@ module.exports =
 				roles.push(role.name);
 			});
 
+			// Reset user failed attempts counter
+			attempt.count = 0;
+			await attempt.save();
 
 			switch (AuthStrategy) {
 				case AUTH_STRATEGIES.REFRESH_TOKEN:

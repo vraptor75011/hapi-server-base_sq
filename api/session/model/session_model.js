@@ -78,9 +78,6 @@ module.exports = function(sequelize, DataTypes) {
 		});
 
 		if (session) {
-			if (initialized) {
-				delete session.dataValues.id;
-			}
 			session.key = Uuid.v4();
 			session.passwordHash = user.password;
 			session.userAgent = userAgent;
