@@ -42,6 +42,13 @@ module.exports =
 			attempt.count = 0;
 			await attempt.save();
 
+			// Update user login information
+			userPre.lastLoginAt = userPre.currentLoginAt;
+			userPre.currentLoginAt = Date.now();
+			userPre.lastLoginIP = userPre.currentLoginIP;
+			userPre.currentLoginIP = attempt.ip;
+			await userPre.save();
+
 			switch (AuthStrategy) {
 				case AUTH_STRATEGIES.REFRESH_TOKEN:
 					authHeader = 'Bearer ' + request.pre.standardToken;
