@@ -74,13 +74,18 @@ const LoginPre = [
 				}
 
 				if (attempt) {
-					blockDate = attempt.updatedAt.getTime();
+					if (attempt.updatedAt) {
+						blockDate = attempt.updatedAt.getTime();
+					} else {
+						blockDate = false;
+					}
+
 					attempt.count += 1;
-					if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate > expirationDate) {
+					if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate && blockDate > expirationDate) {
 						let error = 'Exceeded the User maximum attempts';
 						Log.apiLogger.error(Chalk.red(error));
 						return Boom.unauthorized(error);
-					} else if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate <= expirationDate) {
+					} else if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate && blockDate <= expirationDate) {
 						attempt.count = 1;
 					}
 
