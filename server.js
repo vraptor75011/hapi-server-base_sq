@@ -23,17 +23,21 @@ startServer();
 
 
 async function createDB() {
-	let tables = await DB.sequelize.showAllSchemas();
-	let host = await DB.sequelize.config.host;
-	Log.sequelizeLogger.info(Chalk.green('Sequelize started'));
-	Log.sequelizeLogger.info(Chalk.green('Host: ', host));
-	tables.forEach(function(table) {
-		Object.keys(table).map(function(name) {
-			let tableName = table[name];
-			Log.sequelizeLogger.info(Chalk.green('Table found: ' + tableName));
+	try{
+		let tables = await DB.sequelize.showAllSchemas();
+		let host = await DB.sequelize.config.host;
+		Log.sequelizeLogger.info(Chalk.green('Sequelize started'));
+		Log.sequelizeLogger.info(Chalk.green('Host: ', host));
+		tables.forEach(function(table) {
+			Object.keys(table).map(function(name) {
+				let tableName = table[name];
+				Log.sequelizeLogger.info(Chalk.green('Table found: ' + tableName));
+			});
 		});
-	});
-	return tables;
+		return tables;
+	} catch(error) {
+		Log.sequelizeLogger.error(Chalk.red(error));
+	}
 }
 
 async function startServer() {
