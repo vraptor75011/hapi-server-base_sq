@@ -35,6 +35,10 @@ module.exports = function(sequelize, DataTypes) {
 			// },
 		},
 		{
+			name: {
+				singular: 'realmsRolesUsers',
+				plural: 'realmsRolesUsers',
+			},
 			timestamps: false,
 			tableName: 'realms_roles_users',
 			paranoid: true,
@@ -43,9 +47,9 @@ module.exports = function(sequelize, DataTypes) {
 
 	// Model Relations
 	RealmsRolesUsers.associate = function (models) {
-		RealmsRolesUsers.belongsTo(models.Realm);
-		RealmsRolesUsers.belongsTo(models.Role);
-		RealmsRolesUsers.belongsTo(models.User);
+		RealmsRolesUsers.belongsTo(models.Realm, {foreignKey: 'realmId', targetKey: 'id'});
+		RealmsRolesUsers.belongsTo(models.Role, {foreignKey: 'roleId', targetKey: 'id'});
+		RealmsRolesUsers.belongsTo(models.User, {foreignKey: 'userId', targetKey: 'id'});
 	};
 
 	return RealmsRolesUsers;

@@ -1092,27 +1092,30 @@ function queryAttributes(query, sequelizeQuery, model) {
 			relTree.forEach(function(levelRel, level){
 				let targetAssociation = schemaClone.associations[levelRel];
 				let targetModel = targetAssociation.target;
+				let as = targetAssociation.as;
 
-				if (!_.some(includeLevel, {model: targetModel})) {
+				if (!_.some(includeLevel, {model: targetModel, as: as})) {
 					if (level === 0) {
 						let tmp = {};
 						tmp.model = targetModel;
+						tmp.as = as;
 						includeLevel.push(tmp);
 						includeLevel = tmp;
 					} else if (level > 0) {
 						if (!_.has(includeLevel, 'include')) {
 							includeLevel['include'] = [];
 						}
-						if (!_.some(includeLevel['include'], {model: targetModel})) {
+						if (!_.some(includeLevel['include'], {model: targetModel, as: as})) {
 							let tmp = {};
 							tmp.model = targetModel;
+							tmp.as = as;
 							includeLevel['include'].push(tmp);
 							includeLevel = tmp;
 						}
 					}
 				} else {
 					includeLevel.forEach(function(include){
-						if (!_.some(include, {model: targetModel})) {
+						if (!_.some(include, {model: targetModel, as: as})) {
 							includeLevel = include;
 						}
 					});
@@ -1140,8 +1143,6 @@ function queryAttributes(query, sequelizeQuery, model) {
 
 	if (_.has(query, '$withRelated')) {
 		sequelizeQuery['include'] = sequelizeQuery.include || [];
-		let includeLevel = sequelizeQuery.include;
-		let schemaClone = _.clone(model);
 		let tmp = [];
 
 		if (!_.isArray(query['$withRelated'])) {
@@ -1151,31 +1152,36 @@ function queryAttributes(query, sequelizeQuery, model) {
 		}
 
 		tmp.forEach((rel) => {
+			let includeLevel = sequelizeQuery.include;
+			let schemaClone = _.clone(model);
 			let relTree = _.split(rel,'.');
 			relTree.forEach(function(levelRel, level){
 				let targetAssociation = schemaClone.associations[levelRel];
 				let targetModel = targetAssociation.target;
+				let as = targetAssociation.as;
 
-				if (!_.some(includeLevel, {model: targetModel})) {
+				if (!_.some(includeLevel, {model: targetModel, as: as})) {
 					if (level === 0) {
 						let tmp = {};
 						tmp.model = targetModel;
+						tmp.as = as;
 						includeLevel.push(tmp);
 						includeLevel = tmp;
 					} else if (level > 0) {
 						if (!_.has(includeLevel, 'include')) {
 							includeLevel['include'] = [];
 						}
-						if (!_.some(includeLevel['include'], {model: targetModel})) {
+						if (!_.some(includeLevel['include'], {model: targetModel, as: as})) {
 							let tmp = {};
 							tmp.model = targetModel;
+							tmp.as = as;
 							includeLevel['include'].push(tmp);
 							includeLevel = tmp;
 						}
 					}
 				} else {
 					includeLevel.forEach(function(include){
-						if (!_.some(include, {model: targetModel})) {
+						if (!_.some(include, {model: targetModel, as: as})) {
 							includeLevel = include;
 						}
 					});

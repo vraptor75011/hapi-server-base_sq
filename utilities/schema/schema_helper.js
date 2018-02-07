@@ -37,7 +37,7 @@ const SchemaUtility = {
 
 		Object.keys(schema.associations).map((rel) => {
 			let relation1L = schema.associations[rel];
-			let localRelation = rel + ' [' + relation1L.associationType + ']';
+			let localRelation = rel + ' [' + relation1L.associationType + ' ' + relation1L.target.name + ']';
 
 			if (startLevel === 1) {
 				relationsArray.push(localRelation);
@@ -47,7 +47,7 @@ const SchemaUtility = {
 				Object.keys(relation1L.target.associations).map((relOfRel) => {
 					if (!_.includes(exclusion, relOfRel)) {
 						let relation2L = relation1L.target.associations[relOfRel];
-						let localRelation = relOfRel + ' [' + relation2L.associationType + ']';
+						let localRelation = relOfRel + ' [' + relation2L.associationType + ' ' + relation2L.target.name + ']';
 						relationsArray.push(rel + '.' + localRelation);
 					}
 				});

@@ -124,10 +124,10 @@ module.exports = function(sequelize, DataTypes) {
 
 	// Model Relations
 	User.associate = function (models) {
-		User.belongsToMany(models.Role, { through: models.RealmsRolesUsers, compare: false });
-		User.belongsToMany(models.Realm, { through: models.RealmsRolesUsers, compare: false });
-		User.hasMany(models.RealmsRolesUsers, {compare: true});
-		User.hasMany(models.Session, {compare: true});
+		User.belongsToMany(models.Role, { through: 'realmsRolesUsers' });
+		User.belongsToMany(models.Realm, { through: 'realmsRolesUsers' });
+		User.hasMany(models.RealmsRolesUsers, {as: 'user-rru', foreignKey: 'userId', sourceKey: 'id'});
+		User.hasMany(models.Session);
 	};
 
 	// Model Utilities
