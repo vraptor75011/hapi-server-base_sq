@@ -1,24 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
+import axios from 'axios';
+import {push} from 'react-router-redux';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import Autocomplete from '../../components/Users/Autocomplete';
-import UserForm from '../../components/Users/UserForm';
-import UsersTable from '../../components/Users/UsersTable';
+import UserForm from '../../components/Roles/RoleForm';
+import UsersTable from '../../components/Roles/RolesTable';
+
 
 import IconButton from 'material-ui/IconButton';
 
-import {Button} from 'material-ui';
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,} from 'material-ui';
 
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
+import TextField from 'material-ui/TextField';
 
 
-
-import {getUsers, deleteUser, editUser, newUser, singleUser} from '../../actions/users';
+import {getRoles, deleteUser, editUser, newUser} from '../../actions/roles';
 import { openModal, closeModal } from '../../actions/modals';
 
 
@@ -28,6 +29,11 @@ const styles = theme => ({
         width: '100%',
         marginTop: theme.spacing.unit * 3,
         overflowX: 'auto',
+    },
+    textField: {
+        marginLeft: theme.spacing.unit,
+        marginRight: theme.spacing.unit,
+        width: 200,
     }
 });
 
@@ -65,7 +71,7 @@ DeleteButton.propTypes = {
 };
 
 
-class Users extends React.PureComponent {
+class Roles extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -88,8 +94,7 @@ class Users extends React.PureComponent {
         });
 
         if (event.target.value.length> 2){
-            const search = '{like}'+event.target.value;
-            const data = {'$fullTextSearch':search };
+            const data = {'$fullTextSearch':event.target.value };
             this.props.getUsers(data);
         }
 
@@ -102,7 +107,7 @@ class Users extends React.PureComponent {
 
         console.log( classes)
         return (<div>
-                <Autocomplete {...this.props} />
+
                 <UsersTable {...this.props}/>
                 {modal  && <UserForm {...this.state} modal={this.props.modal} editUser={this.props.editUser}
                                      newUser={this.props.newUser} userData={this.props.userData}
@@ -113,7 +118,7 @@ class Users extends React.PureComponent {
 }
 
 
-Users.propTypes = {
+Roles.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
@@ -121,15 +126,15 @@ Users.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser, singleUser  }, dispatch);
+    return bindActionCreators({getRoles, deleteUser, openModal, closeModal, editUser, newUser  }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
 
-    return {users: state.reducers.users, deleteSingleUser: state.reducers.deleteUser,
+    return {roles: state.reducers.roles, deleteSingleUser: state.reducers.deleteUser,
         modal: state.reducers.modal, editUser: state.reducers.editUser, userData: state.reducers.singleUser };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Roles));

@@ -1,12 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import {push} from 'react-router-redux';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-
-import UserForm from '../../components/Users/UserForm';
-
 
 import Table, {TableBody, TableCell, TableFooter, TableHead, TablePagination, TableRow,} from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
@@ -17,10 +10,9 @@ import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogT
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
+import {getRoles} from "../../actions/roles";
 
 
-import {getUsers, deleteUser, editUser, newUser} from '../../actions/users';
-import { openModal, closeModal } from '../../actions/modals';
 
 
 
@@ -80,10 +72,8 @@ class Users extends React.PureComponent {
             users: [],
             pages: {current: 1, hasNext: false, hasPrev: false, next: 2, prev: 0, total: 1},
             columns: [
-                {eng: 'First name', italian: 'Nome'},
-                {eng: 'Last name', italian: 'Cognome'},
-                {eng: 'Email', italian: 'Email'},
-                {eng: 'Last login', italian: 'Ultimo Login'}
+                {eng: 'Name', italian: 'Nome'},
+                {eng: 'Description', italian: 'Descrizione'},
             ],
             rows: [],
             sorting: [],
@@ -92,7 +82,7 @@ class Users extends React.PureComponent {
             changedRows: {},
             currentPage: 0,
             deletingRows: [],
-            currentUserData: {_id: "", "firstName": '', "lastName": '', "email": '', 'password': ''},
+            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''},
             pageSize: 0,
             allowedPageSizes: [5, 10, 15],
             openDeleteDialog: false
@@ -104,7 +94,7 @@ class Users extends React.PureComponent {
 
     componentDidMount() {
 
-        this.props.getUsers();
+        this.props.getRoles();
 
 
     }
@@ -114,28 +104,21 @@ class Users extends React.PureComponent {
     handleClickButtons = (type, data) => {
 
         if (type === 'delete') {
-            this.setState({openDeleteDialog: true, currentUserData: data});
+            this.props.openModal();
+            this.props.singleUser({type:'delete', user: data});
         }
         if (type === 'edit') {
             this.props.openModal();
-            this.setState({ currentUserData: data});
+            this.props.singleUser({type:'edit', user: data});
         }
         if (type === 'new') {
-            this.setState({
-                openEditDialog: true,
-                currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
-            });
+            const user = {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''};
+            this.props.openModal();
+            this.props.singleUser({type:'new', user});
         }
     };
 
-    cancelDelete = () => {
 
-        this.setState({
-            openDeleteDialog: false,
-            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
-        });
-
-    };
 
     cancelEdit = () => {
         this.props.closeModal();
@@ -163,10 +146,9 @@ class Users extends React.PureComponent {
                 }}/>
                 </div>
             </TableCell>
-            <TableCell>{data.firstName}</TableCell>
-            <TableCell>{data.lastName}</TableCell>
-            <TableCell>{data.email}</TableCell>
-            <TableCell></TableCell>
+            <TableCell>{data.name}</TableCell>
+            <TableCell>{data.description}</TableCell>
+            <TableCell/>
 
         </TableRow>)
     };
@@ -185,26 +167,10 @@ class Users extends React.PureComponent {
     };
 
 
-    handleChangeUserForm = (event, type) => {
-        const currentUserData = this.state;
 
-        if (type === 'firstName') {
-            currentUserData.firstName = event.target.value;
-
-            //this.setState({ currentUserData: { ...this.state.currentUserData } });
-        }
-        if (type === 'lastName') {
-            currentUserData.lastName = event.target.value;
-        }
-        if (type === 'email') {
-            currentUserData.email = event.target.value;
-        }
-
-        //this.setState({currentUserData});
-    }
 
     render() {
-        const { classes, users, deleteUser, modal } = this.props;
+        const { classes, roles, deleteUser, modal } = this.props;
         const {
             rows,
             pages,
@@ -224,10 +190,9 @@ class Users extends React.PureComponent {
         } = this.state;
 
 
+console.log(roles)
 
-
-        return (<div>
-                <Paper className={classes.root}>
+        return (<Paper className={classes.root}>
                     <div className={classes.tableWrapper}>
                         <Table className={classes.table}>
 
@@ -240,49 +205,26 @@ class Users extends React.PureComponent {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {!users.docs && <TableRow/>}
-                                {users.docs && users.docs.map(this.renderRowTable)}
+                                {!roles.docs && <TableRow/>}
+                                {roles.docs && roles.docs.map(this.renderRowTable)}
                             </TableBody>
                             <TableFooter>
                                 <TableRow>
                                     <TablePagination
-                                        count={users.pages && users.pages.total}
+                                        count={roles.pages && roles.pages.total}
                                         rowsPerPage={10}
                                         rowsPerPageOptions={allowedPageSizes}
-                                        page={users.pages && users.pages.current}
+                                        page={roles.pages && roles.pages.current}
                                         onChangePage={this.handleChangePage}
                                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
                                     />
+
 
                                 </TableRow>
                             </TableFooter>
                         </Table>
                     </div>
                 </Paper>
-
-
-                <Dialog
-                    open={openDeleteDialog}
-                    onClose={this.cancelDelete}
-                    classes={{paper: classes.dialog}}
-                >
-                    <DialogTitle>Delete User</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            Are you sure to delete the following row?
-                        </DialogContentText>
-                        <Paper>
-
-                        </Paper>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.cancelDelete} color="primary">Cancel</Button>
-                        <Button onClick={()=>this.props.deleteUser(currentUserData.id)} color="primary">Delete</Button>
-                    </DialogActions>
-                </Dialog>
-                {modal  && <UserForm {...this.state} modal={this.props.modal} editUser={this.props.editUser}
-                                     newUser={this.props.newUser} cancelEdit={this.cancelEdit} getUsers={this.getUsers}/>}
-            </div>
         );
     }
 }
@@ -292,17 +234,5 @@ Users.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser }, dispatch);
-
-}
-
-
-function mapStateToProps(state) {
-
-    return {users: state.reducers.users, deleteSingleUser: state.reducers.deleteUser,
-        modal: state.reducers.modal, editUser: state.reducers.editUser };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
+export default withStyles(styles)(Users);

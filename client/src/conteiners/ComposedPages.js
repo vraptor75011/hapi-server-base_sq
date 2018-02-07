@@ -3,6 +3,7 @@ import React from 'react';
 import App from './Layout/AppBar.js';
 import DashBoardComponent from '../components/DashBoard';
 import UsersComponent from './Users/Users';
+import RolesComponent from './Roles/Roles';
 import Broadcrumbs from '../components/Breadcrumbs'
 
 
@@ -31,6 +32,17 @@ export const Users = () => (
         <Broadcrumbs linkName={'Users'}/>
         <div style={styles.rootContainer}>
             <UsersComponent/>
+        </div>
+    </div>
+)
+
+
+export const Roles = () => (
+    <div>
+        <App/>
+        <Broadcrumbs linkName={'Roles'}/>
+        <div style={styles.rootContainer}>
+            <RolesComponent/>
         </div>
     </div>
 )
