@@ -15,6 +15,8 @@ module.exports = {
 			"min": process.env.DATABASE_POOL_MIN,
 			"max": process.env.DATABASE_POOL_MAX,
 		},
+		"idle": process.env.DATABASE_IDLE,
+		"acquire": process.env.DATABASE_ACQUIRE,
 
 		// Use a different storage type. Default: sequelize
 		"migrationStorage": "sequelize",
