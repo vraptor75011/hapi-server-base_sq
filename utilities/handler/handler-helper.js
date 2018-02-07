@@ -266,8 +266,7 @@ async function _list(model, query) {
 
 	}	catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION };
-		return ErrorHelper.formatResponse(error);
+		return Boom.badImplementation(error);
 	}
 }
 
