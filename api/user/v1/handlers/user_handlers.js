@@ -15,16 +15,14 @@ module.exports = {
 		// Call listAll async function with await inside handler-helper
 		// call LIST Handler for CRUD function valid for all present models
 		Log.apiLogger.info('Method: %s - Request: %s', request.method, request.path);
-		let result = await HandlerHelper.list(User, request.query);
-		return result;
+		return await HandlerHelper.list(User, request.query);
 
 	},
 
 	findOne: async (request, h) => {
 		// Call an async function with await inside in handler-helper
 		// call FIND ONE Handler for CRUD function valid for all present models
-		let result = await HandlerHelper.find(User, request.params.userId, request.query);
-		return result;
+		return await HandlerHelper.find(User, request.params.userId, request.query);
 
 	},
 
@@ -34,8 +32,7 @@ module.exports = {
 
 		request.payload.password = await User.hashPassword(request.payload.password);
 		// call CREATE Handler for CRUD function valid for all present models
-		let result = await HandlerHelper.create(User, request.payload);
-		return user;
+		return await HandlerHelper.create(User, request.payload);
 
 	},
 
@@ -44,8 +41,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 
 		// call CREATE Handler for CRUD function valid for all present models
-		let result = await HandlerHelper.update(User, request.params.userId, request.payload);
-		return user;
+		return await HandlerHelper.update(User, request.params.userId, request.payload);
 	},
 
 	delete: async (request, h) => {
@@ -53,8 +49,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE Handler for CRUD function valid for all present models
-		let response = await HandlerHelper.deleteOne(User, request.params.userId, request.payload);
-		return response;
+		return await HandlerHelper.deleteOne(User, request.params.userId, request.payload);
 	},
 
 	deleteMany: async (request, h) => {
@@ -62,8 +57,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE MANY Handler for EXTRA CRUD function valid for all present models
-		let result = await HandlerHelper.deleteMany(User, request.payload);
-		return result;
+		return await HandlerHelper.deleteMany(User, request.payload);
 	},
 
 	addOne: async (request, h) => {
@@ -71,8 +65,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.addOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
-		return response;
+		return await HandlerHelper.addOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
 	},
 
 	removeOne: async (request, h) => {
@@ -80,8 +73,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.removeOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
-		return result;
+		return await HandlerHelper.removeOne(User, request.params.userId, childModel, request.params.childId, request.params.childModel);
 	},
 
 	addMany: async (request, h) => {
@@ -89,8 +81,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.addMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
-		return result;
+		return await HandlerHelper.addMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
 	},
 
 	removeMany: async (request, h) => {
@@ -98,8 +89,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.removeMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
-		return result;
+		return await HandlerHelper.removeMany(User, request.params.userId, childModel, request.params.childModel, request.payload);
 	},
 
 	getAll: async (request, h) => {
@@ -107,8 +97,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 		let childModel = User.associations[request.params.childModel].target;
 		// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.getAll(User, request.params.userId, childModel, request.params.childModel, request.query);
-		return result;
+		return await HandlerHelper.getAll(User, request.params.userId, childModel, request.params.childModel, request.query);
 	},
 
 	// EXTRA Handlers
