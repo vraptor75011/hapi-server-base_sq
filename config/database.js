@@ -17,6 +17,7 @@ module.exports = {
 		},
 		"idle": process.env.DATABASE_IDLE,
 		"acquire": process.env.DATABASE_ACQUIRE,
+		"evict": process.env.DATABASE_EVICT,
 
 		// Use a different storage type. Default: sequelize
 		"migrationStorage": "sequelize",
