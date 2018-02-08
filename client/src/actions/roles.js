@@ -1,8 +1,5 @@
 import axios from 'axios';
-import {
-    GET_ROLES, DELETE_ROLE, EDIT_ROLE, EDIT_ROLE_ERROR, MODAL_CLOSE, MODAL_OPEN, NEW_ROLE, NEW_ROLE_ERROR,
-    MODAL_ROLE_DATA
-} from './types';
+import { GET_ROLES, MODAL_CLOSE, ROLE_FORM_ERROR } from './types';
 import { tokenName, refreshTokenName, profileName } from '../config';
 import authHelper from '../helpers/auth_helper';
 
@@ -47,7 +44,7 @@ export function deleteRole(id) {
             dispatch(push('/login'));
         }
         else if (error.response && error.response.status === 400) {
-            dispatch({type: 'DELETE_ERROR', payload: error.response});
+            dispatch({type: ROLE_FORM_ERROR, payload: error.response});
         }
 
 
@@ -78,7 +75,7 @@ export function editRole(data) {
                     dispatch(push('/login'));
                 }
                 else if (error.response && error.response.status === 400) {
-                    dispatch({type: EDIT_ROLE_ERROR, payload: error.response});
+                    dispatch({type: ROLE_FORM_ERROR, payload: error.response});
                 }
 
 
@@ -96,23 +93,21 @@ export function newRole(data) {
                 const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
                 const response = await axios.post('/api/v1/roles', data, config);
-                dispatch(getRoles());
-                return dispatch({type: MODAL_CLOSE });
+
+                    dispatch(getRoles());
+                    dispatch({type: MODAL_CLOSE });
+
+
             } catch (error) {
+                console.log(error.response && error.response.status === 400)
                 if (error.response && error.response.status === 401) {
                     dispatch(push('/login'));
                 }
                 else if (error.response && error.response.status === 400) {
-                    dispatch({type: NEW_ROLE_ERROR, payload: error.response});
+                    dispatch({type: ROLE_FORM_ERROR, payload: error.response});
                 }
             }
         }
     };
 }
 
-
-export function modalRoleData(data) {
-    return function (dispatch) {
-        dispatch({type: MODAL_ROLE_DATA, payload: data});
-    }
-}

@@ -1,37 +1,6 @@
 import React, {Component} from 'react';
 import TextField from 'material-ui/TextField';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle,} from 'material-ui';
-import {withStyles} from 'material-ui/styles';
-
-
-
-
-
-
-const styles = theme => ({
-    root: {
-        paddingRight: 2,
-    },
-    highlight:
-        theme.palette.type === 'light'
-            ? {
-                color: theme.palette.secondary.A700,
-                backgroundColor: theme.palette.secondary.A100,
-            }
-            : {
-                color: theme.palette.secondary.A100,
-                backgroundColor: theme.palette.secondary.A700,
-            },
-    spacer: {
-        flex: '1 1 100%',
-    },
-    actions: {
-        color: theme.palette.text.secondary,
-    },
-    title: {
-        flex: '0 0 auto',
-    }
-});
 
 
 class RoleForm extends Component {
@@ -45,8 +14,7 @@ class RoleForm extends Component {
     }
 
     componentWillMount() {
-        const currentData = this.props.modalData.role;
-
+        const currentData = this.props.row;
         this.setState({currentData});
     }
 
@@ -69,46 +37,40 @@ class RoleForm extends Component {
 
         };
 
-                switch (this.props.modalData.type) {
+                switch (this.props.row.type) {
 
                     case 'edit':
-                        this.props.edit(data);
+                        this.props.editRole(data);
                         break;
                     case 'new':
                         delete data.id;
-                        this.props.new(data);
+                        this.props.newRole(data);
                         break;
                     case 'delete':
-
-                        this.props.delete(data.id);
+                        this.props.deleteRole(data.id);
                         break;
 
 
                 }
 
 
-
-
     };
 
 
     render() {
-        const {classes, modal, cancelEdit, modalData} = this.props;
+        const {modal, cancelEdit, row, role} = this.props;
         const {currentData} = this.state;
-
 
         return (<Dialog
             open={modal}
-            onClose={this.cancelEdit}
-            classes={{paper: classes.dialog}}
+            onClose={cancelEdit}
         >
-            <DialogTitle>{modalData.type === 'delete'? 'Delete Role' : modalData.type === 'edit' ? 'Edit Role': 'New Role' }</DialogTitle>
+            <DialogTitle>{row.type === 'delete'? 'Delete Role' : row.type === 'edit' ? 'Edit Role': 'New Role' }</DialogTitle>
             <DialogContent>
-                {modalData.type !== 'delete' && <form noValidate autoComplete="off">
+                {row.type !== 'delete' && <form noValidate autoComplete="off">
                     <TextField
                         id="name"
                         label="Name"
-                        className={classes.textField}
                         value={currentData.name}
                         onChange={(event) => this.handleChangeForm(event, 'name')}
                         margin="normal"
@@ -117,20 +79,20 @@ class RoleForm extends Component {
                     <TextField
                         id="description"
                         label="Description"
-                        className={classes.textField}
                         value={currentData.description}
                         onChange={(event) => this.handleChangeForm(event, 'description')}
                         margin="normal"
                         fullWidth={true}
+
                     />
 
                 </form>}
-                {modalData.type === 'delete' && <div>Are you sure to delete this role?</div>}
+                {row.type === 'delete' && <div>Are you sure to delete this role?</div>}
             </DialogContent>
             <DialogActions>
                 <Button onClick={cancelEdit} color="primary">Cancel</Button>
-                {modalData.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
-                {modalData.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
+                {row.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
+                {row.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
             </DialogActions>
         </Dialog>)
     }
@@ -139,4 +101,4 @@ class RoleForm extends Component {
 
 
 
-export default withStyles(styles)(RoleForm);
+export default RoleForm;

@@ -1,37 +1,10 @@
 import React, {Component} from 'react';
 import TextField from 'material-ui/TextField';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle,} from 'material-ui';
-import {withStyles} from 'material-ui/styles';
 
 
 
 
-
-
-const styles = theme => ({
-    root: {
-        paddingRight: 2,
-    },
-    highlight:
-        theme.palette.type === 'light'
-            ? {
-                color: theme.palette.secondary.A700,
-                backgroundColor: theme.palette.secondary.A100,
-            }
-            : {
-                color: theme.palette.secondary.A100,
-                backgroundColor: theme.palette.secondary.A700,
-            },
-    spacer: {
-        flex: '1 1 100%',
-    },
-    actions: {
-        color: theme.palette.text.secondary,
-    },
-    title: {
-        flex: '0 0 auto',
-    }
-});
 
 
 class UserForm extends Component {
@@ -45,32 +18,32 @@ class UserForm extends Component {
     }
 
     componentWillMount() {
-        const currentUserData = this.props.userData.user;
-
-        this.setState({currentUserData});
+        const currentData = this.props.row;
+        this.setState({currentData});
     }
 
 
-    handleChangeUserForm = (event, type) => {
+    handleChangeForm = (event, type) => {
 
-        let currentUserData = {...this.state.currentUserData, [type]: event.target.value};
-        this.setState({currentUserData});
+        let currentData = {...this.state.currentData, [type]: event.target.value};
+        this.setState({currentData});
 
 
     };
 
     saveUser = () => {
-
-        const {currentUserData} = this.state;
+console.log('ciaoo')
+        const {currentData} = this.state;
         const data = {
-            id: currentUserData.id,
-            firstName: currentUserData.firstName,
-            lastName: currentUserData.lastName,
-            email: currentUserData.email,
-            password: currentUserData.password
+            id: currentData.id,
+            firstName: currentData.firstName,
+            lastName: currentData.lastName,
+            email: currentData.email,
+            password: currentData.password
         };
 
-                switch (this.props.userData.type) {
+        console.log(data, this.props.row.type)
+                switch (this.props.row.type) {
 
                     case 'edit':
                         this.props.editUser(data);
@@ -80,7 +53,6 @@ class UserForm extends Component {
                         this.props.newUser(data);
                         break;
                     case 'delete':
-                        console.log('delete***')
                         this.props.deleteUser(data.id);
                         break;
 
@@ -88,68 +60,63 @@ class UserForm extends Component {
                 }
 
 
-
-
     };
 
 
+
     render() {
-        const {classes, modal, cancelEdit, userData} = this.props;
-        const {currentUserData} = this.state;
+
+        const {modal, cancelEdit, row, user} = this.props;
+        const {currentData} = this.state;
 
 
         return (<Dialog
             open={modal}
             onClose={this.cancelEdit}
-            classes={{paper: classes.dialog}}
         >
-            <DialogTitle>{userData.type === 'delete'? 'Delete User' : userData.type === 'edit' ? 'Edit User': 'New User' }</DialogTitle>
+            <DialogTitle>{row.type === 'delete'? 'Delete User' : row.type === 'edit' ? 'Edit User': 'New User' }</DialogTitle>
             <DialogContent>
-                {userData.type !== 'delete' && <form noValidate autoComplete="off">
+                {row.type !== 'delete' && <form noValidate autoComplete="off">
                     <TextField
                         id="firstName"
                         label="First Name"
-                        className={classes.textField}
-                        value={currentUserData.firstName}
-                        onChange={(event) => this.handleChangeUserForm(event, 'firstName')}
+                        value={currentData.firstName}
+                        onChange={(event) => this.handleChangeForm(event, 'firstName')}
                         margin="normal"
                         fullWidth={true}
                     />
                     <TextField
                         id="lastName"
                         label="Last Name"
-                        className={classes.textField}
-                        value={currentUserData.lastName}
-                        onChange={(event) => this.handleChangeUserForm(event, 'lastName')}
+                        value={currentData.lastName}
+                        onChange={(event) => this.handleChangeForm(event, 'lastName')}
                         margin="normal"
                         fullWidth={true}
                     />
                     <TextField
                         id="email"
                         label="Email"
-                        className={classes.textField}
-                        value={currentUserData.email}
-                        onChange={(event) => this.handleChangeUserForm(event, 'email')}
+                        value={currentData.email}
+                        onChange={(event) => this.handleChangeForm(event, 'email')}
                         margin="normal"
                         fullWidth={true}
                     />
-                    {!currentUserData.id  && <TextField
+                    {!row.id  && <TextField
                         id="password"
                         label="Password"
-                        className={classes.textField}
-                        value={currentUserData.password}
-                        onChange={(event) => this.handleChangeUserForm(event, 'password')}
+                        value={currentData.password}
+                        onChange={(event) => this.handleChangeForm(event, 'password')}
                         margin="normal"
                         fullWidth={true}
                     />}
 
                 </form>}
-                {userData.type === 'delete' && <div>Are you sure to delete this user?</div>}
+                {row.type === 'delete' && <div>Are you sure to delete this user?</div>}
             </DialogContent>
             <DialogActions>
                 <Button onClick={cancelEdit} color="primary">Cancel</Button>
-                {userData.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
-                {userData.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
+                {row.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
+                {row.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
             </DialogActions>
         </Dialog>)
     }
@@ -158,4 +125,4 @@ class UserForm extends Component {
 
 
 
-export default withStyles(styles)(UserForm);
+export default UserForm;

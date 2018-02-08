@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import Autocomplete from '../../components/Users/Autocomplete';
+import RoleForm from '../../components/Roles/RoleForm';
+import RolesTable from '../../components/Roles/RolesTable';
 
-import UsersTable from '../../components/Users/UsersTable';
 
 import IconButton from 'material-ui/IconButton';
 
@@ -15,10 +14,10 @@ import {Button} from 'material-ui';
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
+import TextField from 'material-ui/TextField';
 
 
-
-import {getUsers, deleteUser, editUser, newUser, singleUser} from '../../actions/users';
+import {getRoles, deleteRole, editRole, newRole, modalRoleData} from '../../actions/roles';
 import { openModal, closeModal } from '../../actions/modals';
 
 
@@ -65,7 +64,7 @@ DeleteButton.propTypes = {
 };
 
 
-class Users extends React.PureComponent {
+class Roles extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -88,8 +87,7 @@ class Users extends React.PureComponent {
         });
 
         if (event.target.value.length> 2){
-            const search = '{like}'+event.target.value;
-            const data = {'$fullTextSearch':search };
+            const data = {'$fullTextSearch':event.target.value };
             this.props.getUsers(data);
         }
 
@@ -98,18 +96,22 @@ class Users extends React.PureComponent {
     render() {
 
 
-        const { modal } = this.props;
+        const { modal, classes } = this.props;
 
+        console.log( classes)
         return (<div>
-                <Autocomplete {...this.props} />
-                <UsersTable {...this.props}/>
+
+                <RolesTable{...this.props}/>
+                {modal  && <RoleForm {...this.state} modal={this.props.modal} edit={this.props.editRole}
+                                     newData={this.props.newData} new={this.props.newRole} modalData={this.props.modalData}
+                                     cancelEdit={this.cancelEdit} get={this.getRoles} delete={this.props.deleteRole} />}
             </div>
         );
     }
 }
 
 
-Users.propTypes = {
+Roles.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
@@ -117,14 +119,15 @@ Users.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser  }, dispatch);
+    return bindActionCreators({getRoles, deleteRole, openModal, closeModal, editRole, newRole, modalRoleData  }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
-
-    return {users: state.reducers.users, user: state.reducers.user, modal: state.reducers.modal };
+console.log(state)
+    return {roles: state.reducers.roles, delete: state.reducers.deleteRole,modal: state.reducers.modal,
+        modalData: state.reducers.modalRoleData, edit: state.reducers.editRole, newData: state.reducers.newRole};
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Roles));

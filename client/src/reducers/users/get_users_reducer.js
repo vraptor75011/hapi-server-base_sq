@@ -1,4 +1,4 @@
-import {GET_ROLES} from '../actions/types';
+import {GET_USERS} from '../../actions/types';
 
 
 export default function (state = { docs: null, pages: {current: 1, hasNext: false,
@@ -6,7 +6,7 @@ export default function (state = { docs: null, pages: {current: 1, hasNext: fals
 
     switch (action.type) {
 
-        case GET_ROLES :
+        case GET_USERS :
 
             if (action.payload) {
 

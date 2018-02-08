@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import RoleForm from '../../components/Roles/RoleForm';
+
 import RolesTable from '../../components/Roles/RolesTable';
 
 
@@ -76,10 +76,6 @@ class Roles extends React.PureComponent {
     }
 
 
-    cancelEdit = () => {
-        this.props.closeModal();
-
-    };
 
     handleChange = name => event => {
         this.setState({
@@ -96,15 +92,10 @@ class Roles extends React.PureComponent {
     render() {
 
 
-        const { modal, classes } = this.props;
-
-        console.log( classes)
+        const { modal } = this.props;
         return (<div>
 
                 <RolesTable{...this.props}/>
-                {modal  && <RoleForm {...this.state} modal={this.props.modal} edit={this.props.editRole}
-                                     new={this.props.newRole} modalData={this.props.modalData}
-                                     cancelEdit={this.cancelEdit} get={this.getRoles} delete={this.props.deleteRole} />}
             </div>
         );
     }
@@ -119,15 +110,14 @@ Roles.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getRoles, deleteRole, openModal, closeModal, editRole, newRole, modalRoleData  }, dispatch);
+    return bindActionCreators({getRoles, deleteRole, openModal, closeModal, editRole, newRole  }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
 
-    return {roles: state.reducers.roles, delete: state.reducers.deleteRole,modal: state.reducers.modal,
-        modalData: state.reducers.modalRoleData, edit: state.reducers.editRole};
+    return {roles: state.reducers.roles, role: state.reducers.role, modal: state.reducers.modal};
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Roles));
