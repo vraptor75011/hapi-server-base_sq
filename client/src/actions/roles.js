@@ -1,5 +1,8 @@
 import axios from 'axios';
-import {GET_ROLES, DELETE_ROLE, EDIT_ROLE, EDIT_ROLE_ERROR, MODAL_CLOSE, MODAL_OPEN, NEW_ROLE, NEW_USER_ERROR} from './types';
+import {
+    GET_ROLES, DELETE_ROLE, EDIT_ROLE, EDIT_ROLE_ERROR, MODAL_CLOSE, MODAL_OPEN, NEW_ROLE, NEW_ROLE_ERROR,
+    MODAL_ROLE_DATA
+} from './types';
 import { tokenName, refreshTokenName, profileName } from '../config';
 import authHelper from '../helpers/auth_helper';
 
@@ -27,7 +30,7 @@ export function getRoles(params) {
   };
 }
 
-export function deleteUser(id) {
+export function deleteRole(id) {
   return async dispatch => {
     try {
       axios.defaults.headers.common['Authorization'] = localStorage.getItem(
@@ -35,7 +38,7 @@ export function deleteUser(id) {
       );
 
 
-      const response = await axios.delete(`/api/v1/users/${id}`, { data: { "$hardDelete": true }});
+      const response = await axios.delete(`/api/v1/roles/${id}`, { data: { "$hardDelete": true }});
         dispatch(getRoles());
         return dispatch({type: MODAL_CLOSE });
 
@@ -54,7 +57,7 @@ export function deleteUser(id) {
 }
 
 
-export function editUser(data) {
+export function editRole(data) {
     return async (dispatch, getState) => {
 
         const token = await authHelper();
@@ -64,7 +67,7 @@ export function editUser(data) {
             try {
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
 
-                const response = await axios.put(`/api/v1/users/${data.id}`, data);
+                const response = await axios.put(`/api/v1/roles/${data.id}`, data);
 
                 dispatch(getRoles());
                 return dispatch({type: MODAL_CLOSE });
@@ -75,7 +78,7 @@ export function editUser(data) {
                     dispatch(push('/login'));
                 }
                 else if (error.response && error.response.status === 400) {
-                    dispatch({type: 'EDIT_USER_ERROR', payload: error.response});
+                    dispatch({type: EDIT_ROLE_ERROR, payload: error.response});
                 }
 
 
@@ -84,7 +87,7 @@ export function editUser(data) {
     };
 }
 
-export function newUser(data) {
+export function newRole(data) {
     return async (dispatch, getState) => {
 
         const token = await authHelper();
@@ -92,7 +95,7 @@ export function newUser(data) {
             try {
                 const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-                const response = await axios.post('/api/v1/users', data, config);
+                const response = await axios.post('/api/v1/roles', data, config);
                 dispatch(getRoles());
                 return dispatch({type: MODAL_CLOSE });
             } catch (error) {
@@ -100,7 +103,7 @@ export function newUser(data) {
                     dispatch(push('/login'));
                 }
                 else if (error.response && error.response.status === 400) {
-                    dispatch({type: 'NEW_USER_ERROR', payload: error.response});
+                    dispatch({type: NEW_ROLE_ERROR, payload: error.response});
                 }
             }
         }
@@ -108,3 +111,8 @@ export function newUser(data) {
 }
 
 
+export function modalRoleData(data) {
+    return function (dispatch) {
+        dispatch({type: MODAL_ROLE_DATA, payload: data});
+    }
+}

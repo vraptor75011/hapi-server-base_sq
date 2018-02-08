@@ -5,12 +5,12 @@ import Table, {TableBody, TableCell, TableFooter, TableHead, TablePagination, Ta
 import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
 
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,} from 'material-ui';
+import {Button} from 'material-ui';
 
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
-import {getRoles} from "../../actions/roles";
+
 
 
 
@@ -64,7 +64,7 @@ DeleteButton.propTypes = {
 };
 
 
-class Users extends React.PureComponent {
+class RolesTable extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -103,18 +103,20 @@ class Users extends React.PureComponent {
 
     handleClickButtons = (type, data) => {
 
+        console.log(this.props)
+
         if (type === 'delete') {
             this.props.openModal();
-            this.props.singleUser({type:'delete', user: data});
+            this.props.modalRoleData({type:'delete', role: data});
         }
         if (type === 'edit') {
             this.props.openModal();
-            this.props.singleUser({type:'edit', user: data});
+            this.props.modalRoleData({type:'edit', role: data});
         }
         if (type === 'new') {
-            const user = {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''};
+            const role = {id: "", "name": '', "description": ''};
             this.props.openModal();
-            this.props.singleUser({type:'new', user});
+            this.props.modalRoleData({type:'new', role});
         }
     };
 
@@ -230,9 +232,9 @@ console.log(roles)
 }
 
 
-Users.propTypes = {
+RolesTable.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
 
-export default withStyles(styles)(Users);
+export default withStyles(styles)(RolesTable);

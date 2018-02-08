@@ -5,7 +5,7 @@ import Table, {TableBody, TableCell, TableFooter, TableHead, TablePagination, Ta
 import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
 
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,} from 'material-ui';
+import {Button} from 'material-ui';
 
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';

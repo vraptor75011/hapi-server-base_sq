@@ -1,17 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import {push} from 'react-router-redux';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import UserForm from '../../components/Roles/RoleForm';
-import UsersTable from '../../components/Roles/RolesTable';
+import RoleForm from '../../components/Roles/RoleForm';
+import RolesTable from '../../components/Roles/RolesTable';
 
 
 import IconButton from 'material-ui/IconButton';
 
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,} from 'material-ui';
+import {Button} from 'material-ui';
 
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
@@ -19,7 +17,7 @@ import {withStyles} from 'material-ui/styles';
 import TextField from 'material-ui/TextField';
 
 
-import {getRoles, deleteUser, editUser, newUser} from '../../actions/roles';
+import {getRoles, deleteRole, editRole, newRole, modalRoleData} from '../../actions/roles';
 import { openModal, closeModal } from '../../actions/modals';
 
 
@@ -29,11 +27,6 @@ const styles = theme => ({
         width: '100%',
         marginTop: theme.spacing.unit * 3,
         overflowX: 'auto',
-    },
-    textField: {
-        marginLeft: theme.spacing.unit,
-        marginRight: theme.spacing.unit,
-        width: 200,
     }
 });
 
@@ -108,10 +101,10 @@ class Roles extends React.PureComponent {
         console.log( classes)
         return (<div>
 
-                <UsersTable {...this.props}/>
-                {modal  && <UserForm {...this.state} modal={this.props.modal} editUser={this.props.editUser}
-                                     newUser={this.props.newUser} userData={this.props.userData}
-                                     cancelEdit={this.cancelEdit} getUsers={this.getUsers} deleteUser={this.props.deleteUser} />}
+                <RolesTable{...this.props}/>
+                {modal  && <RoleForm {...this.state} modal={this.props.modal} edit={this.props.editRole}
+                                     new={this.props.newRole} modalData={this.props.modalData}
+                                     cancelEdit={this.cancelEdit} get={this.getRoles} delete={this.props.deleteRole} />}
             </div>
         );
     }
@@ -126,15 +119,15 @@ Roles.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getRoles, deleteUser, openModal, closeModal, editUser, newUser  }, dispatch);
+    return bindActionCreators({getRoles, deleteRole, openModal, closeModal, editRole, newRole, modalRoleData  }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
 
-    return {roles: state.reducers.roles, deleteSingleUser: state.reducers.deleteUser,
-        modal: state.reducers.modal, editUser: state.reducers.editUser, userData: state.reducers.singleUser };
+    return {roles: state.reducers.roles, delete: state.reducers.deleteRole,modal: state.reducers.modal,
+        modalData: state.reducers.modalRoleData, edit: state.reducers.editRole};
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Roles));

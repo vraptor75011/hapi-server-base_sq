@@ -112,5 +112,4 @@ export function singleUser(data) {
     return function (dispatch) {
         dispatch({type: SINGLE_USER, payload: data});
     }
-
 }

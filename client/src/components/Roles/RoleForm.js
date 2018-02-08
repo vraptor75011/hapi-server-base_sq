@@ -34,54 +34,53 @@ const styles = theme => ({
 });
 
 
-class UserForm extends Component {
+class RoleForm extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            currentUserData: {},
+            currentData: {},
             newUser: false
         }
     }
 
     componentWillMount() {
-        const currentUserData = this.props.userData.user;
+        const currentData = this.props.modalData.role;
 
-        this.setState({currentUserData});
+        this.setState({currentData});
     }
 
 
-    handleChangeUserForm = (event, type) => {
+    handleChangeForm = (event, type) => {
 
-        let currentUserData = {...this.state.currentUserData, [type]: event.target.value};
-        this.setState({currentUserData});
+        let currentData = {...this.state.currentData, [type]: event.target.value};
+        this.setState({currentData});
 
 
     };
 
     saveUser = () => {
 
-        const {currentUserData} = this.state;
+        const {currentData} = this.state;
         const data = {
-            id: currentUserData.id,
-            firstName: currentUserData.firstName,
-            lastName: currentUserData.lastName,
-            email: currentUserData.email,
-            password: currentUserData.password
+            id: currentData.id,
+            name: currentData.name,
+            description: currentData.description,
+
         };
 
-                switch (this.props.userData.type) {
+                switch (this.props.modalData.type) {
 
                     case 'edit':
-                        this.props.editUser(data);
+                        this.props.edit(data);
                         break;
                     case 'new':
                         delete data.id;
-                        this.props.newUser(data);
+                        this.props.new(data);
                         break;
                     case 'delete':
-                        console.log('delete***')
-                        this.props.deleteUser(data.id);
+
+                        this.props.delete(data.id);
                         break;
 
 
@@ -94,8 +93,8 @@ class UserForm extends Component {
 
 
     render() {
-        const {classes, modal, cancelEdit, userData} = this.props;
-        const {currentUserData} = this.state;
+        const {classes, modal, cancelEdit, modalData} = this.props;
+        const {currentData} = this.state;
 
 
         return (<Dialog
@@ -103,53 +102,35 @@ class UserForm extends Component {
             onClose={this.cancelEdit}
             classes={{paper: classes.dialog}}
         >
-            <DialogTitle>{userData.type === 'delete'? 'Delete User' : userData.type === 'edit' ? 'Edit User': 'New User' }</DialogTitle>
+            <DialogTitle>{modalData.type === 'delete'? 'Delete Role' : modalData.type === 'edit' ? 'Edit Role': 'New Role' }</DialogTitle>
             <DialogContent>
-                {userData.type !== 'delete' && <form noValidate autoComplete="off">
+                {modalData.type !== 'delete' && <form noValidate autoComplete="off">
                     <TextField
-                        id="firstName"
-                        label="First Name"
+                        id="name"
+                        label="Name"
                         className={classes.textField}
-                        value={currentUserData.firstName}
-                        onChange={(event) => this.handleChangeUserForm(event, 'firstName')}
+                        value={currentData.name}
+                        onChange={(event) => this.handleChangeForm(event, 'name')}
                         margin="normal"
                         fullWidth={true}
                     />
                     <TextField
-                        id="lastName"
-                        label="Last Name"
+                        id="description"
+                        label="Description"
                         className={classes.textField}
-                        value={currentUserData.lastName}
-                        onChange={(event) => this.handleChangeUserForm(event, 'lastName')}
+                        value={currentData.description}
+                        onChange={(event) => this.handleChangeForm(event, 'description')}
                         margin="normal"
                         fullWidth={true}
                     />
-                    <TextField
-                        id="email"
-                        label="Email"
-                        className={classes.textField}
-                        value={currentUserData.email}
-                        onChange={(event) => this.handleChangeUserForm(event, 'email')}
-                        margin="normal"
-                        fullWidth={true}
-                    />
-                    {!currentUserData.id  && <TextField
-                        id="password"
-                        label="Password"
-                        className={classes.textField}
-                        value={currentUserData.password}
-                        onChange={(event) => this.handleChangeUserForm(event, 'password')}
-                        margin="normal"
-                        fullWidth={true}
-                    />}
 
                 </form>}
-                {userData.type === 'delete' && <div>Are you sure to delete this user?</div>}
+                {modalData.type === 'delete' && <div>Are you sure to delete this role?</div>}
             </DialogContent>
             <DialogActions>
                 <Button onClick={cancelEdit} color="primary">Cancel</Button>
-                {userData.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
-                {userData.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
+                {modalData.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
+                {modalData.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
             </DialogActions>
         </Dialog>)
     }
@@ -158,4 +139,4 @@ class UserForm extends Component {
 
 
 
-export default withStyles(styles)(UserForm);
+export default withStyles(styles)(RoleForm);

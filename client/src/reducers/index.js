@@ -8,7 +8,11 @@ import newUser from './new_user_reducer';
 import modal from './modal_reducer';
 import singleUser from './single_user_reducer';
 
-import roles from './get_roles_reducer';
+import roles from './roles/get_roles_reducer';
+import deleteRole from './roles/delete_role_reducer';
+import editRole from './roles/edit_role_reducer';
+import newRole from './roles/new_role_reducer';
+import modalRoleData from './roles/modal_role_data_reducer';
 
 //import usersReducer from './users_reducer';
 
@@ -22,7 +26,12 @@ const rootReducer = combineReducers({
     modal,
     singleUser,
     newUser,
-    roles
+    roles,
+    deleteRole,
+    editRole,
+    newRole,
+    modalRoleData
+
 });
 
 export default rootReducer;

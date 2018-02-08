@@ -27,5 +27,6 @@ export const GET_ROLES = 'GET_ROLES';
 export const DELETE_ROLE = 'DELETE_ROLE';
 export const EDIT_ROLE = 'EDIT_ROLE';
 export const EDIT_ROLE_ERROR = 'EDIT_ROLE_ERROR';
-export const NEW_ROLE_ERROR = 'NEW_ROLE_ERROR';
 export const NEW_ROLE = 'NEW_ROLE';
+export const NEW_ROLE_ERROR = 'NEW_ROLE';
+export const MODAL_ROLE_DATA = 'MODAL_ROLE_DATA';
