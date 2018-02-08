@@ -10,7 +10,7 @@ import {Button} from 'material-ui';
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
-
+import UserForm from './UserForm';
 
 
 
@@ -77,6 +77,7 @@ class Users extends React.PureComponent {
                 {eng: 'Last login', italian: 'Ultimo Login'}
             ],
             rows: [],
+            row:{},
             sorting: [],
             editingRows: [],
             addedRows: [],
@@ -104,18 +105,21 @@ class Users extends React.PureComponent {
 
     handleClickButtons = (type, data) => {
 
+
         if (type === 'delete') {
+            const row = Object.assign({}, data, {type: 'delete'});
+            this.setState({row});
             this.props.openModal();
-            this.props.singleUser({type:'delete', user: data});
         }
         if (type === 'edit') {
+            const row = Object.assign({}, data, {type: 'edit'});
+            this.setState({row});
             this.props.openModal();
-            this.props.singleUser({type:'edit', user: data});
         }
         if (type === 'new') {
-            const user = {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''};
+            const row = {id: "", "firstName": '', "lastName": '', "email": '', 'password': '', type: 'new'};
+            this.setState({row});
             this.props.openModal();
-            this.props.singleUser({type:'new', user});
         }
     };
 
@@ -172,29 +176,14 @@ class Users extends React.PureComponent {
 
 
     render() {
-        const { classes, users, deleteUser, modal } = this.props;
-        const {
-            rows,
-            pages,
-            columns,
-            sorting,
-            editingRows,
-            addedRows,
-            changedRows,
-            currentPage,
-            deletingRows,
-            pageSize,
-            allowedPageSizes,
-            columnOrder,
-            openDeleteDialog,
-            openEditDialog,
-            currentUserData
-        } = this.state;
+        const { classes, users, modal } = this.props;
+        const { columns, allowedPageSizes,} = this.state;
 
 
 console.log(users)
 
-        return (<Paper className={classes.root}>
+        return (<div>{modal  && <UserForm {...this.state} {...this.props} cancelEdit={ this.cancelEdit} />}
+                   <Paper className={classes.root}>
                     <div className={classes.tableWrapper}>
                         <Table className={classes.table}>
 
@@ -227,6 +216,7 @@ console.log(users)
                         </Table>
                     </div>
                 </Paper>
+            </div>
         );
     }
 }

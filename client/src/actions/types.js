@@ -8,12 +8,9 @@ export const AUTH_ERROR = 'auth_error';
 ////// users
 export const GET_USERS = 'GET_USERS';
 export const DELETE_USER = 'DELETE_USER';
-export const DELETE_USER_ERROR = 'DELETE_USER_ERROR';
 export const EDIT_USER = 'EDIT_USER';
-export const EDIT_USER_ERROR = 'EDIT_USER_ERROR';
-export const SINGLE_USER = 'SINGLE_USER';
-export const NEW_USER_ERROR = 'NEW_USER_ERROR';
 export const NEW_USER = 'NEW_USER';
+export const USER_FORM_ERROR = 'USER_FORM_ERROR';
 
 ////modals
 
@@ -26,7 +23,5 @@ export const MODAL_OPEN = 'MODAL_OPEN';
 export const GET_ROLES = 'GET_ROLES';
 export const DELETE_ROLE = 'DELETE_ROLE';
 export const EDIT_ROLE = 'EDIT_ROLE';
-export const EDIT_ROLE_ERROR = 'EDIT_ROLE_ERROR';
 export const NEW_ROLE = 'NEW_ROLE';
-export const NEW_ROLE_ERROR = 'NEW_ROLE';
-export const MODAL_ROLE_DATA = 'MODAL_ROLE_DATA';
+export const ROLE_FORM_ERROR = 'ROLE_FORM_ERROR';

@@ -10,7 +10,7 @@ import {Button} from 'material-ui';
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
-
+import RoleForm from './RoleForm';
 
 
 
@@ -76,13 +76,14 @@ class RolesTable extends React.PureComponent {
                 {eng: 'Description', italian: 'Descrizione'},
             ],
             rows: [],
+            row:{},
             sorting: [],
             editingRows: [],
             addedRows: [],
             changedRows: {},
             currentPage: 0,
             deletingRows: [],
-            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''},
+            currentData: {id: "", name: "", description: ""},
             pageSize: 0,
             allowedPageSizes: [5, 10, 15],
             openDeleteDialog: false
@@ -103,20 +104,21 @@ class RolesTable extends React.PureComponent {
 
     handleClickButtons = (type, data) => {
 
-        console.log(this.props)
 
         if (type === 'delete') {
+            const row = Object.assign({}, data, {type: 'delete'});
+            this.setState({row});
             this.props.openModal();
-            this.props.modalRoleData({type:'delete', role: data});
         }
         if (type === 'edit') {
+            const row = Object.assign({}, data, {type: 'edit'});
+            this.setState({row});
             this.props.openModal();
-            this.props.modalRoleData({type:'edit', role: data});
         }
         if (type === 'new') {
-            const role = {id: "", "name": '', "description": ''};
+            const row = {id: "", "name": '', "description": '', type: 'new'};
             this.props.openModal();
-            this.props.modalRoleData({type:'new', role});
+            this.setState({row});
         }
     };
 
@@ -124,9 +126,7 @@ class RolesTable extends React.PureComponent {
 
     cancelEdit = () => {
         this.props.closeModal();
-        this.setState({
-            currentUserData: {id: "", "firstName": '', "lastName": '', "email": '', 'password': ''}
-        });
+        this.setState({row: {}});
 
     };
 
@@ -150,7 +150,6 @@ class RolesTable extends React.PureComponent {
             </TableCell>
             <TableCell>{data.name}</TableCell>
             <TableCell>{data.description}</TableCell>
-            <TableCell/>
 
         </TableRow>)
     };
@@ -172,29 +171,18 @@ class RolesTable extends React.PureComponent {
 
 
     render() {
-        const { classes, roles, deleteUser, modal } = this.props;
+        const { classes, roles, modal } = this.props;
         const {
-            rows,
-            pages,
             columns,
-            sorting,
-            editingRows,
-            addedRows,
-            changedRows,
-            currentPage,
-            deletingRows,
-            pageSize,
             allowedPageSizes,
-            columnOrder,
-            openDeleteDialog,
-            openEditDialog,
-            currentUserData
         } = this.state;
 
 
 console.log(roles)
 
-        return (<Paper className={classes.root}>
+        return (<div>
+                {modal  && <RoleForm {...this.state} {...this.props} cancelEdit={ this.cancelEdit}/>}
+                <Paper className={classes.root}>
                     <div className={classes.tableWrapper}>
                         <Table className={classes.table}>
 
@@ -227,6 +215,7 @@ console.log(roles)
                         </Table>
                     </div>
                 </Paper>
+            </div>
         );
     }
 }

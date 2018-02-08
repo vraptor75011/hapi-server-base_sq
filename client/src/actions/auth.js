@@ -1,5 +1,4 @@
 import axios from 'axios';
-import  jwtDecode from  'jwt-decode';
 import {push} from 'react-router-redux';
 import {AUTH_ERROR, AUTH_USER, UNAUTH_USER} from './types'
 import { tokenName, refreshTokenName, profileName } from '../config';
@@ -39,7 +38,6 @@ export function signInUser(fields) {
                 localStorage.setItem(tokenName, response.data.meta.authHeader);
                 localStorage.setItem(refreshTokenName, response.data.meta.refreshToken);
                 localStorage.setItem(profileName, JSON.stringify(response.data.doc.user));
-                console.log(response.data.doc.user)
 
                 console.log('REDIRECT')
                 //redirect to retstricted area by dispatch push
