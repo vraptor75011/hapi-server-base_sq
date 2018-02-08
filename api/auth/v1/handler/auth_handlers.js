@@ -88,7 +88,7 @@ module.exports =
 					user,
 				},
 			};
-			return h.response(mapperOptions);
+			return mapperOptions;
 
 		},
 
@@ -106,12 +106,12 @@ module.exports =
 				} else {
 					Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' failed to log out'));
 					let error = Session.name + ' key: ' + sessionKey + ' not present';
-					return h.response(Boom.notFound(error));
+					return Boom.notFound(error);
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.gatewayTimeout(errorMsg);
 			}
 		},
 
@@ -181,12 +181,12 @@ module.exports =
 
 					Mailer.sendMail(emailOptions, template, context);
 					Log.apiLogger.info(Chalk.cyan('sending welcome email to: ', user.email));
-					return h.response(result);
+					return result;
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.gatewayTimeout(errorMsg);
 			}
 		},
 
@@ -234,12 +234,12 @@ module.exports =
 
 					Mailer.sendMail(emailOptions, template, context);
 					Log.apiLogger.info(Chalk.cyan('sending welcome email to: ', user.email));
-					return h.response(result);
+					return result;
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.gatewayTimeout(errorMsg);
 			}
 		},
 
@@ -251,7 +251,7 @@ module.exports =
 
 				let keyMatch = await Bcrypt.compare(key, token);
 				if (!keyMatch) {
-					return h.response(Boom.badRequest('Invalid email or key.'));
+					return Boom.badRequest('Invalid email or key.');
 				}
 
 				const id = request.pre.user.id;
@@ -275,7 +275,7 @@ module.exports =
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.gatewayTimeout(errorMsg);
 			}
 		},
 
@@ -318,12 +318,12 @@ module.exports =
 
 					Mailer.sendMail(emailOptions, template, context);
 					Log.apiLogger.info(Chalk.cyan('sending reset password email to: ', user.email));
-					return h.response(result);
+					return result;
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.gatewayTimeout(errorMsg);
 			}
 		},
 
@@ -335,7 +335,7 @@ module.exports =
 
 				let keyMatch = await Bcrypt.compare(key, token);
 				if (!keyMatch) {
-					return h.response(Boom.badRequest('Invalid email or key.'));
+					return Boom.badRequest('Invalid email or key.');
 				}
 
 				const id = request.pre.user.id;
@@ -361,7 +361,7 @@ module.exports =
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.gatewayTimeout(errorMsg);
 			}
 		},
 

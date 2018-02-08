@@ -10,15 +10,15 @@ const Handler =
 			// Call listAll async function with await inside handler-helper
 			// call LIST Handler for CRUD function valid for all present models
 			let result = await HandlerHelper.list(Session, request.query);
-			return h.response(result);
+			return result;
 
 		},
 
 		findOne: async (request, h) => {
 			// Call an async function with await inside in handler-helper
 			// call FIND ONE Handler for CRUD function valid for all present models
-			let user = await HandlerHelper.find(Session, request.params.sessionId, request.query);
-			return h.response(user);
+			let result = await HandlerHelper.find(Session, request.params.sessionId, request.query);
+			return result;
 
 		},
 
@@ -27,8 +27,8 @@ const Handler =
 			// Only for Admin to Add a new Session without free registration
 
 			// call CREATE Handler for CRUD function valid for all present models
-			let user = await HandlerHelper.create(Session, request.payload);
-			return h.response(user);
+			let result = await HandlerHelper.create(Session, request.payload);
+			return result;
 
 		},
 
@@ -37,8 +37,8 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 
 			// call CREATE Handler for CRUD function valid for all present models
-			let user = await HandlerHelper.update(Session, request.params.sessionId, request.payload);
-			return h.response(user);
+			let result = await HandlerHelper.update(Session, request.params.sessionId, request.payload);
+			return result;
 		},
 
 		delete: async (request, h) => {
@@ -46,8 +46,8 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 
 			// call DELETE Handler for CRUD function valid for all present models
-			let response = await HandlerHelper.deleteOne(Session, request.params.sessionId, request.payload);
-					return h.response(response);
+			let result = await HandlerHelper.deleteOne(Session, request.params.sessionId, request.payload);
+			return result;
 		},
 
 		deleteMany: async (request, h) => {
@@ -55,8 +55,8 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 
 			// call DELETE MANY Handler for EXTRA CRUD function valid for all present models
-			let response = await HandlerHelper.deleteMany(Session, request.payload);
-			return h.response(response);
+			let result = await HandlerHelper.deleteMany(Session, request.payload);
+			return result;
 		},
 
 		addOne: async (request, h) => {
@@ -64,8 +64,8 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 			let childModel = Session.associations[request.params.childModel].target;
 			// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = await HandlerHelper.addOne(Session, request.params.sessionId, childModel, request.params.childId, request.params.childModel);
-			return h.response(response);
+			let result = await HandlerHelper.addOne(Session, request.params.sessionId, childModel, request.params.childId, request.params.childModel);
+			return result;
 		},
 
 		removeOne: async (request, h) => {
@@ -73,8 +73,8 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 			let childModel = Session.associations[request.params.childModel].target;
 			// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = await HandlerHelper.removeOne(Session, request.params.sessionId, childModel, request.params.childId, request.params.childModel);
-			return h.response(response);
+			let result = await HandlerHelper.removeOne(Session, request.params.sessionId, childModel, request.params.childId, request.params.childModel);
+			return result;
 		},
 
 		addMany: async (request, h) => {
@@ -82,8 +82,8 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 			let childModel = Session.associations[request.params.childModel].target;
 			// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = await HandlerHelper.addMany(Session, request.params.sessionId, childModel, request.params.childModel, request.payload);
-			return h.response(response);
+			let result = await HandlerHelper.addMany(Session, request.params.sessionId, childModel, request.params.childModel, request.payload);
+			return result;
 		},
 
 		removeMany: async (request, h) => {
@@ -91,8 +91,8 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 			let childModel = Session.associations[request.params.childModel].target;
 			// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = await HandlerHelper.removeMany(Session, request.params.sessionId, childModel, request.params.childModel, request.payload);
-			return h.response(response);
+			let result = await HandlerHelper.removeMany(Session, request.params.sessionId, childModel, request.params.childModel, request.payload);
+			return result;
 		},
 
 		getAll: async (request, h) => {
@@ -100,8 +100,8 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 			let childModel = Session.associations[request.params.childModel].target;
 			// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
-			let response = await HandlerHelper.getAll(Session, request.params.sessionId, childModel, request.params.childModel, request.query);
-			return h.response(response);
+			let result = await HandlerHelper.getAll(Session, request.params.sessionId, childModel, request.params.childModel, request.query);
+			return result;
 		},
 	};
 

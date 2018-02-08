@@ -21,6 +21,9 @@ module.exports = [
 			'User Second Level Relations: ' + UserValidation.SLRelations + '<br>' +
 			'Attributes: ' + UserValidation.Attributes + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				query: UserValidation.queryAll,
 				// query: UserValidations.query,
 				headers: HeaderValidation.headerRequired,
@@ -43,6 +46,9 @@ module.exports = [
 			notes: ['Returns a User identified by the params {userId} <br>' +
 			'Attributes: ' + UserValidation.Attributes + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				params: UserValidation.oneParams,
 				query: UserValidation.queryOne,
 				// query: UserValidations.query,
@@ -66,6 +72,9 @@ module.exports = [
 			'User hasMany Child Model: User object can contain one or more Child object <br>' +
 			'User BelongsToMany Child Model: User object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				payload: UserValidation.postPayload,
 				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
@@ -85,6 +94,9 @@ module.exports = [
 			description: 'PUT an Updated User',
 			notes: ['Save an updated User with params in payload <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				params: UserValidation.oneParams,
 				payload: UserValidation.putPayload,
 				headers: HeaderValidation.headerRequired,
@@ -105,6 +117,9 @@ module.exports = [
 			description: 'DELETE an User',
 			notes: ['Delete un User <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				params: UserValidation.oneParams,
 				payload: UserValidation.deleteOnePayload,
 				headers: HeaderValidation.headerRequired,
@@ -126,6 +141,9 @@ module.exports = [
 			description: 'DELETE many Users by Ids Array',
 			notes: ['Delete many Users <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				// params: UserValidation.paramOne,
 				payload: UserValidation.deleteManyPayload,
 				headers: HeaderValidation.headerRequired,
@@ -147,6 +165,9 @@ module.exports = [
 			notes: ['Add one related model (to save) to a persisted User <br>' +
 			'Add a persisted child Model to User.'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				params: UserValidation.addOneParams,
 				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
@@ -168,6 +189,9 @@ module.exports = [
 			'User hasMany Child Model: User object can contain one or more Child object <br>' +
 			'User BelongsToMany Child Model: User object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				params: UserValidation.removeOneParams,
 				payload: UserValidation.removeOnePayload,
 				headers: HeaderValidation.headerRequired,
@@ -190,6 +214,9 @@ module.exports = [
 			'User hasMany Child Model: User object can contain one or more Child object <br>' +
 			'User BelongsToMany Child Model: User object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				params: UserValidation.addManyParams,
 				payload: UserValidation.addManyPayload,
 				headers: HeaderValidation.headerRequired,
@@ -212,6 +239,9 @@ module.exports = [
 			'User hasMany Child Model: User object can contain one or more Child object <br>' +
 			'User BelongsToMany Child Model: User object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				params: UserValidation.removeManyParams,
 				payload: UserValidation.removeManyPayload,
 				headers: HeaderValidation.headerRequired,
@@ -232,6 +262,9 @@ module.exports = [
 			description: 'Get All User related child model with query filters',
 			notes: ['Get All records of User related Child Model <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				params: UserValidation.getAllParams,
 				query: UserValidation.queryGetAll,
 				headers: HeaderValidation.headerRequired,
@@ -274,6 +307,9 @@ module.exports = [
 			description: 'User check email.',
 			tags: ['api', 'Users', 'Check Email'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				payload: {
 					email: UserValidation.checkMailParams,
 				},

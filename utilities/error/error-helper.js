@@ -83,7 +83,9 @@ module.exports = {
 		} else {
 			// During development, log and respond with the full error.
 			Log.apiLogger.error(Chalk.blue('ValidationError:', err.message));
-			throw Boom.badRequest(err.message);
+			let error = Boom.badRequest(err.message);
+			error.output.payload.details = err.details;
+			throw error;
 		}
 	}
 };
