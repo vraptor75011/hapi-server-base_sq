@@ -171,22 +171,10 @@ class RolesTable extends React.PureComponent {
 
 
     render() {
-        const { classes, roles, deleteUser, modal } = this.props;
+        const { classes, roles, modal } = this.props;
         const {
-            rows,
-            pages,
             columns,
-            sorting,
-            editingRows,
-            addedRows,
-            changedRows,
-            currentPage,
-            deletingRows,
-            pageSize,
             allowedPageSizes,
-            columnOrder,
-            openDeleteDialog,
-            openEditDialog,
         } = this.state;
 
 

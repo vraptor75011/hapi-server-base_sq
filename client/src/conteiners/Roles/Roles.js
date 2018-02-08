@@ -2,22 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-
-
 import RolesTable from '../../components/Roles/RolesTable';
 
-
-import IconButton from 'material-ui/IconButton';
-
-import {Button} from 'material-ui';
-
-import DeleteIcon from 'material-ui-icons/Delete';
-import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
-import TextField from 'material-ui/TextField';
 
 
-import {getRoles, deleteRole, editRole, newRole, modalRoleData} from '../../actions/roles';
+
+import {getRoles, deleteRole, editRole, newRole} from '../../actions/roles';
 import { openModal, closeModal } from '../../actions/modals';
 
 
@@ -30,38 +21,7 @@ const styles = theme => ({
     }
 });
 
-const AddButton = ({onExecute}) => (
 
-    <Button
-        color="primary"
-        onClick={onExecute}
-        title="Create new row"
-    >
-        New
-    </Button>
-
-);
-AddButton.propTypes = {
-    onExecute: PropTypes.func.isRequired,
-};
-
-const EditButton = ({onExecute}) => (
-    <IconButton onClick={onExecute} title="Edit row">
-        <EditIcon/>
-    </IconButton>
-);
-EditButton.propTypes = {
-    onExecute: PropTypes.func.isRequired,
-};
-
-const DeleteButton = ({onExecute}) => (
-    <IconButton onClick={onExecute} title="Delete row">
-        <DeleteIcon/>
-    </IconButton>
-);
-DeleteButton.propTypes = {
-    onExecute: PropTypes.func.isRequired,
-};
 
 
 class Roles extends React.PureComponent {

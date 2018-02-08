@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {GET_USERS,  MODAL_CLOSE, USER_FORM_ERROR } from './types';
-import { tokenName, refreshTokenName, profileName } from '../config';
+import { tokenName} from '../config';
 import authHelper from '../helpers/auth_helper';
 
 import { push } from 'react-router-redux';
@@ -35,7 +35,7 @@ export function deleteUser(id) {
       );
 
 
-      const response = await axios.delete(`/api/v1/users/${id}`, { data: { "$hardDelete": true }});
+      await axios.delete(`/api/v1/users/${id}`, { data: { "$hardDelete": true }});
         dispatch(getUsers());
         return dispatch({type: MODAL_CLOSE });
 
@@ -64,7 +64,7 @@ export function editUser(data) {
             try {
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
 
-                const response = await axios.put(`/api/v1/users/${data.id}`, data);
+                await axios.put(`/api/v1/users/${data.id}`, data);
 
                 dispatch(getUsers());
                 return dispatch({type: MODAL_CLOSE });
@@ -92,7 +92,7 @@ export function newUser(data) {
             try {
                 const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-                const response = await axios.post('/api/v1/users', data, config);
+                await axios.post('/api/v1/users', data, config);
                 dispatch(getUsers());
                 return dispatch({type: MODAL_CLOSE });
             } catch (error) {

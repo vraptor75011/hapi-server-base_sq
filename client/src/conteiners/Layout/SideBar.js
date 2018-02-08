@@ -133,7 +133,7 @@ class SideBar extends Component {
     };
 
     render() {
-        const {classes, theme, open} = this.props;
+        const {classes, open} = this.props;
         const {anchor} = this.state;
 
         return (

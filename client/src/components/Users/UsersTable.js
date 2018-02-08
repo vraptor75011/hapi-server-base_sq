@@ -176,24 +176,8 @@ class Users extends React.PureComponent {
 
 
     render() {
-        const { classes, users, deleteUser, modal } = this.props;
-        const {
-            rows,
-            pages,
-            columns,
-            sorting,
-            editingRows,
-            addedRows,
-            changedRows,
-            currentPage,
-            deletingRows,
-            pageSize,
-            allowedPageSizes,
-            columnOrder,
-            openDeleteDialog,
-            openEditDialog,
-            currentUserData
-        } = this.state;
+        const { classes, users, modal } = this.props;
+        const { columns, allowedPageSizes,} = this.state;
 
 
 console.log(users)
