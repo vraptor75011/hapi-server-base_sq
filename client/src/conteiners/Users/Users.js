@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import Autocomplete from '../../components/Users/Autocomplete';
+
 import UsersTable from '../../components/Users/UsersTable';
 import {withStyles} from 'material-ui/styles';
 import {getUsers, deleteUser, editUser, newUser} from '../../actions/users';
@@ -55,7 +55,6 @@ class Users extends React.PureComponent {
         const { modal } = this.props;
 
         return (<div>
-                <Autocomplete {...this.props} />
                 <UsersTable {...this.props}/>
             </div>
         );

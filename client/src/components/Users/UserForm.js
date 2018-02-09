@@ -84,6 +84,8 @@ console.log('ciaoo')
                         onChange={(event) => this.handleChangeForm(event, 'firstName')}
                         margin="normal"
                         fullWidth={true}
+                        error = {Boolean(user.error && user.error.firstName)}
+                        helperText={user.error && user.error.firstName}
                     />
                     <TextField
                         id="lastName"
@@ -92,6 +94,8 @@ console.log('ciaoo')
                         onChange={(event) => this.handleChangeForm(event, 'lastName')}
                         margin="normal"
                         fullWidth={true}
+                        error = {Boolean(user.error && user.error.lastName)}
+                        helperText={user.error && user.error.lastName}
                     />
                     <TextField
                         id="email"
@@ -100,6 +104,8 @@ console.log('ciaoo')
                         onChange={(event) => this.handleChangeForm(event, 'email')}
                         margin="normal"
                         fullWidth={true}
+                        error = {Boolean(user.error && user.error.email)}
+                        helperText={user.error && user.error.email}
                     />
                     {!row.id  && <TextField
                         id="password"
@@ -108,6 +114,8 @@ console.log('ciaoo')
                         onChange={(event) => this.handleChangeForm(event, 'password')}
                         margin="normal"
                         fullWidth={true}
+                        error = {Boolean(user.error && user.error.password)}
+                        helperText={user.error && user.error.password}
                     />}
 
                 </form>}
