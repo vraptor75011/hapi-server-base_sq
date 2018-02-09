@@ -19,7 +19,13 @@ export default function (state = {}, action) {
 
         case USER_FORM_ERROR :
 
-            return {id: null, error: action.payload };
+            const errorListArray = action.payload.data.details.map((error)=>{
+                return {[error.path]: error.message}
+            });
+
+            const errorListObj = Object.assign({}, ...errorListArray);//merge all object
+            return {id: null, error: errorListObj };
+
 
 
     }

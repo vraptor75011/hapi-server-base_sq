@@ -61,6 +61,8 @@ class RoleForm extends Component {
         const {modal, cancelEdit, row, role} = this.props;
         const {currentData} = this.state;
 
+        console.log(role.error && role.error.name)
+
         return (<Dialog
             open={modal}
             onClose={cancelEdit}
@@ -75,6 +77,9 @@ class RoleForm extends Component {
                         onChange={(event) => this.handleChangeForm(event, 'name')}
                         margin="normal"
                         fullWidth={true}
+                        required={true}
+                        error = {Boolean(role.error && role.error.name)}
+                        helperText={role.error && role.error.name}
                     />
                     <TextField
                         id="description"
@@ -83,6 +88,8 @@ class RoleForm extends Component {
                         onChange={(event) => this.handleChangeForm(event, 'description')}
                         margin="normal"
                         fullWidth={true}
+                        error = {Boolean(role.error && role.error.description)}
+                        helperText={role.error && role.error.description}
 
                     />
 
