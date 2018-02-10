@@ -1,6 +1,7 @@
 const Boom = require('boom');
 const Log = require('../logging/logging');
 const Chalk = require('chalk');
+const _ = require('lodash');
 
 module.exports = {
 
@@ -84,6 +85,10 @@ module.exports = {
 			// During development, log and respond with the full error.
 			Log.apiLogger.error(Chalk.blue('ValidationError:', err.message));
 			let error = Boom.badRequest(err.message);
+			err.details.forEach((detail) => {
+				let index = _.indexOf(detail.message, ' ');
+				detail.message = detail.message.slice(index+1);
+			});
 			error.output.payload.details = err.details;
 			throw error;
 		}
