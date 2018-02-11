@@ -1,14 +1,18 @@
 const Chalk = require('chalk');
 const Sequelize = require('sequelize');
-const Token = require('./utilities/token/token');
-const Log = require('./utilities/logging/logging');
-const Config = require('./config/config');
+const Token = require('./../../utilities/token/token');
+const Log = require('./../../utilities/logging/logging');
+const Config = require('./../../config/config');
 const _ = require('lodash');
 const Boom = require('boom');
-const Polyglot = require('./plugins/hapi-polyglot/polyglot');
+const Polyglot = require('./../hapi-polyglot/polyglot');
 
-const DB = require('./config/sequelize');
+const AuthJWT2 = require('hapi-auth-jwt2');
+
+const DB = require('./../../config/sequelize');
 const Op = Sequelize.Op;
+
+let authStrategy = Config.get('/serverHapiConfig/authStrategy');
 
 
 module.exports = {
@@ -105,6 +109,61 @@ module.exports = {
 		error.message = polyglot.t(error.message);
 
 		return error;
+	},
+
+	register (server, options) {
+		// Load Auth Plugin
+		server.register(AuthJWT2);
+
+		// Config the Auth strategy
+		server.auth.strategy(authStrategy, 'jwt',
+			{
+				key: Config.get('/jwtSecret'),            // Never Share your secret key
+				validate: this.validation,      // validate function defined above
+				verifyOptions: {algorithms: ['HS256']},   // pick a strong algorithm
+				errorFunc: this.errorHandler,
+			});
+
+		server.auth.default(authStrategy);
+
+		// Add to server Response Refreshed Tokens (if they exist!)
+		server.ext('onPreResponse', (request, h) => {
+
+			const Creds = request.auth.credentials;
+
+			// EXPL: if the auth credentials contain session info (refresh tokens), respond with a fresh set of tokens in the header.
+			if (Creds && Creds.session && request.response.header && Creds.authHeader) {
+
+				let user = {
+					id: Creds.user.id,
+					username: Creds.user.username,
+					email: Creds.user.email,
+					fullName: Creds.user.fullName,
+					firstName: Creds.user.firstName,
+					lastName: Creds.user.lastName,
+					roles: Creds.roles,
+					realms: Creds.realms,
+				};
+
+				let source = request.response.source;
+				if (!source) {
+					source = {};
+				}
+				source['meta'] = {
+					authHeader: Creds.authHeader,
+					refreshToken: Creds.refreshToken,
+					user,
+				};
+
+				return h.response(source)
+					.header('auth-header', Creds.authHeader)
+					.header('refresh-token', Creds.refreshToken)
+					.header('user', JSON.stringify(user));
+			} else {
+				return h.continue
+			}
+		});
+
 	},
 
 };

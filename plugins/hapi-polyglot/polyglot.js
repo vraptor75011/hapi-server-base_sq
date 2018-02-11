@@ -83,7 +83,7 @@ module.exports = {
 			}
 			let directory = 'locales/' + this.polyglot.locale();
 			let files = getFiles(directory);
-			let extend = {}
+			let extend = {};
 			files.forEach((file) => {
 				let f = require('../../locales/' + this.polyglot.locale() + '/' + file);
 				_.merge(extend, f);
