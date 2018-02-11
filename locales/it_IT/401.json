@@ -1,0 +1,8 @@
+{
+  "unauthorized": "Non autorizzato",
+
+  "Invalid token": "Token non valido",
+  "Expired token": "Token scaduto",
+  "Invalid token format": "Formato del token non valido",
+  "Invalid credentials": "Credenziali non valide"
+}

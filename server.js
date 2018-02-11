@@ -18,7 +18,7 @@ const PORT = Config.get('/port');
 let authStrategy = Config.get('/serverHapiConfig/authStrategy');
 
 createDB();
-startServer();
+module.exports = startServer();
 
 
 
@@ -63,9 +63,10 @@ async function startServer() {
 		// Config the Auth strategy
 		server.auth.strategy(authStrategy, 'jwt',
 			{
-				key: Config.get('/jwtSecret'),          // Never Share your secret key
-				validate: AuthValidation,                 // validate function defined above
-				verifyOptions: {algorithms: ['HS256']}  // pick a strong algorithm
+				key: Config.get('/jwtSecret'),            // Never Share your secret key
+				validate: AuthValidation.validation,      // validate function defined above
+				verifyOptions: {algorithms: ['HS256']},   // pick a strong algorithm
+				errorFunc: AuthValidation.errorHandler,
 			});
 
 		server.auth.default(authStrategy);
@@ -127,9 +128,9 @@ async function startServer() {
 		Log.apiLogger.info(Chalk.cyan('Routes loaded'));
 
 		// Start Server
-		let result = await server.start();
+		await server.start();
 		Log.apiLogger.info(Chalk.cyan('Server running at: ' + server.info.uri));
-		return result;
+		return server;
 	} catch(error) {
 		Log.apiLogger.error(Chalk.red('Failed to start Server: ' + error));
 	}

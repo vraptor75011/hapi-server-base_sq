@@ -1,5 +1,7 @@
 const Joi = require('joi');
+const Config = require('./../../config/config');
 
+const Locales = Config.get('/locales');
 
 module.exports = {
 	paramId: Joi.number().integer().min(1).required(),
@@ -17,4 +19,9 @@ module.exports = {
 			Joi.object().allow(null),
 		),
 	},
+
+	lang: {
+		lang:	Joi.string().min(2).max(6).allow(Locales)
+	},
+
 };

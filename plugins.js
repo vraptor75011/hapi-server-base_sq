@@ -1,5 +1,5 @@
 const SwaggerPack = require('./plugins/swagger_plugin');
-const Joi18n = require('./plugins/joi18n_plugin');
+const I18n = require('./plugins/i18n_plugin');
 
 
 const Plugins = [
@@ -10,8 +10,7 @@ const Plugins = [
 	SwaggerPack.swagger,
 
 	// Joi Message Translate
-	Joi18n.hapiLocale,
-	Joi18n.joi18n,
+	I18n.hapiLocale,
 
 ];
 

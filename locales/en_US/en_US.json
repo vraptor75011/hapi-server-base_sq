@@ -1,9 +1,4 @@
 {
-  "root": "value",
-  "key": "\"{{!key}}\" ",
-  "messages": {
-    "wrapArrays": true
-  },
   "any": {
     "unknown": "is not allowed",
     "invalid": "contains an invalid value",

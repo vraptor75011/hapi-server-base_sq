@@ -53,6 +53,11 @@ const config = {
     production: process.env.JWT_SECRET,
     $default: '#mgtfYK@QuRV8-guardatecosavihoinventatoperfareunbelStrongJwtSecret-VMM7T>W;^fMVr)y'
   },
+	locales: {
+		$filter: 'env',
+		production: ['en_US', 'it_IT'],
+		$default: ['en_US', 'it_IT', 'fr_FR'],
+	},
   mailAccount: {
     $filter: 'env',
 	  $default: {

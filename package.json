@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "accept-language-parser": "latest",
     "bcrypt": "^1.0.3",
     "boom": "^7.1.1",
     "chalk": "^2.3.0",
@@ -26,13 +27,12 @@
     "hapi": "^17.2.0",
     "hapi-auth-basic": "^5.0.0",
     "hapi-auth-jwt2": "salzhrani/hapi-auth-jwt2#v-17",
-    "hapi-locale": "^1.0.2",
     "hapi-sequelizejs": "^0.2.0",
     "hapi-swagger": "^9.0.2",
     "hoek": "^5.0.3",
+    "i18n": "^0.8.3",
     "inert": "^5.1.0",
     "joi": "^13.1.2",
-    "joi18n": "0.0.19",
     "jsonwebtoken": "^8.1.1",
     "knex": "^0.14.2",
     "knex-migrate": "^1.5.1",
@@ -40,6 +40,7 @@
     "loggin": "^3.0.1",
     "minimatch": "^3.0.4",
     "mysql2": "^1.5.2",
+    "node-polyglot": "^2.2.2",
     "node-uuid": "^1.4.8",
     "nodemailer": "^4.4.2",
     "nodemailer-markdown": "^1.0.2",
@@ -50,8 +51,7 @@
     "sequelize": "^4.33.0",
     "sequelize-cli": "^3.2.0",
     "sequelize-virtual-fields": "^1.1.0",
-    "vision": "^5.3.1",
-    "accept-language-parser": "latest"
+    "vision": "^5.3.1"
   },
   "devDependencies": {
     "babel-jest": "^22.2.0",
