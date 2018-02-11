@@ -111,7 +111,7 @@ module.exports =
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return Boom.gatewayTimeout(errorMsg);
+				return Boom.badImplementation(errorMsg);
 			}
 		},
 

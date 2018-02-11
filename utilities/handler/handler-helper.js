@@ -266,7 +266,8 @@ async function _list(model, query) {
 
 	}	catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		return Boom.badImplementation(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -287,22 +288,23 @@ async function _find(model, id, query) {
 		sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
 		Log.apiLogger.info('RequestData: ' + JSON.stringify(query));
 		result = await model.findOne(sequelizeQuery);
-		if (result){
+		if (result.errors) {
+			error = Boom.badRequest(result);
+			error.output.payload['sql validation'] = {message: error.original.message};
+			error.reformat();
+			return error;
+		} else if (result) {
 			return {doc: result}
-		} else if (error) {
-			// let error = {type: ErrorHelper.types.BAD_REQUEST };
-			return ErrorHelper.formatResponse(error);
 		} else {
-			let error = {type: ErrorHelper.types.NOT_FOUND };
+			let error = {};
 			error.message = model.name + ' id: ' + id + ' not present';
-			return ErrorHelper.formatResponse(error);
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.notFound(error);
 		}
-	}
-
-	catch(error) {
+	}	catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION };
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 
 }
@@ -340,15 +342,16 @@ async function _create(model, payload) {
 			});
 			return {doc: result};
 		} else {
-			let error = {type: ErrorHelper.types.SERVER_TIMEOUT};
+			let error = {};
 			error.message = model.name + ' impossible to save';
-			return ErrorHelper.formatResponse(error);
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.badRequest(error);
 		}
 	}
 	catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION };
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -371,14 +374,15 @@ async function _update(model, id, payload) {
 		if (result) {
 			return {doc: result};
 		} else {
-			let error = {type: ErrorHelper.types.SERVER_TIMEOUT};
+			let error = {};
 			error.message = model.name + ' impossible to update';
-			return ErrorHelper.formatResponse(error);
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.badRequest(error);
 		}
 	}	catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION };
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -402,15 +406,16 @@ async function _deleteOne(model, id, payload) {
 		if (result){
 			return true;
 		} else {
-			let error = {type: ErrorHelper.types.NOT_FOUND };
+			let error = {};
 			error.message = model.name + ' id: ' + id + ' not present';
-			return ErrorHelper.formatResponse(error);
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.notFound(error);
 		}
 
 	} catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION };
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -432,15 +437,16 @@ async function _deleteMany(model, payload) {
 		if (result){
 			return true;
 		} else {
-			let error = {type: ErrorHelper.types.NOT_FOUND };
+			let error = {};
 			error.message = model.name + ' ids: ' + payload.$ids + ' not deleted';
-			return ErrorHelper.formatResponse(error);
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.notFound(error);
 		}
 
 	} catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION };
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -477,14 +483,15 @@ async function _addOne(ownerModel, ownerId, childModel, childId, associationName
 				return {doc: result};
 			}
 		}	else {
-			let error = {type: ErrorHelper.types.NOT_FOUND };
-			error.message = ownerModel.name + ' id: ' + ownerId + ' not found';
-			return ErrorHelper.formatResponse(error);
+			let error = {};
+			error.message = ownerModel.name + ' id: ' + id + ' not present';
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.notFound(error);
 		}
 	} catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION};
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -519,14 +526,15 @@ async function _removeOne(ownerModel, ownerId, childModel, childId, associationN
 				return true;
 			}
 		}	else {
-			let error = {type: ErrorHelper.types.NOT_FOUND};
-			error.message = ownerModel.name + ' id: ' + ownerId + ' not found';
-			return ErrorHelper.formatResponse(error);
+			let error = {};
+			error.message = ownerModel.name + ' id: ' + id + ' not present';
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.notFound(error);
 		}
 	} catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION};
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -609,14 +617,15 @@ async function _removeMany(ownerModel, ownerId, childModel, associationName, pay
 				return true;
 			}
 		}	else {
-			let error = {type: ErrorHelper.types.NOT_FOUND};
-			error.message = ownerModel.name + ' id: ' + ownerId + ' not found';
-			return ErrorHelper.formatResponse(error);
+			let error = {};
+			error.message = ownerModel.name + ' id: ' + id + ' not present';
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.notFound(error);
 		}
 	} catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION};
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -763,14 +772,15 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 				return {doc: ownerObject, [associationName]: result};
 			}
 		}	else {
-			let error = {type: ErrorHelper.types.NOT_FOUND};
-			error.message = ownerModel.name + ' id: ' + ownerId + ' not found';
-			return ErrorHelper.formatResponse(error);
+			let error = {};
+			error.message = ownerModel.name + ' id: ' + id + ' not present';
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.notFound(error);
 		}
 	} catch(error) {
 		Log.apiLogger.error(Chalk.red(error));
-		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION};
-		return ErrorHelper.formatResponse(error);
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
@@ -810,14 +820,16 @@ async function _setAssociation(ownerObject, childModel, associationName, payload
 			return response;
 		} else {
 			await t.rollback();
-			let error = {type: ErrorHelper.types.BAD_REQUEST };
+			let error = {};
 			error.message = 'Impossible to add ' + childModel.name + 'for: ' + ownerObject.id;
-			return ErrorHelper.formatResponse(error);
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.badRequest(error);
 		}
 	} catch(error) {
 		await t.rollback();
 		Log.apiLogger.error(Chalk.red(error));
-		return error;
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 
 }
@@ -869,12 +881,14 @@ async function _removeAssociation(ownerModel, ownerId, childModel, childId, asso
 			await t.rollback();
 			let error = {type: ErrorHelper.types.BAD_REQUEST };
 			error.message = 'Impossible to remove ' + childModel.name + 'from: ' + ownerObject.id;
-			return ErrorHelper.formatResponse(error);
+			Log.apiLogger.error(Chalk.red(error));
+			return Boom.badRequest(error);
 		}
 	} catch(error) {
 		await t.rollback();
 		Log.apiLogger.error(Chalk.red(error));
-		return error;
+		let errorMsg = error.message || 'An error occurred';
+		return Boom.badImplementation(errorMsg);
 	}
 }
 
