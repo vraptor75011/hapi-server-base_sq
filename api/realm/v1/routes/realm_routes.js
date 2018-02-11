@@ -21,9 +21,12 @@ module.exports = [
 			'Realm Second Level Relations: ' + RealmValidation.SLRelations + '<br>' +
 			'Attributes: ' + RealmValidation.Attributes + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: RealmValidation.queryAll,
 				// query: RealmValidations.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -43,10 +46,13 @@ module.exports = [
 			notes: ['Returns a Realm identified by the params {realmId} <br>' +
 			'Attributes: ' + RealmValidation.Attributes + '<br>'],
 			validate: {
-				params: RealmValidation.oneParams,
-				query: RealmValidation.queryOne,
-				// query: RealmValidations.query,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryOne,
+				params: RealmValidation.oneParams,
+				// query: RealmValidations.query,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -66,8 +72,12 @@ module.exports = [
 			'Realm hasMany Child Model: Realm object can contain one or more Child object <br>' +
 			'Realm BelongsToMany Child Model: Realm object can contain one or more Child object can contain one Through object'],
 			validate: {
-				payload: RealmValidation.postPayload,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryLang,
+				payload: RealmValidation.postPayload,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -85,9 +95,13 @@ module.exports = [
 			description: 'PUT an Updated Realm',
 			notes: ['Save an updated Realm with params in payload <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryLang,
 				params: RealmValidation.oneParams,
 				payload: RealmValidation.putPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -105,9 +119,13 @@ module.exports = [
 			description: 'DELETE an Realm',
 			notes: ['Delete un Realm <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryLang,
 				params: RealmValidation.oneParams,
 				payload: RealmValidation.deleteOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -126,9 +144,13 @@ module.exports = [
 			description: 'DELETE many Realms by Ids Array',
 			notes: ['Delete many Realms <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryLang,
 				// params: RealmValidation.paramOne,
 				payload: RealmValidation.deleteManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -147,8 +169,12 @@ module.exports = [
 			notes: ['Add one related model (to save) to a persisted Realm <br>' +
 			'Add a persisted child Model to Realm.'],
 			validate: {
-				params: RealmValidation.addOneParams,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryLang,
+				params: RealmValidation.addOneParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -168,9 +194,13 @@ module.exports = [
 			'Realm hasMany Child Model: Realm object can contain one or more Child object <br>' +
 			'Realm BelongsToMany Child Model: Realm object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryLang,
 				params: RealmValidation.removeOneParams,
 				payload: RealmValidation.removeOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -190,9 +220,13 @@ module.exports = [
 			'Realm hasMany Child Model: Realm object can contain one or more Child object <br>' +
 			'Realm BelongsToMany Child Model: Realm object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryLang,
 				params: RealmValidation.addManyParams,
 				payload: RealmValidation.addManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -212,9 +246,13 @@ module.exports = [
 			'Realm hasMany Child Model: Realm object can contain one or more Child object <br>' +
 			'Realm BelongsToMany Child Model: Realm object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryLang,
 				params: RealmValidation.removeManyParams,
 				payload: RealmValidation.removeManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -232,9 +270,12 @@ module.exports = [
 			description: 'Get All Realm related child model with query filters',
 			notes: ['Get All records of Realm related Child Model <br>'],
 			validate: {
-				params: RealmValidation.getAllParams,
-				query: RealmValidation.queryGetAll,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RealmValidation.queryGetAll,
+				params: RealmValidation.getAllParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -256,9 +297,12 @@ module.exports = [
 			'User Second Level Relations only for query: ' + RealmValidation.SLRelations + '<br>' +
 			'Attributes: ' + RealmValidation.Attributes4Select + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: RealmValidation.query4Select,
 				// query: UserValidations.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},

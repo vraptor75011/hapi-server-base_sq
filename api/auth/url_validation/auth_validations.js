@@ -1,8 +1,13 @@
 const Joi = require('joi');
 const UserValidation = require('../../user/url_validation/user_validation_base');
+const BaseValidation = require('../../../utilities/validation/base_validation');
+
+let lang = BaseValidation.lang;
 
 
 module.exports = {
+	queryLang: lang,
+
 	loginPayload: Joi.alternatives().try(
 		Joi.object({
 			username: Joi.string().min(5).max(64).required(),
@@ -29,10 +34,13 @@ module.exports = {
 		user: Joi.object().keys(UserValidation.registrationPayloadObj).required(),
 	}),
 
-	activationQuery: Joi.string().required(),
+	activationQuery: Joi.object().keys({
+		token: Joi.string().required(),
+		lang: lang.lang,
+	}),
 
-    resetPWDPayload :Joi.object().keys({
-        user: Joi.object().keys(UserValidation.registrationResetPWDPayloadObj).required(),
-    }),
+	resetPWDPayload :Joi.object().keys({
+		user: Joi.object().keys(UserValidation.registrationResetPWDPayloadObj).required(),
+	}),
 
 };

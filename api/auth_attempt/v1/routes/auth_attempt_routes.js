@@ -21,9 +21,12 @@ module.exports = [
 			'Auth Attempt Second Level Relations: ' + AuthAttempt.SLRelations + '<br>' +
 			'Attributes: ' + AuthAttempt.Attributes + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: AuthAttempt.queryAll,
 				// query: AuthAttempts.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -43,10 +46,13 @@ module.exports = [
 			notes: ['Returns a AuthAttempt identified by the params {authAttemptId} <br>' +
 			'Attributes: ' + AuthAttempt.Attributes + '<br>'],
 			validate: {
-				params: AuthAttempt.oneParams,
-				query: AuthAttempt.queryOne,
-				// query: AuthAttempts.query,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryOne,
+				params: AuthAttempt.oneParams,
+				// query: AuthAttempts.query,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -66,8 +72,12 @@ module.exports = [
 			'Auth Attempt hasMany Child Model: Auth Attempt object can contain one or more Child object <br>' +
 			'Auth Attempt BelongsToMany Child Model: Auth Attempt object can contain one or more Child object can contain one Through object'],
 			validate: {
-				payload: AuthAttempt.postPayload,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryLang,
+				payload: AuthAttempt.postPayload,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -85,9 +95,13 @@ module.exports = [
 			description: 'PUT an Updated Auth Attempt',
 			notes: ['Save an updated Auth Attempt with params in payload <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryLang,
 				params: AuthAttempt.oneParams,
 				payload: AuthAttempt.putPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -105,9 +119,13 @@ module.exports = [
 			description: 'DELETE an Auth Attempt',
 			notes: ['Delete un AuthAttempt <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryLang,
 				params: AuthAttempt.oneParams,
 				payload: AuthAttempt.deleteOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -126,9 +144,13 @@ module.exports = [
 			description: 'DELETE many Auth Attempts by Ids Array',
 			notes: ['Delete many Auth Attempts <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryLang,
 				// params: AuthAttempt.paramOne,
 				payload: AuthAttempt.deleteManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -147,8 +169,12 @@ module.exports = [
 			notes: ['Add one related model (to save) to a persisted Auth Attempt <br>' +
 			'Add a persisted child Model to Auth Attempt.'],
 			validate: {
-				params: AuthAttempt.addOneParams,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryLang,
+				params: AuthAttempt.addOneParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -168,9 +194,13 @@ module.exports = [
 			'Auth Attempt hasMany Child Model: Auth Attempt object can contain one or more Child object <br>' +
 			'Auth Attempt BelongsToMany Child Model: Auth Attempt object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryLang,
 				params: AuthAttempt.removeOneParams,
 				payload: AuthAttempt.removeOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -190,9 +220,13 @@ module.exports = [
 			'Auth Attempt hasMany Child Model: Auth Attempt object can contain one or more Child object <br>' +
 			'Auth Attempt BelongsToMany Child Model: Auth Attempt object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryLang,
 				params: AuthAttempt.addManyParams,
 				payload: AuthAttempt.addManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -212,9 +246,13 @@ module.exports = [
 			'Auth Attempt hasMany Child Model: Auth Attempt object can contain one or more Child object <br>' +
 			'Auth Attempt BelongsToMany Child Model: Auth Attempt object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryLang,
 				params: AuthAttempt.removeManyParams,
 				payload: AuthAttempt.removeManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -232,9 +270,12 @@ module.exports = [
 			description: 'Get All AuthAttempt related child model with query filters',
 			notes: ['Get All records of Auth Attempt related Child Model <br>'],
 			validate: {
-				params: AuthAttempt.getAllParams,
-				query: AuthAttempt.queryGetAll,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: AuthAttempt.queryGetAll,
+				params: AuthAttempt.getAllParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -256,9 +297,12 @@ module.exports = [
 			'Auth Attempt Second Level Relations only for query: ' + AuthAttempt.SLRelations + '<br>' +
 			'Attributes: ' + AuthAttempt.Attributes4Select + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: AuthAttempt.query4Select,
 				// query: AuthAttempts.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
