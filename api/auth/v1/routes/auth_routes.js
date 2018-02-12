@@ -34,7 +34,7 @@ module.exports= [
 		path: '/v1/auth/logout',
 		config: {
 			handler: AuthLogin.logout,
-			auth: 					{
+			auth: {
 				scope: ['Logged'],
 			},
 			tags: ['Logout', 'api', 'v1'],

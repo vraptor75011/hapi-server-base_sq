@@ -107,8 +107,8 @@ module.exports = {
 
 	},
 
-	polyglot () {
-		return this.polyglot
+	getPolyglot () {
+		return polyglot
 	},
 
 
