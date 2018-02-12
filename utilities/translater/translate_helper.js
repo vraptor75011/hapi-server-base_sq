@@ -15,6 +15,8 @@ module.exports = (request) => {
 		details.forEach((detail) => {
 			if (detail.context.limit) {
 				detail.message = polyglot.t(detail.type, {limit: detail.context.limit});
+			} else if (detail.context.value && detail.context.pattern) {
+				detail.message = polyglot.t(detail.type, {value: detail.context.value, pattern: detail.context.pattern});
 			} else {
 				detail.message = polyglot.t(detail.type);
 			}
