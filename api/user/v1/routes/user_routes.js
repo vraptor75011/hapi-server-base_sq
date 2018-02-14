@@ -303,27 +303,6 @@ module.exports = [
 			},
 		},
 	},
-	//Translations
-	{
-		method: 'GET',
-		path: '/v1/users/t',
-		config: {
-			handler: UserHandler.translation,
-			auth:
-			false,
-			tags: ['api', 'Users', 'Translation'],
-			description: 'GET User model translation',
-			notes: ['Returns User model translation'],
-			validate: {
-				options: {
-					abortEarly: false
-				},
-				// headers: HeaderValidation.headerRequired,
-				query: UserValidation.queryLang,
-				failAction: ErrorHelper.failAction,
-			},
-		},
-	},
 
 	//Extra CRUD
 	{
