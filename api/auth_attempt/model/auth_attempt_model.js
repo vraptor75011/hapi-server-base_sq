@@ -1,7 +1,7 @@
 
 module.exports = function(sequelize, DataTypes) {
 
-	let AuthAttempt = sequelize.define('user', {
+	let AuthAttempt = sequelize.define('authAttempt', {
 
 			// ATTRIBUTES
 			id: {

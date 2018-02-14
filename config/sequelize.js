@@ -7,6 +7,7 @@ const Env       = process.env.NODE_ENV || 'development';
 const Config    = require('../config/database')[Env];
 const Log = require('../utilities/logging/logging');
 const Chalk = require('chalk');
+
 //
 Dotenv.config({ silent: true });
 //

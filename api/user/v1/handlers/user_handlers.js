@@ -4,11 +4,14 @@ const Log = require('../../../../utilities/logging/logging');
 const Chalk = require('chalk');
 const Sequelize = require('sequelize');
 const Boom = require('boom');
+const _ = require('lodash');
+const Polyglot = require('./../../../../plugins/hapi-polyglot/polyglot');
 
 const Op = Sequelize.Op;
 
 const User = DB.User;
 
+let polyglot = Polyglot.getPolyglot();
 
 module.exports = {
 	findAll: async (request, h) => {
@@ -107,6 +110,23 @@ module.exports = {
 		let childModel = User.associations[request.params.childModel].target;
 		// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
 		return await HandlerHelper.getAll(User, request.params.userId, childModel, request.params.childModel, request.query);
+	},
+
+	// TRANSLATIONS - for User model
+	translation: async (request, h) => {
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
+		let modelName = User.name;
+		let translation = require('../../../../locales/'+ polyglot.locale()+'/model/model');
+		//translation[modelName] = _.extend(translation[modelName], translation.common);
+		// Logged user can get list of User model translation
+		const Translation = {
+			translation: {
+				[modelName]: translation[modelName],
+				common: translation.common,
+				relation: translation.relation,
+			}
+		};
+		return Translation;
 	},
 
 	// EXTRA Handlers

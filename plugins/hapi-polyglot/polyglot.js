@@ -64,32 +64,31 @@ module.exports = {
 			if (typeof this.polyglot === 'undefined') {
 				this.polyglot = polyglot;
 			}
-			request.polyglot = this.polyglot;
-			request.polyglot.locale(defaultLocale);
+			polyglot.locale(defaultLocale);
 			if (pluginOptions.languageHeaderField) {
 				let languageCode = request.headers[pluginOptions.languageHeaderField];
 				if (languageCode) {
-					request.i18n.setLocale(languageCode)
+					polyglot.locale(languageCode)
 				}
 			}
 			this.getLocale(request);
 			if (_.includes(Locales, this.currentLocale) === false) {
-				this.polyglot.locale(defaultLocale);
-				request.polyglot.locale(defaultLocale);
+				polyglot.locale(defaultLocale);
 				Log.apiLogger.error(Chalk.red('No localization available for ' + this.currentLocale));
 			} else {
-				this.polyglot.locale(this.currentLocale);
-				request.polyglot.locale(this.currentLocale);
+				polyglot.locale(this.currentLocale);
 			}
 			let directory = 'locales/' + this.polyglot.locale();
 			let files = getFiles(directory);
+
 			let extend = {};
 			files.forEach((file) => {
-				let f = require('../../locales/' + this.polyglot.locale() + '/' + file);
-				_.merge(extend, f);
+				let f = require('../../' + file.dir + '/' + file.file);
+				_.extend(extend, f);
 			});
-			this.polyglot.extend(extend);
-			request.polyglot.extend(extend);
+			polyglot.extend(extend);
+			request.polyglot = polyglot;
+			// request.polyglot.extend(JSON.stringify(extend));
 			return h.continue
 		});
 
@@ -115,13 +114,19 @@ module.exports = {
 };
 
 let getFiles = function(dir, fileList = []) {
-//
+// For Polyglot takes the error files .js and del model folder
 	let	files = FS.readdirSync(dir);
 	files.forEach(function(file) {
 		if (FS.statSync(dir + '/' + file).isDirectory()) {
-			getFiles(dir + '/' + file, fileList);
+			if (file === 'model') {
+				getFiles(dir + '/' + file, fileList);
+			}
+		} else if (_.includes(file, '.js')) {
+			let tmp = {};
+			tmp.dir = dir;
+			tmp.file = file;
+			fileList.push(tmp);
 		}
-			fileList.push(file);
 	});
 	return fileList;
 };
