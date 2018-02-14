@@ -1,4 +1,4 @@
-import {DELETE_ROLE, EDIT_ROLE, NEW_ROLE, ROLE_FORM_ERROR} from '../../actions/types';
+import {DELETE_ROLE, EDIT_ROLE, NEW_ROLE} from '../../actions/types';
 
 
 export default function (state = {}, action) {
@@ -17,14 +17,6 @@ export default function (state = {}, action) {
 
             return {id: action.payload.docs.id, error: '' };
 
-        case ROLE_FORM_ERROR :
-
-            const errorListArray = action.payload.data.details.map((error)=>{
-                        return {[error.path]: error.message}
-            });
-
-            const errorListObj = Object.assign({}, ...errorListArray);//merge all object
-            return {id: null, error: errorListObj };
 
 
     }

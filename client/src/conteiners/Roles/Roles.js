@@ -3,12 +3,9 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import RolesTable from '../../components/Roles/RolesTable';
-
 import {withStyles} from 'material-ui/styles';
-
-
-
 import {getRoles, deleteRole, editRole, newRole} from '../../actions/roles';
+import {cancelForm} from '../../actions/form';
 import { openModal, closeModal } from '../../actions/modals';
 
 
@@ -70,14 +67,14 @@ Roles.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getRoles, deleteRole, openModal, closeModal, editRole, newRole  }, dispatch);
+    return bindActionCreators({getRoles, deleteRole, openModal, closeModal, editRole, newRole, cancelForm  }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
 
-    return {roles: state.reducers.roles, role: state.reducers.role, modal: state.reducers.modal};
+    return {roles: state.reducers.roles, role: state.reducers.role, modal: state.reducers.modal, form: state.reducers.form };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Roles));

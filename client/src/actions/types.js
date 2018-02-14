@@ -10,7 +10,6 @@ export const GET_USERS = 'GET_USERS';
 export const DELETE_USER = 'DELETE_USER';
 export const EDIT_USER = 'EDIT_USER';
 export const NEW_USER = 'NEW_USER';
-export const USER_FORM_ERROR = 'USER_FORM_ERROR';
 
 ////modals
 
@@ -24,4 +23,9 @@ export const GET_ROLES = 'GET_ROLES';
 export const DELETE_ROLE = 'DELETE_ROLE';
 export const EDIT_ROLE = 'EDIT_ROLE';
 export const NEW_ROLE = 'NEW_ROLE';
-export const ROLE_FORM_ERROR = 'ROLE_FORM_ERROR';
+
+
+/// form
+
+export const FORM_ERROR = 'FORM_ERROR';
+export const FORM_CANCEL =  'FORM_CANCEL';

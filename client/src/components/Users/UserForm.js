@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import TextField from 'material-ui/TextField';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle,} from 'material-ui';
+import form from "../../reducers/roles/role_reducer";
 
 
 
@@ -27,6 +28,8 @@ class UserForm extends Component {
 
         let currentData = {...this.state.currentData, [type]: event.target.value};
         this.setState({currentData});
+
+
 
 
     };
@@ -64,15 +67,16 @@ console.log('ciaoo')
 
 
 
+
     render() {
 
-        const {modal, cancelEdit, row, user} = this.props;
+        const {modal, cancel, row, form} = this.props;
         const {currentData} = this.state;
 
 
         return (<Dialog
             open={modal}
-            onClose={this.cancelEdit}
+            onClose={cancel}
         >
             <DialogTitle>{row.type === 'delete'? 'Delete User' : row.type === 'edit' ? 'Edit User': 'New User' }</DialogTitle>
             <DialogContent>
@@ -84,8 +88,8 @@ console.log('ciaoo')
                         onChange={(event) => this.handleChangeForm(event, 'firstName')}
                         margin="normal"
                         fullWidth={true}
-                        error = {Boolean(user.error && user.error.firstName)}
-                        helperText={user.error && user.error.firstName}
+                        error = {Boolean(form.error && form.error.firstName)}
+                        helperText={form.error && form.error.firstName}
                     />
                     <TextField
                         id="lastName"
@@ -94,8 +98,8 @@ console.log('ciaoo')
                         onChange={(event) => this.handleChangeForm(event, 'lastName')}
                         margin="normal"
                         fullWidth={true}
-                        error = {Boolean(user.error && user.error.lastName)}
-                        helperText={user.error && user.error.lastName}
+                        error = {Boolean(form.error && form.error.lastName)}
+                        helperText={form.error && form.error.lastName}
                     />
                     <TextField
                         id="email"
@@ -104,8 +108,8 @@ console.log('ciaoo')
                         onChange={(event) => this.handleChangeForm(event, 'email')}
                         margin="normal"
                         fullWidth={true}
-                        error = {Boolean(user.error && user.error.email)}
-                        helperText={user.error && user.error.email}
+                        error = {Boolean(form.error && form.error.email)}
+                        helperText={form.error && form.error.email}
                     />
                     {!row.id  && <TextField
                         id="password"
@@ -114,15 +118,15 @@ console.log('ciaoo')
                         onChange={(event) => this.handleChangeForm(event, 'password')}
                         margin="normal"
                         fullWidth={true}
-                        error = {Boolean(user.error && user.error.password)}
-                        helperText={user.error && user.error.password}
+                        error = {Boolean(form.error && form.error.password)}
+                        helperText={form.error && form.error.password}
                     />}
 
                 </form>}
                 {row.type === 'delete' && <div>Are you sure to delete this user?</div>}
             </DialogContent>
             <DialogActions>
-                <Button onClick={cancelEdit} color="primary">Cancel</Button>
+                <Button onClick={cancel} color="primary">Cancel</Button>
                 {row.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
                 {row.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
             </DialogActions>

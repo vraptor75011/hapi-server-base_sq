@@ -12,15 +12,6 @@ import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
 import UserForm from './UserForm';
 
-import ReactTable from 'react-table';
-
-import TextField from 'material-ui/TextField';
-import SearchIcon from 'material-ui-icons/Search';
-import ArrowRight from 'material-ui-icons/KeyboardArrowRight';
-import ArrowLeft from 'material-ui-icons/KeyboardArrowLeft';
-import Input, {InputLabel, InputAdornment} from 'material-ui/Input';
-
-
 
 
 
@@ -79,74 +70,12 @@ class Users extends React.PureComponent {
         this.state = {
             users: [],
             pages: {current: 1, hasNext: false, hasPrev: false, next: 2, prev: 0, total: 1},
-            columns:[
-                {
-                    Header: "First Name",
-                    accessor: "firstName",
-                    Filter: ({filter, onChange}) => (
-                        <div style={{width: '100%'}}>
-                            <Input id="email"  value={this.state.username}
-                                   style={{ width: '100%'}}
-                                   onChange={this.handleChangeEmail}
-                                   endAdornment={
-                                       <InputAdornment position="end">
-                                               <SearchIcon/>
-                                       </InputAdornment>
-                                   }
-                            />
-                        </div>
-                    )
-                },
-        {
-            Header: "Last Name",
-                accessor: "lastName",
-
-            Filter: ({filter, onChange}) =>  (
-                <div style={{width: '100%'}}>
-                    <Input id="email"  value={this.state.username}
-                           style={{ width: '100%'}}
-                           onChange={this.handleChangeEmail}
-                           endAdornment={
-                               <InputAdornment position="end">
-                                   <SearchIcon/>
-                               </InputAdornment>
-                           }
-                    />
-                </div>
-            )},
-        {
-            Header: "Email",
-                accessor: "email",
-            Filter: ({filter, onChange}) =>  (
-                <div style={{width: '100%'}}>
-                    <Input id="email"  value={this.state.username}
-                           style={{ width: '100%'}}
-                           onChange={this.handleChangeEmail}
-                           endAdornment={
-                               <InputAdornment position="end">
-                                   <SearchIcon/>
-                               </InputAdornment>
-                           }
-                    />
-                </div>
-            )
-        },
-        {   Header: ()=><AddButton/>,
-            accessor: "edit",
-            maxWidth:120,
-            Cell: ({original}) => {
-
-            return (<div><DeleteButton /><EditButton /></div>)
-
-        },
-            filterable: false
-
-
-        }
-
-
-    ],
-            loading: true,
+            columns: [
+                {eng: 'First name', italian: 'Nome'},
+                {eng: 'Last name', italian: 'Cognome'},
+                {eng: 'Email', italian: 'Email'},
+                {eng: 'Last login', italian: 'Ultimo Login'}
+            ],
             rows: [],
             row:{},
             sorting: [],
@@ -249,7 +178,7 @@ class Users extends React.PureComponent {
 
     render() {
         const { classes, users, modal } = this.props;
-        const { columns, allowedPageSizes, loading} = this.state;
+        const { columns, allowedPageSizes,} = this.state;
 
 
 
@@ -259,33 +188,35 @@ class Users extends React.PureComponent {
 
 
                     <div className={classes.tableWrapper}>
-                        <ReactTable
-                            columns={columns}
-                            manual // Forces table not to paginate or sort automatically, so we can handle it server-side
-                            data={users.docs ? users.docs  : []}
-                            pages={users.pages ? users.pages.total  : 1} // Display the total number of pages
-                            loading={false} // Display the loading overlay when we need it
-                            onFetchData={this.fetchData} // Request new data when things change
-                            filterable={true}
-                            resizable={false}
-                            sortable={false}
-                            collapseOnSortingChange={true}
-                            collapseOnPageChange={true}
-                            collapseOnDataChange={true}
-                            defaultPageSize={users.items ? users.items.total  : 1}
-                            showPageSizeOptions= {false}
-                            previousText= 'Precedente'
-                            nextText=  'Successivo'
-                            loadingText= 'Caricamento...'
-                            noDataText=  'Nessun dato'
-                            pageText=  'Pagina'
-                            ofText=  'di'
-                            rowsText=  'righe'
-                            showPaginationBottom
-                            PreviousComponent={()=><ArrowLeft/>}
-                            NextComponent={()=><ArrowRight/>}
+                        <Table className={classes.table}>
 
-                        />
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell><AddButton onExecute={() => {
+                                        this.handleClickButtons('new')
+                                    }}/></TableCell>
+                                    {columns.map(this.renderRowHeader)}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {!users.docs && <TableRow/>}
+                                {users.docs && users.docs.map(this.renderRowTable)}
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TablePagination
+                                        count={users.pages && users.pages.total}
+                                        rowsPerPage={10}
+                                        rowsPerPageOptions={allowedPageSizes}
+                                        page={users.pages && users.pages.current}
+                                        onChangePage={this.handleChangePage}
+                                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                                    />
+
+
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
                     </div>
                 </Paper>
             </div>

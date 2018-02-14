@@ -124,8 +124,9 @@ class RolesTable extends React.PureComponent {
 
 
 
-    cancelEdit = () => {
+    cancel = () => {
         this.props.closeModal();
+        this.props.cancelForm();
         this.setState({row: {}});
 
     };
@@ -181,7 +182,7 @@ class RolesTable extends React.PureComponent {
 console.log(roles)
 
         return (<div>
-                {modal  && <RoleForm {...this.state} {...this.props} cancelEdit={ this.cancelEdit}/>}
+                {modal  && <RoleForm {...this.state} {...this.props} cancel={ this.cancel}/>}
                 <Paper className={classes.root}>
                     <div className={classes.tableWrapper}>
                         <Table className={classes.table}>

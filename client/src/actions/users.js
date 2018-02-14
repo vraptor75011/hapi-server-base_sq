@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {GET_USERS,  MODAL_CLOSE, USER_FORM_ERROR } from './types';
+import {GET_USERS,  MODAL_CLOSE, FORM_ERROR } from './types';
 import { tokenName} from '../config';
 import authHelper from '../helpers/auth_helper';
 
@@ -44,7 +44,7 @@ export function deleteUser(id) {
             dispatch(push('/login'));
         }
         else if (error.response && error.response.status === 400) {
-            dispatch({type: USER_FORM_ERROR, payload: error.response});
+            dispatch({type: FORM_ERROR, payload: error.response});
         }
 
 
@@ -75,7 +75,7 @@ export function editUser(data) {
                     dispatch(push('/login'));
                 }
                 else if (error.response && error.response.status === 400) {
-                    dispatch({type: USER_FORM_ERROR, payload: error.response});
+                    dispatch({type: FORM_ERROR, payload: error.response});
                 }
 
 
@@ -100,7 +100,7 @@ export function newUser(data) {
                     dispatch(push('/login'));
                 }
                 else if (error.response && error.response.status === 400) {
-                    dispatch({type: USER_FORM_ERROR, payload: error.response});
+                    dispatch({type: FORM_ERROR, payload: error.response});
                 }
             }
         }

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import TextField from 'material-ui/TextField';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle,} from 'material-ui';
+import form from "../../reducers/roles/role_reducer";
 
 
 class RoleForm extends Component {
@@ -58,14 +59,14 @@ class RoleForm extends Component {
 
 
     render() {
-        const {modal, cancelEdit, row, role} = this.props;
+        const {modal, cancel, row, form} = this.props;
         const {currentData} = this.state;
 
-        console.log(role.error && role.error.name)
+
 
         return (<Dialog
             open={modal}
-            onClose={cancelEdit}
+            onClose={cancel}
         >
             <DialogTitle>{row.type === 'delete'? 'Delete Role' : row.type === 'edit' ? 'Edit Role': 'New Role' }</DialogTitle>
             <DialogContent>
@@ -77,9 +78,8 @@ class RoleForm extends Component {
                         onChange={(event) => this.handleChangeForm(event, 'name')}
                         margin="normal"
                         fullWidth={true}
-                        required={true}
-                        error = {Boolean(role.error && role.error.name)}
-                        helperText={role.error && role.error.name}
+                        error = {Boolean(form.error && form.error.name)}
+                        helperText={form.error && form.error.name}
                     />
                     <TextField
                         id="description"
@@ -88,8 +88,8 @@ class RoleForm extends Component {
                         onChange={(event) => this.handleChangeForm(event, 'description')}
                         margin="normal"
                         fullWidth={true}
-                        error = {Boolean(role.error && role.error.description)}
-                        helperText={role.error && role.error.description}
+                        error = {Boolean(form.error && form.error.description)}
+                        helperText={form.error && form.error.description}
 
                     />
 
@@ -97,7 +97,7 @@ class RoleForm extends Component {
                 {row.type === 'delete' && <div>Are you sure to delete this role?</div>}
             </DialogContent>
             <DialogActions>
-                <Button onClick={cancelEdit} color="primary">Cancel</Button>
+                <Button onClick={cancel} color="primary">Cancel</Button>
                 {row.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
                 {row.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
             </DialogActions>

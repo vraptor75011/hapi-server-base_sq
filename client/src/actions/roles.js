@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_ROLES, MODAL_CLOSE, ROLE_FORM_ERROR } from './types';
+import { GET_ROLES, MODAL_CLOSE, FORM_ERROR } from './types';
 import { tokenName } from '../config';
 import authHelper from '../helpers/auth_helper';
 
@@ -40,7 +40,7 @@ export function deleteRole(id) {
             dispatch(push('/login'));
         }
         else if (error.response && error.response.status === 400) {
-            dispatch({type: ROLE_FORM_ERROR, payload: error.response});
+            dispatch({type: FORM_ERROR, payload: error.response});
         }
 
 
@@ -71,7 +71,7 @@ export function editRole(data) {
                     dispatch(push('/login'));
                 }
                 else if (error.response && error.response.status === 400) {
-                    dispatch({type: ROLE_FORM_ERROR, payload: error.response});
+                    dispatch({type: FORM_ERROR, payload: error.response});
                 }
 
 
@@ -100,7 +100,7 @@ export function newRole(data) {
                     dispatch(push('/login'));
                 }
                 else if (error.response && error.response.status === 400) {
-                    dispatch({type: ROLE_FORM_ERROR, payload: error.response});
+                    dispatch({type: FORM_ERROR, payload: error.response});
                 }
             }
         }

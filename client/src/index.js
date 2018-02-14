@@ -8,6 +8,9 @@ import {DashBoard, Users, Roles} from './conteiners/ComposedPages';
 import RequiredAuth from './conteiners/auth/Required_auth';
 import reducers from './reducers';
 import './index.css';
+import './css/ag-grid.css';
+import './css/ag-theme-material.css';
+import './css/react-table.css';
 import createHistory from 'history/createBrowserHistory';
 import {ConnectedRouter, routerMiddleware, routerReducer} from 'react-router-redux';
 

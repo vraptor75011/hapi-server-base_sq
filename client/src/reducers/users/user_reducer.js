@@ -1,4 +1,4 @@
-import {NEW_USER, EDIT_USER, DELETE_USER, USER_FORM_ERROR} from '../../actions/types';
+import {NEW_USER, EDIT_USER, DELETE_USER} from '../../actions/types';
 
 
 export default function (state = {}, action) {
@@ -16,16 +16,6 @@ export default function (state = {}, action) {
         case DELETE_USER :
 
             return {id: action.payload.docs.id, error: '' };
-
-        case USER_FORM_ERROR :
-
-            const errorListArray = action.payload.data.details.map((error)=>{
-                return {[error.path]: error.message}
-            });
-
-            const errorListObj = Object.assign({}, ...errorListArray);//merge all object
-            return {id: null, error: errorListObj };
-
 
 
     }

@@ -6,7 +6,9 @@ import {bindActionCreators} from 'redux';
 import UsersTable from '../../components/Users/UsersTable';
 import {withStyles} from 'material-ui/styles';
 import {getUsers, deleteUser, editUser, newUser} from '../../actions/users';
+import {cancelForm} from '../../actions/form';
 import { openModal, closeModal } from '../../actions/modals';
+
 
 
 
@@ -70,14 +72,14 @@ Users.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser  }, dispatch);
+    return bindActionCreators({getUsers, deleteUser, openModal, closeModal, editUser, newUser, cancelForm  }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
 
-    return {users: state.reducers.users, user: state.reducers.user, modal: state.reducers.modal };
+    return {users: state.reducers.users, user: state.reducers.user, modal: state.reducers.modal, form: state.reducers.form };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
