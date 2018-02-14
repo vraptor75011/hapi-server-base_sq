@@ -8,7 +8,7 @@ module.exports = {
 		updatedAt: "aggiornato alle",
 	},
 
-	relation: {
+	association: {
 		// Relations
 		realmId: "reame id",
 		realm: "reame",

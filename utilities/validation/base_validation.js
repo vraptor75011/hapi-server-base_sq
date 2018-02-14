@@ -15,7 +15,7 @@ let translationValues = () => {
 		transArray.push(key)
 	});
 
-	return transArray;
+	return transArray.sort();
 };
 
 module.exports = {

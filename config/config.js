@@ -56,7 +56,7 @@ const config = {
 	locales: {
 		$filter: 'env',
 		production: ['en_US', 'it_IT'],
-		$default: ['en_US', 'it_IT', 'fr_FR'],
+		$default: ['en_US', 'fr_FR', 'it_IT'],
 	},
   mailAccount: {
     $filter: 'env',
