@@ -15,9 +15,10 @@ module.exports = [
 	{
 		assign: 'decoded',
 		method: async (request, h) => {
-			Jwt.verify(request.query.token, Config.get('/jwtSecret'), function (err, decoded) {
-				if (err) {
-					return h.response(Boom.badRequest('Invalid email or key.'));
+			Jwt.verify(request.query.token, Config.get('/jwtSecret'), (error, decoded) => {
+				if (error) {
+					Log.apiLogger.error(Chalk.red(error));
+					return Boom.badRequest('Invalid email or key.');
 				}
 				return h.response(decoded);
 			});
@@ -34,12 +35,13 @@ module.exports = [
 				};
 				let user = await User.findOne(conditions);
 				if (!user) {
-					return h.response(Boom.badRequest('Invalid email or key.'));
+					return Boom.badRequest('Invalid email or key.');
 				}
 				return h.response(user);
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
-				return h.response(Boom.badImplementation('There was an error accessing the database.'));
+				let errorMsg = error.message || 'An error occurred';
+				return Boom.badImplementation(errorMsg);
 			}
 		}
 	}

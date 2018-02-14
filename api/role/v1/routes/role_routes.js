@@ -21,9 +21,12 @@ module.exports = [
 			'Role Second Level Relations: ' + RoleValidation.SLRelations + '<br>' +
 			'Attributes: ' + RoleValidation.Attributes + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: RoleValidation.queryAll,
 				// query: RoleValidations.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -43,10 +46,13 @@ module.exports = [
 			notes: ['Returns a Role identified by the params {roleId} <br>' +
 			'Attributes: ' + RoleValidation.Attributes + '<br>'],
 			validate: {
-				params: RoleValidation.oneParams,
-				query: RoleValidation.queryOne,
-				// query: RoleValidations.query,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryOne,
+				params: RoleValidation.oneParams,
+				// query: RoleValidations.query,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -66,8 +72,12 @@ module.exports = [
 			'Role hasMany Child Model: Role object can contain one or more Child object <br>' +
 			'Role BelongsToMany Child Model: Role object can contain one or more Child object can contain one Through object'],
 			validate: {
-				payload: RoleValidation.postPayload,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryLang,
+				payload: RoleValidation.postPayload,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -85,9 +95,10 @@ module.exports = [
 			description: 'PUT an Updated Role',
 			notes: ['Save an updated Role with params in payload <br>'],
 			validate: {
+				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryLang,
 				params: RoleValidation.oneParams,
 				payload: RoleValidation.putPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -105,9 +116,13 @@ module.exports = [
 			description: 'DELETE an Role',
 			notes: ['Delete un Role <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryLang,
 				params: RoleValidation.oneParams,
 				payload: RoleValidation.deleteOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -126,9 +141,10 @@ module.exports = [
 			description: 'DELETE many Roles by Ids Array',
 			notes: ['Delete many Roles <br>'],
 			validate: {
+				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryLang,
 				// params: RoleValidation.paramOne,
 				payload: RoleValidation.deleteManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -147,8 +163,12 @@ module.exports = [
 			notes: ['Add one related model (to save) to a persisted Role <br>' +
 			'Add a persisted child Model to Role.'],
 			validate: {
-				params: RoleValidation.addOneParams,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryLang,
+				params: RoleValidation.addOneParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -168,9 +188,13 @@ module.exports = [
 			'Role hasMany Child Model: Role object can contain one or more Child object <br>' +
 			'Role BelongsToMany Child Model: Role object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryLang,
 				params: RoleValidation.removeOneParams,
 				payload: RoleValidation.removeOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -190,9 +214,13 @@ module.exports = [
 			'Role hasMany Child Model: Role object can contain one or more Child object <br>' +
 			'Role BelongsToMany Child Model: Role object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryLang,
 				params: RoleValidation.addManyParams,
 				payload: RoleValidation.addManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -212,9 +240,13 @@ module.exports = [
 			'Role hasMany Child Model: Role object can contain one or more Child object <br>' +
 			'Role BelongsToMany Child Model: Role object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryLang,
 				params: RoleValidation.removeManyParams,
 				payload: RoleValidation.removeManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -232,9 +264,12 @@ module.exports = [
 			description: 'Get All Role related child model with query filters',
 			notes: ['Get All records of Role related Child Model <br>'],
 			validate: {
-				params: RoleValidation.getAllParams,
-				query: RoleValidation.queryGetAll,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RoleValidation.queryGetAll,
+				params: RoleValidation.getAllParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -256,9 +291,12 @@ module.exports = [
 			'User Second Level Relations only for query: ' + RoleValidation.SLRelations + '<br>' +
 			'Attributes: ' + RoleValidation.Attributes4Select + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: RoleValidation.query4Select,
 				// query: UserValidations.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},

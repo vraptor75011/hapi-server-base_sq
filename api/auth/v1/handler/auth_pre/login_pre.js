@@ -94,12 +94,12 @@ const LoginPre = [
 				} else {
 					let error = 'Un error occurred';
 					Log.apiLogger.error(Chalk.red(error));
-					return Boom.badGateway(error);
+					return Boom.badRequest(error);
 				}
 			}	catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return Boom.gatewayTimeout(errorMsg);
+				return Boom.badImplementation(errorMsg);
 			}
 		}
 	},
@@ -133,7 +133,7 @@ const LoginPre = [
 			}	catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return Boom.gatewayTimeout(errorMsg);
+				return Boom.badImplementation(errorMsg);
 			}
 		}
 	},
@@ -149,38 +149,17 @@ const LoginPre = [
 						{name: realmName}
 				});
 				if (!realm) {
-					return h.response(Boom.unauthorized('Invalid realm'));
+					return Boom.unauthorized('Invalid realm');
 				} else {
 					return h.response(realm);
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.badImplementation(errorMsg);
 			}
 		}
 	},
-// {
-// 	// assign: 'logAttempt',
-// 	// method: function (request, reply) {
-// 	//
-// 	// 	if (request.pre.user) {
-// 	// 		return reply();
-// 	// 	}
-// 	//
-// 	// 	const ip = request.info.remoteAddress;
-// 	// 	const email = request.payload.email;
-// 	//
-// 	// 	AuthAttempt.createInstance(ip, email, Log)
-// 	// 		.then(function (authAttempt) {
-// 	// 			return reply(Boom.badRequest('Invalid Email or Password.'));
-// 	// 		})
-// 	// 		.catch(function (error) {
-// 	// 			Log.error(error);
-// 	// 			return reply(Boom.gatewayTimeout('An error occurred.'));
-// 	// 		});
-// 	// }
-// },
 	{
 		assign: 'isActive',
 		method: async function (request, h) {
@@ -190,7 +169,7 @@ const LoginPre = [
 				return h.continue
 			}
 			else {
-				return h.response(Boom.unauthorized('Account is inactive.'));
+				return Boom.unauthorized('Account is inactive.');
 			}
 		}
 	},
@@ -205,13 +184,19 @@ const LoginPre = [
 					return h.response(null);
 				} else {
 					session = await Session.createOrRefreshInstance(request, null, user, realm);
-					Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
-					return h.response(session);
+					if (session) {
+						Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
+						return h.response(session);
+					} else {
+						let error = 'Un error occurred';
+						Log.apiLogger.error(Chalk.red(error));
+						return Boom.badRequest(error);
+					}
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.badImplementation(errorMsg);
 			}
 		}
 	},
@@ -237,12 +222,12 @@ const LoginPre = [
 				if(roles && roles.length){
 					return h.response(roles);
 				} else {
-					return h.response(Boom.unauthorized('No roles'));
+					return Boom.unauthorized('User with no roles');
 				}
 			} catch(error) {
 				Log.apiLogger.error(Chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
-				return h.response(Boom.gatewayTimeout(errorMsg));
+				return Boom.badImplementation(errorMsg);
 			}
 		}
 	},

@@ -276,7 +276,7 @@ module.exports = function(model) {
 
 	const fields = {
 		$fields: Joi.alternatives().try(
-			Joi.array().description('selected attributes: [{model}id, [id, username, {model}email]')
+			Joi.array().description('selected attributes: {model}id, [id, username, {model}email]')
 				.items(
 					Joi.string().max(255)
 						.regex(ValidationHelper.fieldRegExp(model)))

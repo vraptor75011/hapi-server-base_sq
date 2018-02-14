@@ -1,6 +1,7 @@
 const Boom = require('boom');
 const Log = require('../logging/logging');
 const Chalk = require('chalk');
+const _ = require('lodash');
 
 module.exports = {
 
@@ -76,14 +77,20 @@ module.exports = {
 	 * @returns {object} A Boom response.
 	 */
 	failAction: async (request, h, err) => {
+		let polyglot = request.polyglot;
+		let locale = polyglot.locale();
 		if (process.env.NODE_ENV === 'production') {
 			// In prod, log a limited error message and throw the default Bad Request error.
-			Log.apiLogger.error(Chalk.blue('ValidationError:', err.message)); // Better to use an actual logger here.
+			Log.apiLogger.warn(Chalk.blue('ValidationError:', err.message)); // Better to use an actual logger here.
 			throw Boom.badRequest(`Invalid request validation input`);
 		} else {
 			// During development, log and respond with the full error.
-			Log.apiLogger.error(Chalk.blue('ValidationError:', err.message));
+			Log.apiLogger.warn(Chalk.blue('ValidationError:', err.message));
 			let error = Boom.badRequest(err.message);
+			err.details.forEach((detail) => {
+				let index = _.indexOf(detail.message, ' ');
+				detail.message = detail.message.slice(index+1);
+			});
 			error.output.payload.details = err.details;
 			throw error;
 		}

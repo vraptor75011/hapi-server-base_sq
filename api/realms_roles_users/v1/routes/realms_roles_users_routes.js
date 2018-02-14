@@ -21,9 +21,12 @@ module.exports = [
 			'RealmsRolesUsers Second Level Relations: ' + RealmsRolesUsersValidation.SLRelations + '<br>' +
 			'Attributes: ' + RealmsRolesUsersValidation.Attributes + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: RealmsRolesUsersValidation.queryAll,
 				// query: RealmsRolesUsersValidations.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -43,10 +46,13 @@ module.exports = [
 			notes: ['Returns a RealmsRolesUsers identified by the params {realmsRolesUsersId} <br>' +
 			'Attributes: ' + RealmsRolesUsersValidation.Attributes + '<br>'],
 			validate: {
-				params: RealmsRolesUsersValidation.oneParams,
-				query: RealmsRolesUsersValidation.queryOne,
-				// query: RealmsRolesUsersValidations.query,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryOne,
+				params: RealmsRolesUsersValidation.oneParams,
+				// query: RealmsRolesUsersValidations.query,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -66,8 +72,12 @@ module.exports = [
 			'RealmsRolesUsers hasMany Child Model: RealmsRolesUsers object can contain one or more Child object <br>' +
 			'RealmsRolesUsers BelongsToMany Child Model: RealmsRolesUsers object can contain one or more Child object can contain one Through object'],
 			validate: {
-				payload: RealmsRolesUsersValidation.postPayload,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryLang,
+				payload: RealmsRolesUsersValidation.postPayload,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -85,9 +95,13 @@ module.exports = [
 			description: 'PUT an Updated RealmsRolesUsers',
 			notes: ['Save an updated RealmsRolesUsers with params in payload <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryLang,
 				params: RealmsRolesUsersValidation.oneParams,
 				payload: RealmsRolesUsersValidation.putPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -105,9 +119,13 @@ module.exports = [
 			description: 'DELETE an RealmsRolesUsers',
 			notes: ['Delete un RealmsRolesUsers <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryLang,
 				params: RealmsRolesUsersValidation.oneParams,
 				payload: RealmsRolesUsersValidation.deleteOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -126,9 +144,13 @@ module.exports = [
 			description: 'DELETE many RealmsRolesUsers by Ids Array',
 			notes: ['Delete many RealmsRolesUsers <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryLang,
 				// params: RealmsRolesUsersValidation.paramOne,
 				payload: RealmsRolesUsersValidation.deleteManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -147,8 +169,12 @@ module.exports = [
 			notes: ['Add one related model (to save) to a persisted RealmsRolesUsers <br>' +
 			'Add a persisted child Model to RealmsRolesUsers.'],
 			validate: {
-				params: RealmsRolesUsersValidation.addOneParams,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryLang,
+				params: RealmsRolesUsersValidation.addOneParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -168,9 +194,13 @@ module.exports = [
 			'RealmsRolesUsers hasMany Child Model: RealmsRolesUsers object can contain one or more Child object <br>' +
 			'RealmsRolesUsers BelongsToMany Child Model: RealmsRolesUsers object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryLang,
 				params: RealmsRolesUsersValidation.removeOneParams,
 				payload: RealmsRolesUsersValidation.removeOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -190,9 +220,13 @@ module.exports = [
 			'RealmsRolesUsers hasMany Child Model: RealmsRolesUsers object can contain one or more Child object <br>' +
 			'RealmsRolesUsers BelongsToMany Child Model: RealmsRolesUsers object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryLang,
 				params: RealmsRolesUsersValidation.addManyParams,
 				payload: RealmsRolesUsersValidation.addManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -212,9 +246,13 @@ module.exports = [
 			'RealmsRolesUsers hasMany Child Model: RealmsRolesUsers object can contain one or more Child object <br>' +
 			'RealmsRolesUsers BelongsToMany Child Model: RealmsRolesUsers object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryLang,
 				params: RealmsRolesUsersValidation.removeManyParams,
 				payload: RealmsRolesUsersValidation.removeManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -232,9 +270,12 @@ module.exports = [
 			description: 'Get All RealmsRolesUsers related child model with query filters',
 			notes: ['Get All records of RealmsRolesUsers related Child Model <br>'],
 			validate: {
-				params: RealmsRolesUsersValidation.getAllParams,
-				query: RealmsRolesUsersValidation.queryGetAll,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: RealmsRolesUsersValidation.queryGetAll,
+				params: RealmsRolesUsersValidation.getAllParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -256,9 +297,12 @@ module.exports = [
 			'User Second Level Relations only for query: ' + RealmsRolesUsersValidation.SLRelations + '<br>' +
 			'Attributes: ' + RealmsRolesUsersValidation.Attributes4Select + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: RealmsRolesUsersValidation.query4Select,
 				// query: UserValidations.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},

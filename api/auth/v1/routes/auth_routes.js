@@ -19,6 +19,10 @@ module.exports= [
 			description: 'User login.',
 			notes: ['Returns TOKENS after User authentication'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				query: AuthValidations.queryLang,
 				payload: AuthValidations.loginPayload,
 				failAction: ErrorHelper.failAction,
 			},
@@ -30,14 +34,18 @@ module.exports= [
 		path: '/v1/auth/logout',
 		config: {
 			handler: AuthLogin.logout,
-			auth: 					{
+			auth: {
 				scope: ['Logged'],
 			},
 			tags: ['Logout', 'api', 'v1'],
 			description: 'User logout. Destroy his session.',
 			notes: ['Returns true if destroy completed'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: AuthValidations.queryLang,
 				payload: AuthValidations.logoutPayload,
 				failAction: ErrorHelper.failAction,
 			},
@@ -56,8 +64,12 @@ module.exports= [
 			description: 'User refresh his store. Return two refreshed tokens.',
 			notes: ['Returns two refreshed tokens if refresh store is OK'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
-				// payload: AuthValidations.logoutPayload,
+				query: AuthValidations.queryLang,
+				payload: AuthValidations.logoutPayload,
 				failAction: ErrorHelper.failAction,
 			},
 
@@ -73,6 +85,10 @@ module.exports= [
 			description: 'Register new User (no active).',
 			notes: ['Returns the new User object no active'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				query: AuthValidations.queryLang,
 				payload: AuthValidations.registrationPayload,
 				failAction: ErrorHelper.failAction,
 			},
@@ -90,6 +106,10 @@ module.exports= [
 			description: 'Admin invites a new User (no active).',
 			notes: ['Returns the new User object no active'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				query: AuthValidations.queryLang,
 				payload: AuthValidations.invitationPayload,
 				failAction: ErrorHelper.failAction,
 			},
@@ -104,9 +124,10 @@ module.exports= [
 			description: 'User account activation.',
 			tags: ['Activation', 'api', 'v1'],
 			validate: {
-				query: {
-					token: AuthValidations.activationQuery,
+				options: {
+					abortEarly: false
 				},
+				query: AuthValidations.activationQuery,
 				failAction: ErrorHelper.failAction,
 			},
 			pre: ActivationPre,
@@ -122,6 +143,10 @@ module.exports= [
 			description: 'Everybody can send request to reset his pwd.',
 			notes: ['Returns the updated User object with new pwd not active'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				query: AuthValidations.queryLang,
 				payload: AuthValidations.resetPWDPayload,
 				failAction: ErrorHelper.failAction,
 			},
@@ -136,9 +161,10 @@ module.exports= [
 			description: 'User reset PWD confirm.',
 			tags: ['Reset Password', 'api', 'v1'],
 			validate: {
-				query: {
-					token: AuthValidations.activationQuery,
+				options: {
+					abortEarly: false
 				},
+				query: AuthValidations.activationQuery,
 				failAction: ErrorHelper.failAction,
 			},
 			pre: ActiveNewPWDPre,

@@ -10,7 +10,7 @@ module.exports = {
 	findAll: async (request, h) => {
 		// Call listAll async function with await inside handler-helper
 		// call LIST Handler for CRUD function valid for all present models
-		Log.apiLogger.info(Chalk.cyan('Method: %s - Request: %s', request.method, request.path));
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let result = await HandlerHelper.list(AuthAttempt, request.query);
 		return result;
 
@@ -19,6 +19,7 @@ module.exports = {
 	findOne: async (request, h) => {
 		// Call an async function with await inside in handler-helper
 		// call FIND ONE Handler for CRUD function valid for all present models
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let result = await HandlerHelper.find(AuthAttempt, request.params.authAttemptId, request.query);
 		return result;
 
@@ -29,6 +30,7 @@ module.exports = {
 		// Only for Admin to Add a new User without free registration
 
 		// call CREATE Handler for CRUD function valid for all present models
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let result = await HandlerHelper.create(AuthAttempt, request.payload);
 		return result;
 
@@ -39,6 +41,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 
 		// call CREATE Handler for CRUD function valid for all present models
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let result = await HandlerHelper.update(AuthAttempt, request.params.authAttemptId, request.payload);
 		return result;
 	},
@@ -48,6 +51,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE Handler for CRUD function valid for all present models
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let result = await HandlerHelper.deleteOne(AuthAttempt, request.params.authAttemptId, request.payload);
 		return result;
 	},
@@ -57,6 +61,7 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE MANY Handler for EXTRA CRUD function valid for all present models
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let result = await HandlerHelper.deleteMany(AuthAttempt, request.payload);
 		return result;
 	},
@@ -64,6 +69,7 @@ module.exports = {
 	addOne: async (request, h) => {
 		// Admin can add one child model to an User
 		// Call an async function with await inside in handler-helper
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
 		let result = await HandlerHelper.addOne(AuthAttempt, request.params.authAttemptId, childModel, request.params.childId, request.params.childModel);
@@ -73,6 +79,7 @@ module.exports = {
 	removeOne: async (request, h) => {
 		// Admin can remove one child model from an User
 		// Call an async function with await inside in handler-helper
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
 		let result = await HandlerHelper.removeOne(AuthAttempt, request.params.authAttemptId, childModel, request.params.childId, request.params.childModel);
@@ -82,6 +89,7 @@ module.exports = {
 	addMany: async (request, h) => {
 		// Admin can add one or more child model to an User
 		// Call an async function with await inside in handler-helper
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
 		let result = await HandlerHelper.addMany(AuthAttempt, request.params.authAttemptId, childModel, request.params.childModel, request.payload);
@@ -91,6 +99,7 @@ module.exports = {
 	removeMany: async (request, h) => {
 		// Admin can remove one or more child model from an User
 		// Call an async function with await inside in handler-helper
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
 		let result = await HandlerHelper.removeMany(AuthAttempt, request.params.authAttemptId, childModel, request.params.childModel, request.payload);
@@ -100,6 +109,7 @@ module.exports = {
 	getAll: async (request, h) => {
 		// Admin can get list of Child model related to User
 		// Call an async function with await inside in handler-helper
+		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
 		let result = await HandlerHelper.getAll(AuthAttempt, request.params.authAttemptId, childModel, request.params.childModel, request.query);

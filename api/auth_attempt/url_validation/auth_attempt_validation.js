@@ -6,6 +6,8 @@ const ModelRelationValidation = require('../../../utilities/validation/model_rel
 const BaseValidation = require('../../../utilities/validation/base_validation');
 const UserValidationBase = require('./auth_attempt_validation_base');
 
+let lang = BaseValidation.lang;
+
 
 const Validations = ModelValidation(DB.AuthAttempt);
 
@@ -27,9 +29,9 @@ let withRelFields = Validations.withRelFields;
 let withRelFilters = Validations.withRelFilters;
 let withRelCount = Validations.withRelCount;
 let withRelSort = Validations.withRelSort;
-let val4QueryAll = Object.assign({}, filters, pagination, fulTextSearch, sort, math, softDeleted, excludedFields,
+let val4QueryAll = Object.assign({}, lang, filters, pagination, fulTextSearch, sort, math, softDeleted, excludedFields,
 	count, fields, withRelated, withRelExcludedFields, withRelFields, withRelFilters, withRelCount, withRelSort);
-let val4Select = Object.assign({}, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
+let val4Select = Object.assign({}, lang, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
 
 let FLRelations = Validations.FLRelations;
 let SLRelations = Validations.SLRelations;
@@ -66,11 +68,12 @@ module.exports = {
 	Attributes4Select: Attributes4Select,
 
 	//URL Query
+	queryLang: Joi.object().keys(_.assign({}, lang)),
 	//FindAll
 	queryAll: Joi.object().keys(val4QueryAll),
 	//FindOne
 	oneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId})),
-	queryOne: Joi.object().keys(_.assign({}, fields, softDeleted, excludedFields, withRelated)),
+	queryOne: Joi.object().keys(_.assign({}, lang, fields, softDeleted, excludedFields, withRelated)),
 
 
 	//Payload
@@ -113,7 +116,8 @@ module.exports = {
 
 	//GET_ALL
 	getAllParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
-	queryGetAll: Joi.object().keys(_.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted, relExcludedFields, relCount, relFields, relRelated, relExtra)),
+	queryGetAll: Joi.object().keys(_.assign({}, lang, relFilters, relPagination, relSort, relMath, relSoftDeleted,
+		relExcludedFields, relCount, relFields, relRelated, relExtra)),
 
 	//GET for Select
 	query4Select: Joi.object().keys(val4Select),

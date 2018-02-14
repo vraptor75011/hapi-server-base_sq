@@ -21,9 +21,12 @@ module.exports = [
 			'Session Second Level Relations: ' + SessionValidation.SLRelations + '<br>' +
 			'Attributes: ' + SessionValidation.Attributes + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: SessionValidation.queryAll,
 				// query: SessionValidations.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -43,10 +46,13 @@ module.exports = [
 			notes: ['Returns a Session identified by the params {sessionId} <br>' +
 			'Attributes: ' + SessionValidation.Attributes + '<br>'],
 			validate: {
-				params: SessionValidation.oneParams,
-				query: SessionValidation.queryOne,
-				// query: SessionValidations.query,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryOne,
+				params: SessionValidation.oneParams,
+				// query: SessionValidations.query,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -66,8 +72,12 @@ module.exports = [
 			'Session hasMany Child Model: Session object can contain one or more Child object <br>' +
 			'Session BelongsToMany Child Model: Session object can contain one or more Child object can contain one Through object'],
 			validate: {
-				payload: SessionValidation.postPayload,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryLang,
+				payload: SessionValidation.postPayload,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -85,9 +95,13 @@ module.exports = [
 			description: 'PUT an Updated Session',
 			notes: ['Save an updated Session with params in payload <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryLang,
 				params: SessionValidation.oneParams,
 				payload: SessionValidation.putPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -105,9 +119,13 @@ module.exports = [
 			description: 'DELETE an Session',
 			notes: ['Delete un Session <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryLang,
 				params: SessionValidation.oneParams,
 				payload: SessionValidation.deleteOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -126,9 +144,13 @@ module.exports = [
 			description: 'DELETE many Sessions by Ids Array',
 			notes: ['Delete many Sessions <br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryLang,
 				// params: SessionValidation.paramOne,
 				payload: SessionValidation.deleteManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -147,8 +169,12 @@ module.exports = [
 			notes: ['Add one related model (to save) to a persisted Session <br>' +
 			'Add a persisted child Model to Session.'],
 			validate: {
-				params: SessionValidation.addOneParams,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryLang,
+				params: SessionValidation.addOneParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -168,9 +194,13 @@ module.exports = [
 			'Session hasMany Child Model: Session object can contain one or more Child object <br>' +
 			'Session BelongsToMany Child Model: Session object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryLang,
 				params: SessionValidation.removeOneParams,
 				payload: SessionValidation.removeOnePayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -190,9 +220,13 @@ module.exports = [
 			'Session hasMany Child Model: Session object can contain one or more Child object <br>' +
 			'Session BelongsToMany Child Model: Session object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryLang,
 				params: SessionValidation.addManyParams,
 				payload: SessionValidation.addManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -212,9 +246,13 @@ module.exports = [
 			'Session hasMany Child Model: Session object can contain one or more Child object <br>' +
 			'Session BelongsToMany Child Model: Session object can contain one or more Child object can contain one Through object'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryLang,
 				params: SessionValidation.removeManyParams,
 				payload: SessionValidation.removeManyPayload,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -232,9 +270,12 @@ module.exports = [
 			description: 'Get All Session related child model with query filters',
 			notes: ['Get All records of Session related Child Model <br>'],
 			validate: {
-				params: SessionValidation.getAllParams,
-				query: SessionValidation.queryGetAll,
+				options: {
+					abortEarly: false
+				},
 				headers: HeaderValidation.headerRequired,
+				query: SessionValidation.queryGetAll,
+				params: SessionValidation.getAllParams,
 				failAction: ErrorHelper.failAction,
 			},
 		},
@@ -256,9 +297,12 @@ module.exports = [
 			'User Second Level Relations only for query: ' + SessionValidation.SLRelations + '<br>' +
 			'Attributes: ' + SessionValidation.Attributes4Select + '<br>'],
 			validate: {
+				options: {
+					abortEarly: false
+				},
+				headers: HeaderValidation.headerRequired,
 				query: SessionValidation.query4Select,
 				// query: UserValidations.query,
-				headers: HeaderValidation.headerRequired,
 				failAction: ErrorHelper.failAction,
 			},
 		},
