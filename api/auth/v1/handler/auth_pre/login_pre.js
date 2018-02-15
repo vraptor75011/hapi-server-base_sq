@@ -1,13 +1,12 @@
 const Boom = require('boom');
 const Bcrypt = require('bcrypt');
-const Chalk = require('chalk');
 const Sequelize = require('sequelize');
 
 const Config = require('../../../../../config/config');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 const authStrategy = Config.get('/serverHapiConfig/authStrategy');
-const Log = require('../../../../../utilities/logging/logging');
+const { apiLogger, sesLogger, chalk } = require('../../../../../utilities/logging/logging');
 const Token = require('../../../../../utilities/token/token');
 const DB = require('../../../../../config/sequelize');
 
@@ -67,7 +66,7 @@ const LoginPre = [
 					ipSum += 1;
 					if (ipSum > authAttemptsConfig.forIp) {
 						let error = 'Exceeded the IP maximum attempts';
-						Log.apiLogger.error(Chalk.red(error));
+						apiLogger.error(chalk.red(error));
 						return Boom.unauthorized(error);
 					}
 
@@ -83,7 +82,7 @@ const LoginPre = [
 					attempt.count += 1;
 					if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate && blockDate > expirationDate) {
 						let error = 'Exceeded the User maximum attempts';
-						Log.apiLogger.error(Chalk.red(error));
+						apiLogger.error(chalk.red(error));
 						return Boom.unauthorized(error);
 					} else if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate && blockDate <= expirationDate) {
 						attempt.count = 1;
@@ -93,11 +92,11 @@ const LoginPre = [
 					return h.response(attempt);
 				} else {
 					let error = 'Un error occurred';
-					Log.apiLogger.error(Chalk.red(error));
+					apiLogger.error(chalk.red(error));
 					return Boom.badRequest(error);
 				}
 			}	catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.badImplementation(errorMsg);
 			}
@@ -110,7 +109,7 @@ const LoginPre = [
 			const username = request.payload.username;
 			const password = request.payload.password;
 			let userLogging = email || username;
-			Log.session.info(Chalk.grey('User: ' + userLogging + ' try to logging in'));
+			sesLogger.info(chalk.grey('User: ' + userLogging + ' try to logging in'));
 
 			try {
 				let user = await User.findOne(
@@ -131,7 +130,7 @@ const LoginPre = [
 				}
 				return Boom.unauthorized('Invalid username or password');
 			}	catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.badImplementation(errorMsg);
 			}
@@ -154,7 +153,7 @@ const LoginPre = [
 					return h.response(realm);
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.badImplementation(errorMsg);
 			}
@@ -185,16 +184,16 @@ const LoginPre = [
 				} else {
 					session = await Session.createOrRefreshInstance(request, null, user, realm);
 					if (session) {
-						Log.session.info(Chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
+						sesLogger.info(chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
 						return h.response(session);
 					} else {
 						let error = 'Un error occurred';
-						Log.apiLogger.error(Chalk.red(error));
+						apiLogger.error(chalk.red(error));
 						return Boom.badRequest(error);
 					}
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.badImplementation(errorMsg);
 			}
@@ -225,7 +224,7 @@ const LoginPre = [
 					return Boom.unauthorized('User with no roles');
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.badImplementation(errorMsg);
 			}

@@ -5,9 +5,7 @@ const Markdown = require('nodemailer-markdown').markdown;
 const NodeMailer = require('nodemailer');
 
 const Config = require('../../config/config');
-const Log = require('../logging/logging');
-const Chalk = require('chalk');
-
+const { apiLogger, chalk } = require('../logging/logging');
 
 let renderTemplate = async (signature, context) => {
 
@@ -54,9 +52,9 @@ module.exports = {
 		// send mail with defined transport object
 		transporter.sendMail(options, (error, info) => {
 			if (error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 			}
-			Log.apiLogger.info(Chalk.cyan('Message sent to: %s', info.messageId));
+			apiLogger.info(chalk.cyan('Message sent to: %s', info.messageId));
 		});
 
 	}

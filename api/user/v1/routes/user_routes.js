@@ -1,7 +1,7 @@
-const HeaderValidation = require('../../../../utilities/validation/header_validation');
+const { headerRequired } = require('../../../../utilities/validation/header_validation');
 const UserValidation = require('../../url_validation/user_validation');
 const UserHandler = require('../handlers/user_handlers');
-const ErrorHelper = require('../../../../utilities/error/error-helper');
+const { failAction } = require('../../../../utilities/error/error-helper');
 
 module.exports = [
 	{
@@ -24,10 +24,10 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryAll,
 				// query: UserValidations.query,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -49,11 +49,11 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryOne,
 				params: UserValidation.oneParams,
 				// query: UserValidations.query,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -75,10 +75,10 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryLang,
 				payload: UserValidation.postPayload,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -98,11 +98,11 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryLang,
 				params: UserValidation.oneParams,
 				payload: UserValidation.putPayload,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -122,11 +122,11 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryLang,
 				params: UserValidation.oneParams,
 				payload: UserValidation.deleteOnePayload,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -147,10 +147,10 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryLang,
 				payload: UserValidation.deleteManyPayload,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -171,10 +171,10 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryLang,
 				params: UserValidation.addOneParams,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -196,11 +196,11 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryLang,
 				params: UserValidation.removeOneParams,
 				payload: UserValidation.removeOnePayload,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -222,11 +222,11 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryLang,
 				params: UserValidation.addManyParams,
 				payload: UserValidation.addManyPayload,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -248,11 +248,11 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryLang,
 				params: UserValidation.removeManyParams,
 				payload: UserValidation.removeManyPayload,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -272,10 +272,10 @@ module.exports = [
 				options: {
 					abortEarly: false
 				},
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.queryGetAll,
 				params: UserValidation.getAllParams,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -296,10 +296,10 @@ module.exports = [
 			'User Second Level Relations only for query: ' + UserValidation.SLRelations + '<br>' +
 			'Attributes: ' + UserValidation.Attributes4Select + '<br>'],
 			validate: {
-				headers: HeaderValidation.headerRequired,
+				headers: headerRequired,
 				query: UserValidation.query4Select,
 				// query: UserValidations.query,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		},
 	},
@@ -321,7 +321,7 @@ module.exports = [
 				payload: {
 					email: UserValidation.checkMailParams,
 				},
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
 			},
 		}
 	},

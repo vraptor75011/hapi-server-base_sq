@@ -1,5 +1,4 @@
-const Log = require('../../../../../utilities/logging/logging');
-const Chalk = require('chalk');
+const { apiLogger, chalk } = require('../../../../../utilities/logging/logging');
 const Jwt = require('jsonwebtoken');
 const Boom = require('boom');
 const Config = require('../../../../../config/config');
@@ -17,7 +16,7 @@ module.exports = [
 		method: async (request, h) => {
 			Jwt.verify(request.query.token, Config.get('/jwtSecret'), (error, decoded) => {
 				if (error) {
-					Log.apiLogger.error(Chalk.red(error));
+					apiLogger.error(chalk.red(error));
 					return Boom.badRequest('Invalid email or key.');
 				}
 				return h.response(decoded);
@@ -39,7 +38,7 @@ module.exports = [
 				}
 				return h.response(user);
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.badImplementation(errorMsg);
 			}

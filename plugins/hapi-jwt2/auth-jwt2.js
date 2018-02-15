@@ -1,7 +1,6 @@
-const Chalk = require('chalk');
 const Sequelize = require('sequelize');
 const Token = require('./../../utilities/token/token');
-const Log = require('./../../utilities/logging/logging');
+const { apiLogger, sesLogger, chalk } = require('./../../utilities/logging/logging');
 const Config = require('./../../config/config');
 const Polyglot = require('./../hapi-polyglot/polyglot');
 const Translate = require('../../utilities/translater/translate_helper');
@@ -36,7 +35,7 @@ let validation = async (decodedToken, request, h) => {
 				return {isValid: false}
 			}
 
-			Log.session.info(Chalk.grey('User: ' + session.user.fullName + ' try to refresh Token'));
+			sesLogger.info(chalk.grey('User: ' + session.user.fullName + ' try to refresh Token'));
 			if (session.user.password !== decodedToken.sessionUser.passwordHash) {
 				return {isValid: false}
 			}
@@ -87,14 +86,14 @@ let validation = async (decodedToken, request, h) => {
 				let authHeader = 'Bearer ' + Token(user, null, scope, roles, realms, expirationPeriod.short);
 				let refreshToken = Token(null, session, scope, roles, realms, expirationPeriod.long);
 
-				Log.session.info(Chalk.grey('User: ' + user.fullName + ' has refreshed Tokens'));
+				sesLogger.info(chalk.grey('User: ' + user.fullName + ' has refreshed Tokens'));
 				return {isValid: Boolean(user), credentials: {user, scope, roles, realms, session, authHeader, refreshToken}};
 			}
 		} else {
 			return {isValid: false}
 		}
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		return {isValid: false}
 	}
 
@@ -124,7 +123,7 @@ module.exports = {
 					return {isValid: false}
 				}
 
-				Log.session.info(Chalk.grey('User: ' + session.user.fullName + ' try to refresh Token'));
+				sesLogger.info(chalk.grey('User: ' + session.user.fullName + ' try to refresh Token'));
 				if (session.user.password !== decodedToken.sessionUser.passwordHash) {
 					return {isValid: false}
 				}
@@ -175,21 +174,21 @@ module.exports = {
 					let authHeader = 'Bearer ' + Token(user, null, scope, roles, realms, expirationPeriod.short);
 					let refreshToken = Token(null, session, scope, roles, realms, expirationPeriod.long);
 
-					Log.session.info(Chalk.grey('User: ' + user.fullName + ' has refreshed Tokens'));
+					sesLogger.info(chalk.grey('User: ' + user.fullName + ' has refreshed Tokens'));
 					return {isValid: Boolean(user), credentials: {user, scope, roles, realms, session, authHeader, refreshToken}};
 				}
 			} else {
 				return {isValid: false}
 			}
 		} catch(error) {
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return {isValid: false}
 		}
 
 	},
 
 	errorHandler: (error) => {
-		Log.apiLogger.error(Chalk.blue('Auth Error: ', error.message));
+		apiLogger.error(chalk.blue('Auth Error: ', error.message));
 		let polyglot = Polyglot.getPolyglot();
 		error.message = polyglot.t(error.message);
 

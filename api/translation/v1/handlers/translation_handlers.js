@@ -7,7 +7,7 @@ let polyglot = Polyglot.getPolyglot();
 module.exports = {
 	// TRANSLATIONS - One endpoints for all translation
 	translation: async (request, h) => {
-		Log.apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
+		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let translation = {
 			// translation: {
 			// 	[modelName]: translation[modelName],

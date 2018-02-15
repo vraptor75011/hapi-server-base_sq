@@ -5,8 +5,7 @@ const _ = require('lodash');
 //
 const Env       = process.env.NODE_ENV || 'development';
 const Config    = require('../config/database')[Env];
-const Log = require('../utilities/logging/logging');
-const Chalk = require('chalk');
+const { seqLogger, chalk } = require('../utilities/logging/logging');
 
 //
 Dotenv.config({ silent: true });
@@ -30,7 +29,7 @@ let getFiles = function(dir, fileList = []) {
 //
 // Sequelize Logging
 let logging = function (str) {
-	Log.sequelizeLogger.info(Chalk.green(str));
+	seqLogger.info(chalk.green(str));
 };
 
 Config['logging'] = logging;

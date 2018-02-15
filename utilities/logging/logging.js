@@ -1,8 +1,10 @@
 const Logging = require('loggin');
+const Chalk = require('chalk');
 
 
 module.exports = {
 	apiLogger: Logging.getLogger('Api'),
-	sequelizeLogger: Logging.getLogger('Sequelize'),
-	session: Logging.getLogger('Session'),
+	seqLogger: Logging.getLogger('Sequelize'),
+	sesLogger: Logging.getLogger('Session'),
+	chalk: Chalk,
 };

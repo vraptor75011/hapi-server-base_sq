@@ -1,6 +1,5 @@
 const Boom = require('boom');
-const Log = require('../../../../utilities/logging/logging');
-const Chalk = require('chalk');
+const { apiLogger, chalk } = require('../../../../utilities/logging/logging');
 const Jwt = require('jsonwebtoken');
 const Bcrypt = require('bcrypt');
 const Sequelize = require('sequelize');
@@ -76,7 +75,7 @@ module.exports =
 				roles,
 			};
 
-			Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' has logged in'));
+			apiLogger.info(chalk.cyan('User: ' + user.username + ' has logged in'));
 
 			const mapperOptions = {
 				meta: {
@@ -100,16 +99,16 @@ module.exports =
 				let query = {where: {key: sessionKey, userId: user.id}};
 				let session = await Session.findOne(query);
 				if (session) {
-					Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' has logged out'));
+					apiLogger.info(chalk.cyan('User: ' + user.username + ' has logged out'));
 					session.destroy();
 					return true;
 				} else {
-					Log.apiLogger.info(Chalk.cyan('User: ' + user.username + ' failed to log out'));
+					apiLogger.info(chalk.cyan('User: ' + user.username + ' failed to log out'));
 					let error = Session.name + ' key: ' + sessionKey + ' not present';
 					return Boom.notFound(error);
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.badImplementation(errorMsg);
 			}
@@ -180,11 +179,11 @@ module.exports =
 					};
 
 					Mailer.sendMail(emailOptions, template, context);
-					Log.apiLogger.info(Chalk.cyan('sending welcome email to: ', user.email));
+					apiLogger.info(chalk.cyan('sending welcome email to: ', user.email));
 					return result;
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.gatewayTimeout(errorMsg);
 			}
@@ -233,11 +232,11 @@ module.exports =
 					};
 
 					Mailer.sendMail(emailOptions, template, context);
-					Log.apiLogger.info(Chalk.cyan('sending welcome email to: ', user.email));
+					apiLogger.info(chalk.cyan('sending welcome email to: ', user.email));
 					return result;
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.gatewayTimeout(errorMsg);
 			}
@@ -273,7 +272,7 @@ module.exports =
 					return  h.view('register_error');
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.gatewayTimeout(errorMsg);
 			}
@@ -317,11 +316,11 @@ module.exports =
 					};
 
 					Mailer.sendMail(emailOptions, template, context);
-					Log.apiLogger.info(Chalk.cyan('sending reset password email to: ', user.email));
+					apiLogger.info(chalk.cyan('sending reset password email to: ', user.email));
 					return result;
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.gatewayTimeout(errorMsg);
 			}
@@ -359,7 +358,7 @@ module.exports =
 					return  h.view('reset_pwd_error');
 				}
 			} catch(error) {
-				Log.apiLogger.error(Chalk.red(error));
+				apiLogger.error(chalk.red(error));
 				let errorMsg = error.message || 'An error occurred';
 				return Boom.gatewayTimeout(errorMsg);
 			}
