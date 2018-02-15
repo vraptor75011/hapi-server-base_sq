@@ -1,7 +1,7 @@
 const HeaderValidation = require('../../../../utilities/validation/header_validation');
 const { query } = require('../../url_validation/translation_validation');
-const THandler = require('../handlers/translation_handlers');
-const ErrorHelper = require('../../../../utilities/error/error-helper');
+const { translation, availableLang } = require('../handlers/translation_handlers');
+const { failAction } = require('../../../../utilities/error/error-helper');
 
 module.exports = [
 
@@ -10,7 +10,7 @@ module.exports = [
 		method: 'GET',
 		path: '/v1/translations',
 		config: {
-			handler: THandler.translation,
+			handler: translation,
 			auth:	false,
 			tags: ['api', 'Translation'],
 			description: 'GET translation',
@@ -21,7 +21,27 @@ module.exports = [
 				},
 				// headers: HeaderValidation.headerRequired,
 				query: query,
-				failAction: ErrorHelper.failAction,
+				failAction: failAction,
+			},
+		},
+	},
+
+	//Available Languages
+	{
+		method: 'GET',
+		path: '/v1/translations/availableLang',
+		config: {
+			handler: availableLang,
+			auth:	false,
+			tags: ['api', 'Translation'],
+			description: 'GET available languages',
+			notes: ['Returns list of available languages'],
+			validate: {
+				options: {
+					abortEarly: false
+				},
+				// headers: HeaderValidation.headerRequired,
+				failAction: failAction,
 			},
 		},
 	},
