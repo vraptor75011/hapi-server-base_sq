@@ -36,8 +36,8 @@ module.exports = function(sequelize, Sequelize) {
 
 	// Class Method
 	AuthRole.associate = function (models) {
-		AuthRole.belongsToMany(models.AuthRealm, { through: 'authRealmsRolesUsers' });
-		AuthRole.belongsToMany(models.AuthUser, { through: 'authRealmsRolesUsers' });
+		AuthRole.belongsToMany(models.AuthRealm, { through: 'authRealmsRolesUsers', foreignKey: 'roleId', otherKey: 'realmId' });
+		AuthRole.belongsToMany(models.AuthUser, { through: 'authRealmsRolesUsers', foreignKey: 'roleId', otherKey: 'userId' });
 		AuthRole.hasMany(models.AuthRealmsRolesUsers, {as: 'role-rru', foreignKey: 'roleId', sourceKey: 'id'});
 	};
 
