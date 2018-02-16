@@ -25,7 +25,7 @@ module.exports = {
 	},
 
 	// AuthAttempt
-	authAttempt: {
+	attempt: {
 		count: "conteggio",
 		ip: "ip",
 		email: "email",

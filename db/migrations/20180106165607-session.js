@@ -2,7 +2,7 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('sessions',
+		await queryInterface.createTable('authSessions',
 			{
 				id: {
 					type: Sequelize.INTEGER.UNSIGNED,
@@ -38,12 +38,12 @@ module.exports = {
 					type: Sequelize.DATE
 				},
 			});
-		await queryInterface.addIndex('sessions', ['key', 'userAgent', 'userId', 'realmId']);
+		await queryInterface.addIndex('authSessions', ['key', 'userAgent', 'userId', 'realmId']);
 
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('sessions');
+		await queryInterface.dropTable('authSessions');
 
 	}
 };

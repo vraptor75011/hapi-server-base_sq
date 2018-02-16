@@ -1,8 +1,7 @@
 const _ = require('lodash');
 const FS = require('fs');
 const HeaderParser = require('accept-language-parser');
-const Log = require('../../utilities/logging/logging');
-const Chalk = require('chalk');
+const { apiLogger, chalk } = require('../../utilities/logging/logging');
 const Polyglot = require('node-polyglot');
 const Config = require('./../../config/config');
 
@@ -74,7 +73,7 @@ module.exports = {
 			this.getLocale(request);
 			if (_.includes(Locales, this.currentLocale) === false) {
 				polyglot.locale(defaultLocale);
-				Log.apiLogger.error(Chalk.red('No localization available for ' + this.currentLocale));
+				apiLogger.error(chalk.red('No localization available for ' + this.currentLocale));
 			} else {
 				polyglot.locale(this.currentLocale);
 			}
@@ -84,7 +83,13 @@ module.exports = {
 			let extend = {};
 			files.forEach((file) => {
 				let f = require('../../' + file.dir + '/' + file.file);
-				_.extend(extend, f);
+				if (file.dir === 'locales/it_IT/model') {
+					Object.keys(f).map((key) => {
+						_.extend(extend, f[key]);
+					});
+				} else {
+					_.extend(extend, f);
+				}
 			});
 			polyglot.extend(extend);
 			request.polyglot = polyglot;

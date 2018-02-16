@@ -1,10 +1,9 @@
 const Boom = require('boom');
 const  _ = require('lodash');
-const Chalk = require('chalk');
 const Sequelize = require('sequelize');
 const DB = require('../../config/sequelize');
 const ErrorHelper = require('../error/error-helper');
-const Log = require('../logging/logging');
+const { apiLogger, chalk } = require('../logging/logging');
 const QueryHelper = require('../query/query-helper');
 const ModelValidation = require('../validation/model_validations');
 
@@ -148,7 +147,7 @@ async function _list(model, query) {
 		let totalCount;
 		let filteredCount;
 
-		Log.apiLogger.info('RequestData: ' + JSON.stringify(query));
+		apiLogger.info('RequestData: ' + JSON.stringify(query));
 
 		// First Query count everything
 		sequelizeQuery = queryWithDeleted(query, sequelizeQuery, model);
@@ -265,7 +264,7 @@ async function _list(model, query) {
 		return {items: items, pages: pages, docs: result};
 
 	}	catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -286,7 +285,7 @@ async function _find(model, id, query) {
 		sequelizeQuery = QueryHelper.createSequelizeFilter(model, query, sequelizeQuery);
 		sequelizeQuery = queryWithDeleted(query, sequelizeQuery, model);
 		sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
-		Log.apiLogger.info('RequestData: ' + JSON.stringify(query));
+		apiLogger.info('RequestData: ' + JSON.stringify(query));
 		result = await model.findOne(sequelizeQuery);
 		if (result.errors) {
 			error = Boom.badRequest(result);
@@ -298,11 +297,11 @@ async function _find(model, id, query) {
 		} else {
 			let error = {};
 			error.message = model.name + ' id: ' + id + ' not present';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.notFound(error);
 		}
 	}	catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -330,7 +329,7 @@ async function _create(model, payload) {
 		let sequelizeQuery = QueryHelper.createSequelizeFilter(model, query, {});
 		sequelizeQuery = queryAttributes({}, sequelizeQuery, model);
 
-		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
+		apiLogger.info('Payload: ' + JSON.stringify(payload));
 		result = await model.create(payload, sequelizeQuery);
 		if (result) {
 			//Delete excluded attributes
@@ -344,12 +343,12 @@ async function _create(model, payload) {
 		} else {
 			let error = {};
 			error.message = model.name + ' impossible to save';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.badRequest(error);
 		}
 	}
 	catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -368,19 +367,19 @@ async function _update(model, id, payload) {
 		let result;
 		let sequelizeQuery = {where: {id: id}};
 
-		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-		Log.apiLogger.info('Id: ' + id);
+		apiLogger.info('Payload: ' + JSON.stringify(payload));
+		apiLogger.info('Id: ' + id);
 		result = await model.update(payload, sequelizeQuery);
 		if (result) {
 			return {doc: result};
 		} else {
 			let error = {};
 			error.message = model.name + ' impossible to update';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.badRequest(error);
 		}
 	}	catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -399,8 +398,8 @@ async function _deleteOne(model, id, payload) {
 		let sequelizeQuery = {where: {id: id}};
 		let result;
 
-		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
-		Log.apiLogger.info('Id: ' + id);
+		apiLogger.info('Payload: ' + JSON.stringify(payload));
+		apiLogger.info('Id: ' + id);
 		sequelizeQuery = queryWithDeleted(payload, sequelizeQuery, model);
 		result = await model.destroy(sequelizeQuery);
 		if (result){
@@ -408,12 +407,12 @@ async function _deleteOne(model, id, payload) {
 		} else {
 			let error = {};
 			error.message = model.name + ' id: ' + id + ' not present';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.notFound(error);
 		}
 
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -431,7 +430,7 @@ async function _deleteMany(model, payload) {
 		let sequelizeQuery = {where: {id: {[Op.in]: payload.$ids}}};
 		let result;
 
-		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
+		apiLogger.info('Payload: ' + JSON.stringify(payload));
 		sequelizeQuery = queryWithDeleted(payload, sequelizeQuery, model);
 		result = await model.destroy(sequelizeQuery);
 		if (result){
@@ -439,12 +438,12 @@ async function _deleteMany(model, payload) {
 		} else {
 			let error = {};
 			error.message = model.name + ' ids: ' + payload.$ids + ' not deleted';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.notFound(error);
 		}
 
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -485,11 +484,11 @@ async function _addOne(ownerModel, ownerId, childModel, childId, associationName
 		}	else {
 			let error = {};
 			error.message = ownerModel.name + ' id: ' + id + ' not present';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.notFound(error);
 		}
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -528,11 +527,11 @@ async function _removeOne(ownerModel, ownerId, childModel, childId, associationN
 		}	else {
 			let error = {};
 			error.message = ownerModel.name + ' id: ' + id + ' not present';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.notFound(error);
 		}
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -577,7 +576,7 @@ async function _addMany(ownerModel, ownerId, childModel, associationName, payloa
 			return ErrorHelper.formatResponse(error);
 		}
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		error = {type: ErrorHelper.types.BAD_IMPLEMENTATION};
 		return ErrorHelper.formatResponse(error);
 	}
@@ -619,11 +618,11 @@ async function _removeMany(ownerModel, ownerId, childModel, associationName, pay
 		}	else {
 			let error = {};
 			error.message = ownerModel.name + ' id: ' + id + ' not present';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.notFound(error);
 		}
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -648,7 +647,7 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 		let realQuery = {};
 		let result;
 
-		Log.apiLogger.info('Query: ' + JSON.stringify(query));
+		apiLogger.info('Query: ' + JSON.stringify(query));
 
 		Object.keys(query).map((param) => {
 			if (_.includes(param, associationName + '.')) {
@@ -774,11 +773,11 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 		}	else {
 			let error = {};
 			error.message = ownerModel.name + ' id: ' + id + ' not present';
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.notFound(error);
 		}
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -810,8 +809,8 @@ async function _setAssociation(ownerObject, childModel, associationName, payload
 		}
 
 		let action = 'add'+_.upperFirst(associationName);
-		Log.apiLogger.info('Add: ' + JSON.stringify(targetModels));
-		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
+		apiLogger.info('Add: ' + JSON.stringify(targetModels));
+		apiLogger.info('Payload: ' + JSON.stringify(payload));
 		result = await ownerObject[action](targetModels, {transaction: t});
 		if (result) {
 			let action = 'get'+_.upperFirst(associationName);
@@ -822,12 +821,12 @@ async function _setAssociation(ownerObject, childModel, associationName, payload
 			await t.rollback();
 			let error = {};
 			error.message = 'Impossible to add ' + childModel.name + 'for: ' + ownerObject.id;
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.badRequest(error);
 		}
 	} catch(error) {
 		await t.rollback();
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}
@@ -857,8 +856,8 @@ async function _removeAssociation(ownerModel, ownerId, childModel, childId, asso
 			childId = [childId];
 		}
 
-		Log.apiLogger.info('Remove: ' + JSON.stringify(childId));
-		Log.apiLogger.info('Payload: ' + JSON.stringify(payload));
+		apiLogger.info('Remove: ' + JSON.stringify(childId));
+		apiLogger.info('Payload: ' + JSON.stringify(payload));
 
 		let relation = ownerModel.associations[associationName];
 		let foreignKey = relation.foreignKey;
@@ -881,12 +880,12 @@ async function _removeAssociation(ownerModel, ownerId, childModel, childId, asso
 			await t.rollback();
 			let error = {type: ErrorHelper.types.BAD_REQUEST };
 			error.message = 'Impossible to remove ' + childModel.name + 'from: ' + ownerObject.id;
-			Log.apiLogger.error(Chalk.red(error));
+			apiLogger.error(chalk.red(error));
 			return Boom.badRequest(error);
 		}
 	} catch(error) {
 		await t.rollback();
-		Log.apiLogger.error(Chalk.red(error));
+		apiLogger.error(chalk.red(error));
 		let errorMsg = error.message || 'An error occurred';
 		return Boom.badImplementation(errorMsg);
 	}

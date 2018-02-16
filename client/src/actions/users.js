@@ -13,7 +13,7 @@ export function getUsers(params) {
       if(token) {
           try {
               axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-              const response = await axios.get(`/api/v1/users`, {params: params});
+              const response = await axios.get(`/api/v1/auth/users`, {params: params});
               return dispatch({type: GET_USERS, payload: response.data});
           } catch (error) {
               /*if (error.response && error.response.status === 401) {
@@ -35,7 +35,7 @@ export function deleteUser(id) {
       );
 
 
-      await axios.delete(`/api/v1/users/${id}`, { data: { "$hardDelete": true }});
+      await axios.delete(`/api/v1/auth/users/${id}`, { data: { "$hardDelete": true }});
         dispatch(getUsers());
         return dispatch({type: MODAL_CLOSE });
 
@@ -64,7 +64,7 @@ export function editUser(data) {
             try {
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
 
-                await axios.put(`/api/v1/users/${data.id}`, data);
+                await axios.put(`/api/v1/auth/users/${data.id}`, data);
 
                 dispatch(getUsers());
                 return dispatch({type: MODAL_CLOSE });
@@ -92,8 +92,7 @@ export function newUser(data) {
             try {
                 const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-                axios.defaults.headers.common['accept-language'] = 'it_IT';
-                await axios.post('/api/v1/users', data, config);
+                await axios.post('/api/v1/auth/users', data, config);
                 dispatch(getUsers());
                 return dispatch({type: MODAL_CLOSE });
             } catch (error) {

@@ -4,8 +4,7 @@ const Plugins = require('./plugins');
 const Routes = require('./routes');
 const DB = require('./config/sequelize');
 
-const Log = require('./utilities/logging/logging');
-const Chalk = require('chalk');
+const { apiLogger, seqLogger, chalk } = require('./utilities/logging/logging');
 const Config = require('./config/config');
 const Handlebars = require('handlebars');
 
@@ -23,17 +22,17 @@ async function createDB() {
 	try{
 		let tables = await DB.sequelize.showAllSchemas();
 		let host = await DB.sequelize.config.host;
-		Log.sequelizeLogger.info(Chalk.green('Sequelize started'));
-		Log.sequelizeLogger.info(Chalk.green('Host: ', host));
+		seqLogger.info(chalk.green('Sequelize started'));
+		seqLogger.info(chalk.green('Host: ', host));
 		tables.forEach(function(table) {
 			Object.keys(table).map(function(name) {
 				let tableName = table[name];
-				Log.sequelizeLogger.info(Chalk.green('Table found: ' + tableName));
+				seqLogger.info(chalk.green('Table found: ' + tableName));
 			});
 		});
 		return tables;
 	} catch(error) {
-		Log.sequelizeLogger.error(Chalk.red(error));
+		seqLogger.error(chalk.red(error));
 	}
 }
 
@@ -57,7 +56,7 @@ async function startServer() {
 		// Load Plugin: Auth with JWT2
 		// Load other Plugins: Vision, Inert and Swagger
 		await server.register(Plugins);
-		Log.apiLogger.info(Chalk.cyan('Plugins loaded'));
+		apiLogger.info(chalk.cyan('Plugins loaded'));
 
 		// Config views for the HTML response
 		server.views({
@@ -65,17 +64,17 @@ async function startServer() {
 			relativeTo: __dirname,
 			path: `templates/.}`
 		});
-		Log.apiLogger.info(Chalk.cyan('View loaded'));
+		apiLogger.info(chalk.cyan('View loaded'));
 
 		// Import in server all endpoints
 		await server.route(Routes);
-		Log.apiLogger.info(Chalk.cyan('Routes loaded'));
+		apiLogger.info(chalk.cyan('Routes loaded'));
 
 		// Start Server
 		await server.start();
-		Log.apiLogger.info(Chalk.cyan('Server running at: ' + server.info.uri));
+		apiLogger.info(chalk.cyan('Server running at: ' + server.info.uri));
 		return server;
 	} catch(error) {
-		Log.apiLogger.error(Chalk.red('Failed to start Server: ' + error));
+		apiLogger.error(chalk.red('Failed to start Server: ' + error));
 	}
 }

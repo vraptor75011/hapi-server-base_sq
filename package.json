@@ -49,7 +49,7 @@
     "pug": "^2.0.0-rc.4",
     "q": "^1.5.1",
     "sequelize": "^4.33.0",
-    "sequelize-cli": "^3.2.0",
+    "sequelize-cli": "^4.0.0",
     "sequelize-virtual-fields": "^1.1.0",
     "vision": "^5.3.1"
   },

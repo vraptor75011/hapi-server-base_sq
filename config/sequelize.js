@@ -5,22 +5,24 @@ const _ = require('lodash');
 //
 const Env       = process.env.NODE_ENV || 'development';
 const Config    = require('../config/database')[Env];
-const Log = require('../utilities/logging/logging');
-const Chalk = require('chalk');
+const { seqLogger, chalk } = require('../utilities/logging/logging');
 
 //
 Dotenv.config({ silent: true });
 //
-let getFiles = function(dir, fileList = []) {
+let getFiles = function(dir, level = 0, prefix = '', fileList = []) {
 //
 	let	files = FS.readdirSync(dir);
 	files.forEach(function(file) {
 		if (FS.statSync(dir + '/' + file).isDirectory()) {
-			getFiles(dir + '/' + file, fileList);
+			if (level === 0) {
+				prefix = _.upperFirst(file);
+			}
+			getFiles(dir + '/' + file, ++level, prefix, fileList);
 		}
 		else if (_.includes(file, '_model.js')) {
 			let tmp = {};
-			tmp.name = _.upperFirst(_.camelCase(_.replace(file, '_model.js', '')));
+			tmp.name = prefix + _.upperFirst(_.camelCase(_.replace(file, '_model.js', '')));
 			tmp.path = '../' + dir + '/' + file;
 			fileList.push(tmp);
 		}
@@ -30,7 +32,7 @@ let getFiles = function(dir, fileList = []) {
 //
 // Sequelize Logging
 let logging = function (str) {
-	Log.sequelizeLogger.info(Chalk.green(str));
+	seqLogger.info(chalk.green(str));
 };
 
 Config['logging'] = logging;

@@ -13,7 +13,7 @@ export function getRoles(params) {
       if(token) {
           try {
               axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-              const response = await axios.get(`/api/v1/roles`, );
+              const response = await axios.get(`/api/v1/auth/roles`, );
               return dispatch({type: GET_ROLES, payload: response.data});
           } catch (error) {
               /*if (error.response && error.response.status === 401) {
@@ -31,7 +31,7 @@ export function deleteRole(id) {
   return async dispatch => {
     try {
         axios.defaults.headers.common['Authorization'] = localStorage.getItem( tokenName);
-        await axios.delete(`/api/v1/roles/${id}`, { data: { "$hardDelete": true }});
+        await axios.delete(`/api/v1/auth/roles/${id}`, { data: { "$hardDelete": true }});
         dispatch(getRoles());
         return dispatch({type: MODAL_CLOSE });
 
@@ -60,7 +60,7 @@ export function editRole(data) {
             try {
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
 
-                await axios.put(`/api/v1/roles/${data.id}`, data);
+                await axios.put(`/api/v1/auth/roles/${data.id}`, data);
 
                 dispatch(getRoles());
                 return dispatch({type: MODAL_CLOSE });
@@ -88,7 +88,7 @@ export function newRole(data) {
             try {
                 const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-                await axios.post('/api/v1/roles', data, config);
+                await axios.post('/api/v1/auth/roles', data, config);
 
                     dispatch(getRoles());
                     dispatch({type: MODAL_CLOSE });

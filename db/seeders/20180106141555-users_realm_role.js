@@ -6,16 +6,16 @@ const RealmsRolesUsers = require('./data/04-realms_roles_users_data');
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkInsert('users', Users, {});
-        await queryInterface.bulkInsert('realms', Realms, {});
-        await queryInterface.bulkInsert('roles', Roles, {});
-        await queryInterface.bulkInsert('realms_roles_users', RealmsRolesUsers, {});
+        await queryInterface.bulkInsert('authUsers', Users, {});
+        await queryInterface.bulkInsert('authRealms', Realms, {});
+        await queryInterface.bulkInsert('authRoles', Roles, {});
+        await queryInterface.bulkInsert('authRealmsRolesUsers', RealmsRolesUsers, {});
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkDelete('realms_roles_users', null, {});
-        await queryInterface.bulkDelete('roles', null, {});
-        await queryInterface.bulkDelete('realms', null, {});
-        await queryInterface.bulkDelete('users', null, {});
+        await queryInterface.bulkDelete('authRealmsRolesUsers', null, {});
+        await queryInterface.bulkDelete('authRoles', null, {});
+        await queryInterface.bulkDelete('authRealms', null, {});
+        await queryInterface.bulkDelete('authUsers', null, {});
     },
 };
