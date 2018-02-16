@@ -75,7 +75,7 @@ module.exports =
 				roles,
 			};
 
-			apiLogger.info(chalk.cyan('AuthUser: ' + user.username + ' has logged in'));
+			apiLogger.info(chalk.cyan('User: ' + user.username + ' has logged in'));
 
 			const mapperOptions = {
 				meta: {

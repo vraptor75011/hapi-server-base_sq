@@ -109,7 +109,7 @@ const LoginPre = [
 			const username = request.payload.username;
 			const password = request.payload.password;
 			let userLogging = email || username;
-			sesLogger.info(chalk.grey('AuthUser: ' + userLogging + ' try to logging in'));
+			sesLogger.info(chalk.grey('User: ' + userLogging + ' try to logging in'));
 
 			try {
 				let user = await AuthUser.findOne(
@@ -184,7 +184,7 @@ const LoginPre = [
 				} else {
 					session = await AuthSession.createOrRefreshInstance(request, null, user, realm);
 					if (session) {
-						sesLogger.info(chalk.grey('AuthUser: ' + request.pre.user.username + ' open new session: ' + session.key));
+						sesLogger.info(chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
 						return h.response(session);
 					} else {
 						let error = 'Un error occurred';
@@ -217,7 +217,7 @@ const LoginPre = [
 						}
 					}]
 				});
-				roles = result.roles;
+				roles = result.authRoles;
 				if(roles && roles.length){
 					return h.response(roles);
 				} else {
