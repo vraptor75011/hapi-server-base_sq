@@ -92,6 +92,7 @@ export function newUser(data) {
             try {
                 const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
+                axios.defaults.headers.common['accept-language'] = 'it-IT';
                 await axios.post('/api/v1/auth/users', data, config);
                 dispatch(getUsers());
                 return dispatch({type: MODAL_CLOSE });

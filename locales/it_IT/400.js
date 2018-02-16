@@ -94,8 +94,8 @@ module.exports = {
 
   string: {
     base: "deve essere una string",
-    min: "length deve essere lunga almeno %{limit} caratteri",
-    max: "length deve essere lunga minore o uguale di %{limit} caratteri",
+    min: "deve essere lunga almeno %{limit} caratteri",
+    max: "deve essere lunga minore o uguale di %{limit} caratteri",
     length: "lenghezza deve essere %{limit} caratteri",
     alphanum: "deve contenere soltanto caratteri alpha-numerici",
     token: "deve contenere soltanto caratteri alpha-numeric e underscore",
