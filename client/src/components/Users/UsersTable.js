@@ -19,6 +19,7 @@ import SearchIcon from 'material-ui-icons/Search';
 import ArrowRight from 'material-ui-icons/KeyboardArrowRight';
 import ArrowLeft from 'material-ui-icons/KeyboardArrowLeft';
 import Input, {InputLabel, InputAdornment} from 'material-ui/Input';
+import debounce from 'lodash/debounce';
 
 
 
@@ -85,9 +86,10 @@ class Users extends React.PureComponent {
                     accessor: "firstName",
                     Filter: ({filter, onChange}) => (
                         <div style={{width: '100%'}}>
-                            <Input id="email"  value={this.state.username}
+                            <Input id="email"
+                                   value={filter ? filter.value : ''}
                                    style={{ width: '100%'}}
-                                   onChange={this.handleChangeEmail}
+                                   onChange={event => onChange(event.target.value)}
                                    endAdornment={
                                        <InputAdornment position="end">
                                                <SearchIcon/>
@@ -103,9 +105,10 @@ class Users extends React.PureComponent {
 
             Filter: ({filter, onChange}) =>  (
                 <div style={{width: '100%'}}>
-                    <Input id="email"  value={this.state.username}
+                    <Input id="email"
+                           value={filter ? filter.value : ''}
                            style={{ width: '100%'}}
-                           onChange={this.handleChangeEmail}
+                           onChange={event => onChange(event.target.value)}
                            endAdornment={
                                <InputAdornment position="end">
                                    <SearchIcon/>
@@ -119,9 +122,10 @@ class Users extends React.PureComponent {
                 accessor: "email",
             Filter: ({filter, onChange}) =>  (
                 <div style={{width: '100%'}}>
-                    <Input id="email"  value={this.state.username}
+                    <Input id="email"
+                           value={filter ? filter.value : ''}
                            style={{ width: '100%'}}
-                           onChange={this.handleChangeEmail}
+                           onChange={event => onChange(event.target.value)}
                            endAdornment={
                                <InputAdornment position="end">
                                    <SearchIcon/>
@@ -131,12 +135,18 @@ class Users extends React.PureComponent {
                 </div>
             )
         },
-        {   Header: ()=><AddButton/>,
+        {   Header: ()=><AddButton onExecute={() => {
+                this.handleClickButtons('new')
+            }} />,
             accessor: "edit",
             maxWidth:120,
             Cell: ({original}) => {
 
-            return (<div><DeleteButton /><EditButton /></div>)
+            return (<div><DeleteButton onExecute={() => {
+                this.handleClickButtons('delete', original)
+            }}/><EditButton  onExecute={() => {
+                this.handleClickButtons('edit', original)
+            }}/></div>)
 
         },
             filterable: false
@@ -171,11 +181,27 @@ class Users extends React.PureComponent {
 
 
     }
+    fetchData = debounce((state) => {
 
+        const filtered = state.filtered;
+        const filteredData = filtered.map((field)=> { return {[field.id]: '{like}'+field.value }})
+        const params = Object.assign({}, ...filteredData);//merge all object
+
+        let page = state.page;
+
+
+        if ( page > 0){
+            page++;
+            Object.assign(params, { ['$page']: page })
+        }
+
+
+        this.props.getUsers(params)
+
+    }, 300);
 
 
     handleClickButtons = (type, data) => {
-
 
         if (type === 'delete') {
             const row = Object.assign({}, data, {type: 'delete'});
@@ -206,45 +232,6 @@ class Users extends React.PureComponent {
     };
 
 
-    renderRowTable = (data) => {
-
-        const id = data.id;
-        return (<TableRow
-            tabIndex={-1}
-            key={id+'-key-user'}
-        >
-            <TableCell>
-                <div style={{display: 'flex'}}>
-                <EditButton onExecute={() => {
-                    this.handleClickButtons('edit', data)
-                }}/>
-                <DeleteButton onExecute={() => {
-                    this.handleClickButtons('delete', data)
-                }}/>
-                </div>
-            </TableCell>
-            <TableCell>{data.firstName}</TableCell>
-            <TableCell>{data.lastName}</TableCell>
-            <TableCell>{data.email}</TableCell>
-            <TableCell/>
-
-        </TableRow>)
-    };
-
-    renderRowHeader = (data, index) => {
-
-        return (<TableCell key={index + '-headerRow'}>{data.eng}</TableCell>)
-    };
-
-    handleChangePage = (event, page) => {
-        this.setState({page});
-    };
-
-    handleChangeRowsPerPage = event => {
-        this.setState({rowsPerPage: event.target.value});
-    };
-
-
 
 
     render() {
@@ -258,7 +245,7 @@ class Users extends React.PureComponent {
                    <Paper className={classes.root}>
 
 
-                    <div className={classes.tableWrapper}>
+
                         <ReactTable
                             columns={columns}
                             manual // Forces table not to paginate or sort automatically, so we can handle it server-side
@@ -272,7 +259,7 @@ class Users extends React.PureComponent {
                             collapseOnSortingChange={true}
                             collapseOnPageChange={true}
                             collapseOnDataChange={true}
-                            defaultPageSize={users.items ? users.items.total  : 1}
+                            defaultPageSize={users.items ? users.items.total  : 3}
                             showPageSizeOptions= {false}
                             previousText= 'Precedente'
                             nextText=  'Successivo'
@@ -282,11 +269,11 @@ class Users extends React.PureComponent {
                             ofText=  'di'
                             rowsText=  'righe'
                             showPaginationBottom
-                            PreviousComponent={()=><ArrowLeft/>}
-                            NextComponent={()=><ArrowRight/>}
+                            PreviousComponent={(props)=><IconButton onClick={props.onClick}><ArrowLeft/></IconButton>}
+                            NextComponent={(props)=><IconButton onClick={props.onClick}><ArrowRight/></IconButton>}
 
                         />
-                    </div>
+
                 </Paper>
             </div>
         );
