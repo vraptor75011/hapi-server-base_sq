@@ -8,7 +8,7 @@ module.exports = [
 	//Translations
 	{
 		method: 'GET',
-		path: '/v1/translations',
+		path: '/v1/cntr/translations',
 		config: {
 			handler: translation,
 			auth:	false,
@@ -29,7 +29,7 @@ module.exports = [
 	//Available Languages
 	{
 		method: 'GET',
-		path: '/v1/translations/availableLang',
+		path: '/v1/cntr/translations/availableLang',
 		config: {
 			handler: availableLang,
 			auth:	false,

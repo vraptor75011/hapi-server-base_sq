@@ -6,7 +6,7 @@ const ErrorHelper = require('../../../../../utilities/error/error-helper');
 module.exports = [
 	{
 		method: 'GET',
-		path: '/v1/roles',
+		path: '/v1/auth/roles',
 		config: {
 			handler: RoleHandler.findAll,
 			auth:
@@ -17,8 +17,8 @@ module.exports = [
 			tags: ['api', 'Roles'],
 			description: 'GET Roles List',
 			notes: ['Returns Roles list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
-			'Role First Level Relations: ' + RoleValidation.FLRelations + '<br>' +
-			'Role Second Level Relations: ' + RoleValidation.SLRelations + '<br>' +
+			'AuthRole First Level Relations: ' + RoleValidation.FLRelations + '<br>' +
+			'AuthRole Second Level Relations: ' + RoleValidation.SLRelations + '<br>' +
 			'Attributes: ' + RoleValidation.Attributes + '<br>'],
 			validate: {
 				options: {
@@ -33,7 +33,7 @@ module.exports = [
 	},
 	{
 		method: 'GET',
-		path: '/v1/roles/{roleId}',
+		path: '/v1/auth/roles/{roleId}',
 		config: {
 			handler: RoleHandler.findOne,
 			auth:
@@ -42,8 +42,8 @@ module.exports = [
 					scope: ['GameApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'GET One Role',
-			notes: ['Returns a Role identified by the params {roleId} <br>' +
+			description: 'GET One AuthRole',
+			notes: ['Returns a AuthRole identified by the params {roleId} <br>' +
 			'Attributes: ' + RoleValidation.Attributes + '<br>'],
 			validate: {
 				options: {
@@ -59,7 +59,7 @@ module.exports = [
 	},
 	{
 		method: 'POST',
-		path: '/v1/roles',
+		path: '/v1/auth/roles',
 		config: {
 			handler: RoleHandler.create,
 			auth:
@@ -67,10 +67,10 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'POST a New Role',
-			notes: ['Save a new Role with params in payload with one or more Child object.<br>' +
-			'Role hasMany Child Model: Role object can contain one or more Child object <br>' +
-			'Role BelongsToMany Child Model: Role object can contain one or more Child object can contain one Through object'],
+			description: 'POST a New AuthRole',
+			notes: ['Save a new AuthRole with params in payload with one or more Child object.<br>' +
+			'AuthRole hasMany Child Model: AuthRole object can contain one or more Child object <br>' +
+			'AuthRole BelongsToMany Child Model: AuthRole object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -84,7 +84,7 @@ module.exports = [
 	},
 	{
 		method: 'PUT',
-		path: '/v1/roles/{roleId}',
+		path: '/v1/auth/roles/{roleId}',
 		config: {
 			handler: RoleHandler.update,
 			auth:
@@ -92,8 +92,8 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'PUT an Updated Role',
-			notes: ['Save an updated Role with params in payload <br>'],
+			description: 'PUT an Updated AuthRole',
+			notes: ['Save an updated AuthRole with params in payload <br>'],
 			validate: {
 				headers: HeaderValidation.headerRequired,
 				query: RoleValidation.queryLang,
@@ -105,7 +105,7 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/roles/{roleId}',
+		path: '/v1/auth/roles/{roleId}',
 		config: {
 			handler: RoleHandler.delete,
 			auth:
@@ -113,8 +113,8 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'DELETE an Role',
-			notes: ['Delete un Role <br>'],
+			description: 'DELETE an AuthRole',
+			notes: ['Delete un AuthRole <br>'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -130,7 +130,7 @@ module.exports = [
 	// EXTRA CRUD
 	{
 		method: 'DELETE',
-		path: '/v1/roles/',
+		path: '/v1/auth/roles/',
 		config: {
 			handler: RoleHandler.deleteMany,
 			auth:
@@ -151,7 +151,7 @@ module.exports = [
 	},
 	{
 		method: 'POST',
-		path: '/v1/roles/{roleId}/{childModel}/{childId}',
+		path: '/v1/auth/roles/{roleId}/{childModel}/{childId}',
 		config: {
 			handler: RoleHandler.addOne,
 			auth:
@@ -159,9 +159,9 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'ADD one related Model to Role',
-			notes: ['Add one related model (to save) to a persisted Role <br>' +
-			'Add a persisted child Model to Role.'],
+			description: 'ADD one related Model to AuthRole',
+			notes: ['Add one related model (to save) to a persisted AuthRole <br>' +
+			'Add a persisted child Model to AuthRole.'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -175,7 +175,7 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/roles/{roleId}/{childModel}/{childId}',
+		path: '/v1/auth/roles/{roleId}/{childModel}/{childId}',
 		config: {
 			handler: RoleHandler.removeOne,
 			auth:
@@ -183,10 +183,10 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'Remove one related Model from Role',
-			notes: ['Remove one related model (delete) from a persisted Role <br>' +
-			'Role hasMany Child Model: Role object can contain one or more Child object <br>' +
-			'Role BelongsToMany Child Model: Role object can contain one or more Child object can contain one Through object'],
+			description: 'Remove one related Model from AuthRole',
+			notes: ['Remove one related model (delete) from a persisted AuthRole <br>' +
+			'AuthRole hasMany Child Model: AuthRole object can contain one or more Child object <br>' +
+			'AuthRole BelongsToMany Child Model: AuthRole object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -201,7 +201,7 @@ module.exports = [
 	},
 	{
 		method: 'POST',
-		path: '/v1/roles/{roleId}/{childModel}',
+		path: '/v1/auth/roles/{roleId}/{childModel}',
 		config: {
 			handler: RoleHandler.addMany,
 			auth:
@@ -209,10 +209,10 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'ADD one or more related Model to Role',
-			notes: ['Add one or more related model (to save) to an existed Role <br>' +
-			'Role hasMany Child Model: Role object can contain one or more Child object <br>' +
-			'Role BelongsToMany Child Model: Role object can contain one or more Child object can contain one Through object'],
+			description: 'ADD one or more related Model to AuthRole',
+			notes: ['Add one or more related model (to save) to an existed AuthRole <br>' +
+			'AuthRole hasMany Child Model: AuthRole object can contain one or more Child object <br>' +
+			'AuthRole BelongsToMany Child Model: AuthRole object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -227,7 +227,7 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/roles/{roleId}/{childModel}',
+		path: '/v1/auth/roles/{roleId}/{childModel}',
 		config: {
 			handler: RoleHandler.removeMany,
 			auth:
@@ -235,10 +235,10 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'Remove one or many related Model from Role',
-			notes: ['Remove one or many related model (delete) from a persisted Role <br>' +
-			'Role hasMany Child Model: Role object can contain one or more Child object <br>' +
-			'Role BelongsToMany Child Model: Role object can contain one or more Child object can contain one Through object'],
+			description: 'Remove one or many related Model from AuthRole',
+			notes: ['Remove one or many related model (delete) from a persisted AuthRole <br>' +
+			'AuthRole hasMany Child Model: AuthRole object can contain one or more Child object <br>' +
+			'AuthRole BelongsToMany Child Model: AuthRole object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -253,7 +253,7 @@ module.exports = [
 	},
 	{
 		method: 'GET',
-		path: '/v1/roles/{roleId}/{childModel}',
+		path: '/v1/auth/roles/{roleId}/{childModel}',
 		config: {
 			handler: RoleHandler.getAll,
 			auth:
@@ -261,8 +261,8 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Roles'],
-			description: 'Get All Role related child model with query filters',
-			notes: ['Get All records of Role related Child Model <br>'],
+			description: 'Get All AuthRole related child model with query filters',
+			notes: ['Get All records of AuthRole related Child Model <br>'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -276,19 +276,19 @@ module.exports = [
 	},
 	{
 		method: 'GET',
-		path: '/v1/roles/4Select',
+		path: '/v1/auth/roles/4Select',
 		config: {
 			handler: RoleHandler.findAll,
 			auth:
 			// false,
 				{
-					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-User', 'WebApp-User'],
+					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-AuthUser', 'WebApp-AuthUser'],
 				},
 			tags: ['api', 'Roles'],
 			description: 'GET Roles List for Input Select',
 			notes: ['Returns Roles list for input select filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
-			'User First Level Relations, only for query: ' + RoleValidation.FLRelations + '<br>' +
-			'User Second Level Relations only for query: ' + RoleValidation.SLRelations + '<br>' +
+			'AuthUser First Level Relations, only for query: ' + RoleValidation.FLRelations + '<br>' +
+			'AuthUser Second Level Relations only for query: ' + RoleValidation.SLRelations + '<br>' +
 			'Attributes: ' + RoleValidation.Attributes4Select + '<br>'],
 			validate: {
 				options: {

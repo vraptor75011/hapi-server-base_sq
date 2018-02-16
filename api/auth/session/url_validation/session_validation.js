@@ -13,7 +13,7 @@ let baseIds = BaseValidation.ids;
 let lang = BaseValidation.lang;
 
 // Model Validation
-const Validations = ModelValidation(DB.Session);
+const Validations = ModelValidation(DB.AuthSession);
 
 let filters = Validations.filters;
 let ids = Validations.ids;
@@ -43,7 +43,7 @@ let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
 
 // Model Relations Validation
-const RelationValidation = ModelRelationValidation(DB.Session, true, DB.Session.name, null);
+const RelationValidation = ModelRelationValidation(DB.AuthSession, true, DB.AuthSession.name, null);
 
 let postRelation = RelationValidation.postRelObject;
 let putRelation = RelationValidation.putRelObject;

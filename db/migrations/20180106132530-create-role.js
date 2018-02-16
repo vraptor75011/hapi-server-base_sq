@@ -2,7 +2,7 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('roles',
+		await queryInterface.createTable('authRoles',
 			{
 				id: {
 					type: Sequelize.INTEGER.UNSIGNED,
@@ -34,6 +34,6 @@ module.exports = {
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('roles');
+		await queryInterface.dropTable('authRoles');
 	}
 };

@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const UserValidation = require('../../user/url_validation/user_validation_base');
-const BaseValidation = require('../../../utilities/validation/base_validation');
+const BaseValidation = require('../../../../utilities/validation/base_validation');
 
 let lang = BaseValidation.lang;
 

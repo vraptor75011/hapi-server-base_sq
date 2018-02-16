@@ -1,17 +1,15 @@
 const Uuid = require('node-uuid');
 const Sequelize = require('sequelize');
 const Bcrypt = require('bcrypt');
-const _ = require('lodash');
-const QueryHelper = require('../../../../utilities/query/query-helper');
 
 const Op = Sequelize.Op;
 
-module.exports = function(sequelize, DataTypes) {
-	let Session = sequelize.define('session', {
+module.exports = function(sequelize, Sequelize) {
+	let AuthSession = sequelize.define('authSession', {
 
 			// ATTRIBUTES
 			id: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
@@ -19,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.id,
 			},
 			key: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				default4Select: true,
 				unique: true,
 				allowNull: false,
@@ -29,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.key,
 			},
 			passwordHash: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				exclude: true,
 				allowNull: false,
 				validation: {
@@ -37,13 +35,21 @@ module.exports = function(sequelize, DataTypes) {
 				},
 			},
 			userAgent: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				allowNull: false,
 				query: Query.userAgent,
 			},
+			userId: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+			},
+			realmId: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+			},
 		},
 		{
-			tableName: 'sessions',
+			tableName: 'authSessions',
 			paranoid: false,
 			timestamps: true,
 		},
@@ -51,14 +57,14 @@ module.exports = function(sequelize, DataTypes) {
 
 
 	// Model Relations
-	Session.associate = function (models) {
-		Session.belongsTo(models.User);
-		Session.belongsTo(models.Realm);
+	AuthSession.associate = function (models) {
+		AuthSession.belongsTo(models.AuthUser, { foreignKey: 'userId', targetKey: 'id' });
+		AuthSession.belongsTo(models.AuthRealm, { foreignKey: 'realmId', targetKey: 'id' });
 	};
 
 	// Special Methods:
 	// CreateInstance
-	Session.createOrRefreshInstance = async (request, oldSession, user, realm) => {
+	AuthSession.createOrRefreshInstance = async (request, oldSession, user, realm) => {
 		// const { method, url } = request;
 		let { headers } = request;
 		// let { info } = request;
@@ -69,7 +75,7 @@ module.exports = function(sequelize, DataTypes) {
 			oldSessionId = oldSession.id;
 		}
 
-		let [session, initialized] = await Session.findOrBuild({
+		let [session, initialized] = await AuthSession.findOrBuild({
 			where: {
 				id: oldSessionId,
 				userId: user.id,
@@ -92,7 +98,7 @@ module.exports = function(sequelize, DataTypes) {
 					key: { [Op.ne]: session.key }
 				}
 			};
-			await Session.destroy(option);
+			await AuthSession.destroy(option);
 			return session;
 		} else {
 			return null
@@ -101,21 +107,21 @@ module.exports = function(sequelize, DataTypes) {
 	};
 
 	// Find By Credentials
-	Session.findByCredentials = async (sessionId, sessionKey) => {
+	AuthSession.findByCredentials = async (sessionId, sessionKey) => {
 		let query = {
 			where: {
 				id: sessionId,
 			},
 			include: [
 				{
-					association: Session.associations.user,
+					association: AuthSession.associations.user,
 				},
 				{
-					association: Session.associations.realm
+					association: AuthSession.associations.realm
 				}],
 		};
 
-		let session = await Session.findOne(query);
+		let session = await AuthSession.findOne(query);
 		if (!session) {
 			return false;
 		}
@@ -124,7 +130,7 @@ module.exports = function(sequelize, DataTypes) {
 	};
 
 	// Generate a hashed key for new user registration
-	Session.generateKeyHash = async () => {
+	AuthSession.generateKeyHash = async () => {
 		let salt;
 		let hash;
 		const key = Uuid.v4();
@@ -136,7 +142,7 @@ module.exports = function(sequelize, DataTypes) {
 
 
 	// To complete model function
-	return Session;
+	return AuthSession;
 };
 
 // Params to build query URL
@@ -193,7 +199,7 @@ const Query = {
 					example: '{like}Mozilla',
 				},
 			},
-			description: 'the User Agent: Chrome vs [{=}Chrome,{<>}Chrome,{like}Chrome]',
+			description: 'the AuthUser Agent: Chrome vs [{=}Chrome,{<>}Chrome,{like}Chrome]',
 			example: ['{like}Firefox', '{like}Chrome'],
 		},
 		string: {

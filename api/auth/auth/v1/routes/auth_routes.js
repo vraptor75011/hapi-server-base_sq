@@ -11,13 +11,13 @@ const ActiveNewPWDPre = require('../handler/auth_pre/active_new_pwd_pre');
 module.exports= [
 	{
 		method: 'POST',
-		path: '/v1/auth/login',
+		path: '/v1/auth/auth/login',
 		config: {
 			handler: AuthLogin.login,
 			auth: false,
 			tags: ['Login', 'api', 'v1'],
-			description: 'User login.',
-			notes: ['Returns TOKENS after User authentication'],
+			description: 'AuthUser login.',
+			notes: ['Returns TOKENS after AuthUser authentication'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -31,14 +31,14 @@ module.exports= [
 	},
 	{
 		method: 'POST',
-		path: '/v1/auth/logout',
+		path: '/v1/auth/auth/logout',
 		config: {
 			handler: AuthLogin.logout,
 			auth: {
 				scope: ['Logged'],
 			},
 			tags: ['Logout', 'api', 'v1'],
-			description: 'User logout. Destroy his session.',
+			description: 'AuthUser logout. Destroy his session.',
 			notes: ['Returns true if destroy completed'],
 			validate: {
 				options: {
@@ -54,14 +54,14 @@ module.exports= [
 	},
 	{
 		method: 'POST',
-		path: '/v1/auth/refresh',
+		path: '/v1/auth/auth/refresh',
 		config: {
 			handler: AuthLogin.refresh,
 			auth: {
 				scope: ['Refresh'],
 			},
 			tags: ['Refresh', 'Token', 'api', 'v1'],
-			description: 'User refresh his store. Return two refreshed tokens.',
+			description: 'AuthUser refresh his store. Return two refreshed tokens.',
 			notes: ['Returns two refreshed tokens if refresh store is OK'],
 			validate: {
 				options: {
@@ -77,13 +77,13 @@ module.exports= [
 	},
 	{
 		method: 'POST',
-		path: '/v1/auth/registration',
+		path: '/v1/auth/auth/registration',
 		config: {
 			handler: AuthLogin.accountRegistration,
 			auth: false,
 			tags: ['Registration', 'api', 'v1'],
-			description: 'Register new User (no active).',
-			notes: ['Returns the new User object no active'],
+			description: 'Register new AuthUser (no active).',
+			notes: ['Returns the new AuthUser object no active'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -96,15 +96,15 @@ module.exports= [
 	},
 	{
 		method: 'POST',
-		path: '/v1/auth/invitation',
+		path: '/v1/auth/auth/invitation',
 		config: {
 			handler: AuthLogin.accountInvitation,
 			auth: {
 				scope: ['WebApp-Admin']
 			},
 			tags: ['Invitation', 'api', 'v1'],
-			description: 'Admin invites a new User (no active).',
-			notes: ['Returns the new User object no active'],
+			description: 'Admin invites a new AuthUser (no active).',
+			notes: ['Returns the new AuthUser object no active'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -117,11 +117,11 @@ module.exports= [
 	},
 	{
 		method: 'GET',
-		path: '/v1/auth/activation',
+		path: '/v1/auth/auth/activation',
 		config: {
 			handler: AuthLogin.accountActivation,
 			auth: false,
-			description: 'User account activation.',
+			description: 'AuthUser account activation.',
 			tags: ['Activation', 'api', 'v1'],
 			validate: {
 				options: {
@@ -135,13 +135,13 @@ module.exports= [
 	},
 	{
 		method: 'POST',
-		path: '/v1/auth/resetPWD',
+		path: '/v1/auth/auth/resetPWD',
 		config: {
 			handler: AuthLogin.resetPWDRequest,
 			auth: false,
 			tags: ['Reset Password', 'api', 'v1'],
 			description: 'Everybody can send request to reset his pwd.',
-			notes: ['Returns the updated User object with new pwd not active'],
+			notes: ['Returns the updated AuthUser object with new pwd not active'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -154,11 +154,11 @@ module.exports= [
 	},
 	{
 		method: 'GET',
-		path: '/v1/auth/activeNewPWD',
+		path: '/v1/auth/auth/activeNewPWD',
 		config: {
 			handler: AuthLogin.activeNewPWD,
 			auth: false,
-			description: 'User reset PWD confirm.',
+			description: 'AuthUser reset PWD confirm.',
 			tags: ['Reset Password', 'api', 'v1'],
 			validate: {
 				options: {

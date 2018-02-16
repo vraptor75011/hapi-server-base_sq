@@ -8,7 +8,7 @@ const FixedValidation = require('./realm_validation_base');
 
 let lang = BaseValidation.lang;
 
-const Validations = ModelValidation(DB.Realm);
+const Validations = ModelValidation(DB.AuthRealm);
 
 let filters = Validations.filters;
 let ids = Validations.ids;
@@ -38,7 +38,7 @@ let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
 let Attributes4Select = Validations.Attributes4Select;
 
-const RelationValidation = ModelRelationValidation(DB.Realm, true, DB.Realm.name, null);
+const RelationValidation = ModelRelationValidation(DB.AuthRealm, true, DB.AuthRealm.name, null);
 
 let postRelation = RelationValidation.postRelObject;
 let putRelation = RelationValidation.putRelObject;

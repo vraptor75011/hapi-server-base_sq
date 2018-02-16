@@ -7,7 +7,7 @@ const DB = require('../../../../../../config/sequelize');
 
 const Op = Sequelize.Op;
 
-const User = DB.User;
+const AuthUser = DB.AuthUser;
 
 
 module.exports = [
@@ -32,7 +32,7 @@ module.exports = [
 						activateAccountExpires: { [Op.gt]: Date.now() }
 					}
 				};
-				let user = await User.findOne(conditions);
+				let user = await AuthUser.findOne(conditions);
 				if (!user) {
 					return Boom.badRequest('Invalid email or key.');
 				}

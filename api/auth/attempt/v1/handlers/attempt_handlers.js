@@ -26,7 +26,7 @@ module.exports = {
 
 	create: async (request, h) => {
 		// Call an async function with await inside in handler-helper
-		// Only for Admin to Add a new User without free registration
+		// Only for Admin to Add a new AuthUser without free registration
 
 		// call CREATE Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
@@ -36,7 +36,7 @@ module.exports = {
 	},
 
 	update: async (request, h) => {
-		// Admin and User can update an User, but User can't change his roles and realms
+		// Admin and AuthUser can update an AuthUser, but AuthUser can't change his roles and realms
 		// Call an async function with await inside in handler-helper
 
 		// call CREATE Handler for CRUD function valid for all present models
@@ -46,7 +46,7 @@ module.exports = {
 	},
 
 	delete: async (request, h) => {
-		// Admin can delete an User
+		// Admin can delete an AuthUser
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE Handler for CRUD function valid for all present models
@@ -56,7 +56,7 @@ module.exports = {
 	},
 
 	deleteMany: async (request, h) => {
-		// Admin can delete an User
+		// Admin can delete an AuthUser
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE MANY Handler for EXTRA CRUD function valid for all present models
@@ -66,7 +66,7 @@ module.exports = {
 	},
 
 	addOne: async (request, h) => {
-		// Admin can add one child model to an User
+		// Admin can add one child model to an AuthUser
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
@@ -76,7 +76,7 @@ module.exports = {
 	},
 
 	removeOne: async (request, h) => {
-		// Admin can remove one child model from an User
+		// Admin can remove one child model from an AuthUser
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
@@ -86,7 +86,7 @@ module.exports = {
 	},
 
 	addMany: async (request, h) => {
-		// Admin can add one or more child model to an User
+		// Admin can add one or more child model to an AuthUser
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
@@ -96,7 +96,7 @@ module.exports = {
 	},
 
 	removeMany: async (request, h) => {
-		// Admin can remove one or more child model from an User
+		// Admin can remove one or more child model from an AuthUser
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
@@ -106,7 +106,7 @@ module.exports = {
 	},
 
 	getAll: async (request, h) => {
-		// Admin can get list of Child model related to User
+		// Admin can get list of Child model related to AuthUser
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;

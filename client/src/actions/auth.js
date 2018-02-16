@@ -26,7 +26,7 @@ export function signInUser(fields) {
         };
 
 
-        axios.post(`/api/v1/auth/login`, data)
+        axios.post(`/api/v1/auth/auth/login`, data)
             .then(response => {
                 // If request is good...
                 // - Update state to indicate user is authenticated
@@ -70,7 +70,7 @@ export function signOut() {
             /* const decoded = jwtDecode(token);
              axios.defaults.headers.common['Authorization'] = localStorage.getItem('token');
 
-             axios.delete(`/api/v1/session/${decoded.sessionId}`, {
+             axios.delete(`/api/v1/auth/session/${decoded.sessionId}`, {
                  "hardDelete": true
              }).then(response => {
                  localStorage.removeItem(tokenName);

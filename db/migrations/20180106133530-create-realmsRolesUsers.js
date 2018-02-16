@@ -2,7 +2,7 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('realms_roles_users',
+		await queryInterface.createTable('authRealmsRolesUsers',
 			{
 				id: {
 					type: Sequelize.INTEGER.UNSIGNED,
@@ -30,15 +30,15 @@ module.exports = {
 					allowNull: false,
 				},
 			});
-		await queryInterface.addIndex('realms_roles_users', ['realmId']);
-		await queryInterface.addIndex('realms_roles_users', ['roleId']);
-		await queryInterface.addIndex('realms_roles_users', ['userId']);
-		await queryInterface.addConstraint('realms_roles_users', ['realmId', 'roleId', 'userId'], {
+		await queryInterface.addIndex('authRealmsRolesUsers', ['realmId']);
+		await queryInterface.addIndex('authRealmsRolesUsers', ['roleId']);
+		await queryInterface.addIndex('authRealmsRolesUsers', ['userId']);
+		await queryInterface.addConstraint('authRealmsRolesUsers', ['realmId', 'roleId', 'userId'], {
 			type: 'unique',
 		});
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('realms_roles_users');
+		await queryInterface.dropTable('authRealmsRolesUsers');
 	}
 };

@@ -42,7 +42,7 @@ console.log('il token esiste')
 
                     axios({
                         method: 'post',
-                        url: '/api/v1/auth/refresh',
+                        url: '/api/v1/auth/auth/refresh',
                         headers: {"Accept": "application/json","authorization": refreshTokenName}
                     }).then(response => {
                         // If request is good...

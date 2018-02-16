@@ -35,7 +35,7 @@ export default async function authHelper() {
             try {
               const response = await axios({
                 method: 'post',
-                url: '/api/v1/auth/refresh',
+                url: '/api/v1/auth/auth/refresh',
                 headers: {
                   Accept: 'application/json',
                   authorization: refreshToken,

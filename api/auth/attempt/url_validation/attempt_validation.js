@@ -4,7 +4,7 @@ const DB = require('../../../../config/sequelize');
 const ModelValidation = require('../../../../utilities/validation/model_validations');
 const ModelRelationValidation = require('../../../../utilities/validation/model_relation_validations');
 const BaseValidation = require('../../../../utilities/validation/base_validation');
-const UserValidationBase = require('./auth_attempt_validation_base');
+const UserValidationBase = require('./attempt_validation_base');
 
 let lang = BaseValidation.lang;
 

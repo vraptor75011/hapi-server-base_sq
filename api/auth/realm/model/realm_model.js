@@ -1,10 +1,10 @@
-module.exports = function(sequelize, DataTypes) {
+module.exports = function(sequelize, Sequelize) {
 
-	let Realm = sequelize.define('realm', {
+	let AuthRealm = sequelize.define('authRealm', {
 
 			// ATTRIBUTES
 			id: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
@@ -12,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.id,
 			},
 			name: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
                 default4Select: true,
 				unique: true,
 				allowNull: false,
@@ -22,26 +22,26 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.name,
 			},
 			description: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				allowNull: true,
 				query: Query.description,
 			},
 		},
 		{
-			tableName: 'realms',
+			tableName: 'authRealms',
 			paranoid: true,
 			timestamps: true,
 		},
 	);
 
 	// Class Method
-	Realm.associate = function (models) {
-		Realm.belongsToMany(models.Role, { through: 'realmsRolesUsers' });
-		Realm.belongsToMany(models.User, { through: 'realmsRolesUsers' });
-		Realm.hasMany(models.RealmsRolesUsers, {as: 'realm-rru', foreignKey: 'realmId', sourceKey: 'id'});
+	AuthRealm.associate = function (models) {
+		AuthRealm.belongsToMany(models.AuthRole, { through: 'authRealmsRolesUsers' });
+		AuthRealm.belongsToMany(models.AuthUser, { through: 'authRealmsRolesUsers' });
+		AuthRealm.hasMany(models.AuthRealmsRolesUsers, {as: 'realm-rru', foreignKey: 'realmId', sourceKey: 'id'});
 	};
 
-	return Realm;
+	return AuthRealm;
 };
 
 // Params to build query URL
@@ -81,14 +81,14 @@ const Query = {
 					example: '{like}SuperAdmin',
 				},
 			},
-			description: 'the role name: User vs [{=}Admin,{<>}Admin,{like}SuperAdmin',
-			example: ['{like}dmin', '{like}User'],
+			description: 'the role name: AuthUser vs [{=}Admin,{<>}Admin,{like}SuperAdmin',
+			example: ['{like}dmin', '{like}AuthUser'],
 		},
 		string: {
 			regex: '',
 			min: 3,
 			max: 64,
-			example: ['{like}User', '{<>}Admin']
+			example: ['{like}AuthUser', '{<>}Admin']
 		},
 	},
 	description: {

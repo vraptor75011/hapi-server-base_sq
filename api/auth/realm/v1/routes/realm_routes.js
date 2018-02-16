@@ -1,12 +1,12 @@
-const HeaderValidation = require('../../../../utilities/validation/header_validation');
+const HeaderValidation = require('../../../../../utilities/validation/header_validation');
 const RealmValidation = require('../../url_validation/realm_validation');
 const RealmHandler = require('../handler/realm_handlers');
-const ErrorHelper = require('../../../../utilities/error/error-helper');
+const ErrorHelper = require('../../../../../utilities/error/error-helper');
 
 module.exports = [
 	{
 		method: 'GET',
-		path: '/v1/realms',
+		path: '/v1/auth/realms',
 		config: {
 			handler: RealmHandler.findAll,
 			auth:
@@ -17,8 +17,8 @@ module.exports = [
 			tags: ['api', 'Realms'],
 			description: 'GET Realms List',
 			notes: ['Returns Realms list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
-			'Realm First Level Relations: ' + RealmValidation.FLRelations + '<br>' +
-			'Realm Second Level Relations: ' + RealmValidation.SLRelations + '<br>' +
+			'AuthRealm First Level Relations: ' + RealmValidation.FLRelations + '<br>' +
+			'AuthRealm Second Level Relations: ' + RealmValidation.SLRelations + '<br>' +
 			'Attributes: ' + RealmValidation.Attributes + '<br>'],
 			validate: {
 				options: {
@@ -33,7 +33,7 @@ module.exports = [
 	},
 	{
 		method: 'GET',
-		path: '/v1/realms/{realmId}',
+		path: '/v1/auth/realms/{realmId}',
 		config: {
 			handler: RealmHandler.findOne,
 			auth:
@@ -42,8 +42,8 @@ module.exports = [
 					scope: ['GameApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'GET One Realm',
-			notes: ['Returns a Realm identified by the params {realmId} <br>' +
+			description: 'GET One AuthRealm',
+			notes: ['Returns a AuthRealm identified by the params {realmId} <br>' +
 			'Attributes: ' + RealmValidation.Attributes + '<br>'],
 			validate: {
 				options: {
@@ -59,7 +59,7 @@ module.exports = [
 	},
 	{
 		method: 'POST',
-		path: '/v1/realms',
+		path: '/v1/auth/realms',
 		config: {
 			handler: RealmHandler.create,
 			auth:
@@ -67,10 +67,10 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'POST a New Realm',
-			notes: ['Save a new Realm with params in payload with one or more Child object.<br>' +
-			'Realm hasMany Child Model: Realm object can contain one or more Child object <br>' +
-			'Realm BelongsToMany Child Model: Realm object can contain one or more Child object can contain one Through object'],
+			description: 'POST a New AuthRealm',
+			notes: ['Save a new AuthRealm with params in payload with one or more Child object.<br>' +
+			'AuthRealm hasMany Child Model: AuthRealm object can contain one or more Child object <br>' +
+			'AuthRealm BelongsToMany Child Model: AuthRealm object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -84,7 +84,7 @@ module.exports = [
 	},
 	{
 		method: 'PUT',
-		path: '/v1/realms/{realmId}',
+		path: '/v1/auth/realms/{realmId}',
 		config: {
 			handler: RealmHandler.update,
 			auth:
@@ -92,8 +92,8 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'PUT an Updated Realm',
-			notes: ['Save an updated Realm with params in payload <br>'],
+			description: 'PUT an Updated AuthRealm',
+			notes: ['Save an updated AuthRealm with params in payload <br>'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -108,7 +108,7 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/realms/{realmId}',
+		path: '/v1/auth/realms/{realmId}',
 		config: {
 			handler: RealmHandler.delete,
 			auth:
@@ -116,8 +116,8 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'DELETE an Realm',
-			notes: ['Delete un Realm <br>'],
+			description: 'DELETE an AuthRealm',
+			notes: ['Delete un AuthRealm <br>'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -133,7 +133,7 @@ module.exports = [
 	// EXTRA CRUD
 	{
 		method: 'DELETE',
-		path: '/v1/realms/',
+		path: '/v1/auth/realms/',
 		config: {
 			handler: RealmHandler.deleteMany,
 			auth:
@@ -157,7 +157,7 @@ module.exports = [
 	},
 	{
 		method: 'POST',
-		path: '/v1/realms/{realmId}/{childModel}/{childId}',
+		path: '/v1/auth/realms/{realmId}/{childModel}/{childId}',
 		config: {
 			handler: RealmHandler.addOne,
 			auth:
@@ -165,9 +165,9 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'ADD one related Model to Realm',
-			notes: ['Add one related model (to save) to a persisted Realm <br>' +
-			'Add a persisted child Model to Realm.'],
+			description: 'ADD one related Model to AuthRealm',
+			notes: ['Add one related model (to save) to a persisted AuthRealm <br>' +
+			'Add a persisted child Model to AuthRealm.'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -181,7 +181,7 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/realms/{realmId}/{childModel}/{childId}',
+		path: '/v1/auth/realms/{realmId}/{childModel}/{childId}',
 		config: {
 			handler: RealmHandler.removeOne,
 			auth:
@@ -189,10 +189,10 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'Remove one related Model from Realm',
-			notes: ['Remove one related model (delete) from a persisted Realm <br>' +
-			'Realm hasMany Child Model: Realm object can contain one or more Child object <br>' +
-			'Realm BelongsToMany Child Model: Realm object can contain one or more Child object can contain one Through object'],
+			description: 'Remove one related Model from AuthRealm',
+			notes: ['Remove one related model (delete) from a persisted AuthRealm <br>' +
+			'AuthRealm hasMany Child Model: AuthRealm object can contain one or more Child object <br>' +
+			'AuthRealm BelongsToMany Child Model: AuthRealm object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -207,7 +207,7 @@ module.exports = [
 	},
 	{
 		method: 'POST',
-		path: '/v1/realms/{realmId}/{childModel}',
+		path: '/v1/auth/realms/{realmId}/{childModel}',
 		config: {
 			handler: RealmHandler.addMany,
 			auth:
@@ -215,10 +215,10 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'ADD one or more related Model to Realm',
-			notes: ['Add one or more related model (to save) to an existed Realm <br>' +
-			'Realm hasMany Child Model: Realm object can contain one or more Child object <br>' +
-			'Realm BelongsToMany Child Model: Realm object can contain one or more Child object can contain one Through object'],
+			description: 'ADD one or more related Model to AuthRealm',
+			notes: ['Add one or more related model (to save) to an existed AuthRealm <br>' +
+			'AuthRealm hasMany Child Model: AuthRealm object can contain one or more Child object <br>' +
+			'AuthRealm BelongsToMany Child Model: AuthRealm object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -233,7 +233,7 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/realms/{realmId}/{childModel}',
+		path: '/v1/auth/realms/{realmId}/{childModel}',
 		config: {
 			handler: RealmHandler.removeMany,
 			auth:
@@ -241,10 +241,10 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'Remove one or many related Model from Realm',
-			notes: ['Remove one or many related model (delete) from a persisted Realm <br>' +
-			'Realm hasMany Child Model: Realm object can contain one or more Child object <br>' +
-			'Realm BelongsToMany Child Model: Realm object can contain one or more Child object can contain one Through object'],
+			description: 'Remove one or many related Model from AuthRealm',
+			notes: ['Remove one or many related model (delete) from a persisted AuthRealm <br>' +
+			'AuthRealm hasMany Child Model: AuthRealm object can contain one or more Child object <br>' +
+			'AuthRealm BelongsToMany Child Model: AuthRealm object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -259,7 +259,7 @@ module.exports = [
 	},
 	{
 		method: 'GET',
-		path: '/v1/realms/{realmId}/{childModel}',
+		path: '/v1/auth/realms/{realmId}/{childModel}',
 		config: {
 			handler: RealmHandler.getAll,
 			auth:
@@ -267,8 +267,8 @@ module.exports = [
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
 			tags: ['api', 'Realms'],
-			description: 'Get All Realm related child model with query filters',
-			notes: ['Get All records of Realm related Child Model <br>'],
+			description: 'Get All AuthRealm related child model with query filters',
+			notes: ['Get All records of AuthRealm related Child Model <br>'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -282,19 +282,19 @@ module.exports = [
 	},
 	{
 		method: 'GET',
-		path: '/v1/realms/4Select',
+		path: '/v1/auth/realms/4Select',
 		config: {
 			handler: RealmHandler.findAll,
 			auth:
 			// false,
 				{
-					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-User', 'WebApp-User'],
+					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-AuthUser', 'WebApp-AuthUser'],
 				},
 			tags: ['api', 'Realms'],
 			description: 'GET Realms List for Input Select',
 			notes: ['Returns Realms list for input select filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
-			'User First Level Relations, only for query: ' + RealmValidation.FLRelations + '<br>' +
-			'User Second Level Relations only for query: ' + RealmValidation.SLRelations + '<br>' +
+			'AuthUser First Level Relations, only for query: ' + RealmValidation.FLRelations + '<br>' +
+			'AuthUser Second Level Relations only for query: ' + RealmValidation.SLRelations + '<br>' +
 			'Attributes: ' + RealmValidation.Attributes4Select + '<br>'],
 			validate: {
 				options: {

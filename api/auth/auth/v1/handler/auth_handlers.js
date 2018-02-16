@@ -16,10 +16,10 @@ const HandlerHelper = require('../../../../../utilities/handler/handler-helper')
 const Token = require('../../../../../utilities/token/token');
 const Mailer = require('../../../../../utilities/mailer/mailer');
 
-const User = DB.User;
-const Realm = DB.Realm;
-const Role = DB.Role;
-const Session = DB.Session;
+const AuthUser = DB.AuthUser;
+const AuthRealm = DB.AuthRealm;
+const AuthRole = DB.AuthRole;
+const AuthSession = DB.AuthSession;
 
 
 module.exports =
@@ -75,7 +75,7 @@ module.exports =
 				roles,
 			};
 
-			apiLogger.info(chalk.cyan('User: ' + user.username + ' has logged in'));
+			apiLogger.info(chalk.cyan('AuthUser: ' + user.username + ' has logged in'));
 
 			const mapperOptions = {
 				meta: {
@@ -97,14 +97,14 @@ module.exports =
 
 			try {
 				let query = {where: {key: sessionKey, userId: user.id}};
-				let session = await Session.findOne(query);
+				let session = await AuthSession.findOne(query);
 				if (session) {
-					apiLogger.info(chalk.cyan('User: ' + user.username + ' has logged out'));
+					apiLogger.info(chalk.cyan('AuthUser: ' + user.username + ' has logged out'));
 					session.destroy();
 					return true;
 				} else {
-					apiLogger.info(chalk.cyan('User: ' + user.username + ' failed to log out'));
-					let error = Session.name + ' key: ' + sessionKey + ' not present';
+					apiLogger.info(chalk.cyan('AuthUser: ' + user.username + ' failed to log out'));
+					let error = AuthSession.name + ' key: ' + sessionKey + ' not present';
 					return Boom.notFound(error);
 				}
 			} catch(error) {
@@ -145,15 +145,15 @@ module.exports =
 				let user = request.payload.user;
 				let result;
 
-				let keyHash = await Session.generateKeyHash();
+				let keyHash = await AuthSession.generateKeyHash();
 
 				user.isActive = false;
-				user.password = User.hashPassword(user.password);
+				user.password = AuthUser.hashPassword(user.password);
 				user.activateAccountToken = keyHash.hash;
 				user.activateAccountExpires = Date.now() + (4*1000*60*60);
 				user.realmsRolesUsers = {realmId: 1, roleId: 1};
 
-				result = await HandlerHelper.create(User, user);
+				result = await HandlerHelper.create(AuthUser, user);
 				if (result.isBoom) {
 					return result;
 				} else {
@@ -194,16 +194,16 @@ module.exports =
 				let user = request.payload.user;
 				let result;
 
-				let keyHash = await Session.generateKeyHash();
+				let keyHash = await AuthSession.generateKeyHash();
 
 				let originalPassword = user.password;
 				user.isActive = false;
-				user.password = User.hashPassword(user.password);
+				user.password = AuthUser.hashPassword(user.password);
 				user.activateAccountToken = keyHash.hash;
 				user.activateAccountExpires = Date.now() + (4*1000*60*60);
 				user.realmsRolesUsers = {realmId: 1, roleId: 1};
 
-				result = await HandlerHelper.create(User, user);
+				result = await HandlerHelper.create(AuthUser, user);
 				if (result.isBoom) {
 					return result;
 				} else {
@@ -264,7 +264,7 @@ module.exports =
 					email: user.email,
 				};
 
-				let result = await HandlerHelper.update(User, id, attributes);
+				let result = await HandlerHelper.update(AuthUser, id, attributes);
 
 				if (result) {
 					return  h.view('register_ok', context);
@@ -281,17 +281,17 @@ module.exports =
 		resetPWDRequest: async (request, h) => {
 			try {
 				let condition = {where: {email: {[Op.eq]: request.payload.email}}};
-				let user = await User.findOne(condition);
+				let user = await AuthUser.findOne(condition);
 
-				let keyHash = await Session.generateKeyHash();
+				let keyHash = await AuthSession.generateKeyHash();
 
 				let attributes = {
-					resetPasswordNewPWD: User.hashPassword(request.payload.password),
+					resetPasswordNewPWD: AuthUser.hashPassword(request.payload.password),
 					resetPasswordToken: keyHash.hash,
 					resetPasswordExpires: Date.now() + (4*1000*60*60),
 				};
 
-				let result = await HandlerHelper.update(User, user.id, attributes);
+				let result = await HandlerHelper.update(AuthUser, user.id, attributes);
 				if (result.isBoom) {
 					return result;
 				} else {
@@ -350,7 +350,7 @@ module.exports =
 					email: user.email,
 				};
 
-				let result = await HandlerHelper.update(User, id, attributes);
+				let result = await HandlerHelper.update(AuthUser, id, attributes);
 
 				if (result) {
 					return  h.view('reset_pwd_ok', context);

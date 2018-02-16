@@ -8,7 +8,7 @@ const FixedValidation = require('./realms_roles_users_validation_base');
 
 let lang = BaseValidation.lang;
 
-const Validations = ModelValidation(DB.RealmsRolesUsers);
+const Validations = ModelValidation(DB.AuthRealmsRolesUsers);
 
 let filters = Validations.filters;
 let ids = Validations.ids;
@@ -38,7 +38,7 @@ let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
 let Attributes4Select = Validations.Attributes4Select;
 
-const RelationValidation = ModelRelationValidation(DB.RealmsRolesUsers, true, DB.RealmsRolesUsers.name, null);
+const RelationValidation = ModelRelationValidation(DB.AuthRealmsRolesUsers, true, DB.AuthRealmsRolesUsers.name, null);
 
 let postRelation = RelationValidation.postRelObject;
 let putRelation = RelationValidation.putRelObject;

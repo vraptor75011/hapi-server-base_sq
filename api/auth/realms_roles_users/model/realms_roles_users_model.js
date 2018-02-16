@@ -1,35 +1,35 @@
-module.exports = function(sequelize, DataTypes) {
+module.exports = function(sequelize, Sequelize) {
 
-	let RealmsRolesUsers = sequelize.define('realmsRolesUsers', {
+	let AuthRealmsRolesUsers = sequelize.define('authRealmsRolesUsers', {
 
 			// ATTRIBUTES
 			id: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
 				comment: "Primary and auto incremented key of the table"
 			},
 			// realmId: {
-			// 	type: DataTypes.INTEGER,
+			// 	type: Sequelize.INTEGER,
 			// 	references: {
 			// 		// This is a reference to another model
-			// 		model: 'Realm',
+			// 		model: 'AuthRealm',
 			// 		// This is the column name of the referenced model
 			// 		key: 'id',
 			// 	}
 			// },
 			// roleId: {
-			// 	type: DataTypes.INTEGER,
+			// 	type: Sequelize.INTEGER,
 			// 	references: {
-			// 		model: 'Role',
+			// 		model: 'AuthRole',
 			// 		key: 'id',
 			// 	}
 			// },
 			// userId: {
-			// 	type: DataTypes.INTEGER,
+			// 	type: Sequelize.INTEGER,
 			// 	references: {
-			// 		model: 'User',
+			// 		model: 'AuthUser',
 			// 		key: 'id',
 			// 	}
 			// },
@@ -40,17 +40,17 @@ module.exports = function(sequelize, DataTypes) {
 				plural: 'realmsRolesUsers',
 			},
 			timestamps: false,
-			tableName: 'realms_roles_users',
+			tableName: 'authRealmsRolesUsers',
 			paranoid: true,
 		},
 	);
 
 	// Model Relations
-	RealmsRolesUsers.associate = function (models) {
-		RealmsRolesUsers.belongsTo(models.Realm, {foreignKey: 'realmId', targetKey: 'id'});
-		RealmsRolesUsers.belongsTo(models.Role, {foreignKey: 'roleId', targetKey: 'id'});
-		RealmsRolesUsers.belongsTo(models.User, {foreignKey: 'userId', targetKey: 'id'});
+	AuthRealmsRolesUsers.associate = function (models) {
+		AuthRealmsRolesUsers.belongsTo(models.AuthRealm, {foreignKey: 'realmId', targetKey: 'id'});
+		AuthRealmsRolesUsers.belongsTo(models.AuthRole, {foreignKey: 'roleId', targetKey: 'id'});
+		AuthRealmsRolesUsers.belongsTo(models.AuthUser, {foreignKey: 'userId', targetKey: 'id'});
 	};
 
-	return RealmsRolesUsers;
+	return AuthRealmsRolesUsers;
 };

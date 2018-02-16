@@ -12,10 +12,10 @@ const DB = require('../../../../../../config/sequelize');
 
 const Op = Sequelize.Op;
 
-const User = DB.User;
-const Realm = DB.Realm;
-const Role = DB.Role;
-const Session = DB.Session;
+const AuthUser = DB.AuthUser;
+const AuthRealm = DB.AuthRealm;
+const AuthRole = DB.AuthRole;
+const AuthSession = DB.AuthSession;
 const AuthAttempt = DB.AuthAttempt;
 
 const LoginPre = [
@@ -81,7 +81,7 @@ const LoginPre = [
 
 					attempt.count += 1;
 					if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate && blockDate > expirationDate) {
-						let error = 'Exceeded the User maximum attempts';
+						let error = 'Exceeded the AuthUser maximum attempts';
 						apiLogger.error(chalk.red(error));
 						return Boom.unauthorized(error);
 					} else if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate && blockDate <= expirationDate) {
@@ -109,10 +109,10 @@ const LoginPre = [
 			const username = request.payload.username;
 			const password = request.payload.password;
 			let userLogging = email || username;
-			sesLogger.info(chalk.grey('User: ' + userLogging + ' try to logging in'));
+			sesLogger.info(chalk.grey('AuthUser: ' + userLogging + ' try to logging in'));
 
 			try {
-				let user = await User.findOne(
+				let user = await AuthUser.findOne(
 					{where:
 							{
 								[Op.or]: [
@@ -143,7 +143,7 @@ const LoginPre = [
 			let realm = {};
 
 			try {
-				realm = await Realm.findOne({
+				realm = await AuthRealm.findOne({
 					where:
 						{name: realmName}
 				});
@@ -182,9 +182,9 @@ const LoginPre = [
 				if (authStrategy === AUTH_STRATEGIES.TOKEN) {
 					return h.response(null);
 				} else {
-					session = await Session.createOrRefreshInstance(request, null, user, realm);
+					session = await AuthSession.createOrRefreshInstance(request, null, user, realm);
 					if (session) {
-						sesLogger.info(chalk.grey('User: ' + request.pre.user.username + ' open new session: ' + session.key));
+						sesLogger.info(chalk.grey('AuthUser: ' + request.pre.user.username + ' open new session: ' + session.key));
 						return h.response(session);
 					} else {
 						let error = 'Un error occurred';
@@ -208,10 +208,10 @@ const LoginPre = [
 			let roles = [];
 
 			try {
-				result = await User.findOne({
+				result = await AuthUser.findOne({
 					where: {id: user.id},
 					include: [{
-						model: Role,
+						model: AuthRole,
 						through: {
 							where: {realmId: realm.id}
 						}
@@ -221,7 +221,7 @@ const LoginPre = [
 				if(roles && roles.length){
 					return h.response(roles);
 				} else {
-					return Boom.unauthorized('User with no roles');
+					return Boom.unauthorized('AuthUser with no roles');
 				}
 			} catch(error) {
 				apiLogger.error(chalk.red(error));
@@ -239,9 +239,9 @@ const LoginPre = [
 
 			// Add 'Logged' to scope
 			scope = scope.concat('Logged');
-			// Add Realm-Roles to Scope
+			// Add AuthRealm-Roles to Scope
 			roles.forEach(function (role){
-				if (role.name.indexOf('User') !== -1) {
+				if (role.name.indexOf('AuthUser') !== -1) {
 					scope = scope.concat(realm.name+'-'+role.name+'-'+request.pre.user.id)
 				} else {
 					scope = scope.concat(realm.name+'-'+role.name);

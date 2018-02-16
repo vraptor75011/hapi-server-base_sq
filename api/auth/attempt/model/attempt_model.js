@@ -1,11 +1,11 @@
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function(sequelize, Sequelize) {
 
 	let AuthAttempt = sequelize.define('authAttempt', {
 
 			// ATTRIBUTES
 			id: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.id,
 			},
 			ip: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				allowNull: false,
 				validation: {
 					is: [15]
@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.ip,
 			},
 			username: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				unique: true,
 				allowNull: true,
 				validation: {
@@ -30,7 +30,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.username,
 			},
 			email: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				unique: true,
 				allowNull: true,
 				validation: {
@@ -39,7 +39,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.email,
 			},
 			count: {
-				type: DataTypes.INTEGER,
+				type: Sequelize.INTEGER,
 				defaultValue: 0,
 				allowNull: false,
 				validation: {
@@ -49,7 +49,7 @@ module.exports = function(sequelize, DataTypes) {
 			},
 		},
 		{
-			tableName: 'auth_attempts',
+			tableName: 'authAttempts',
 			paranoid: true,
 			timestamps: true,
 		},

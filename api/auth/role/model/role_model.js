@@ -1,10 +1,10 @@
-module.exports = function(sequelize, DataTypes) {
+module.exports = function(sequelize, Sequelize) {
 
-	let Role = sequelize.define('role', {
+	let AuthRole = sequelize.define('authRole', {
 
 			// ATTRIBUTES
 			id: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
@@ -12,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.id,
 			},
 			name: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
                 default4Select: true,
 				unique: true,
 				allowNull: false,
@@ -22,26 +22,26 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.name,
 			},
 			description: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				allowNull: true,
 				query: Query.description,
 			},
 		},
 		{
-			tableName: 'roles',
+			tableName: 'authRoles',
 			paranoid: true,
 			timestamps: true,
 		},
 	);
 
 	// Class Method
-	Role.associate = function (models) {
-		Role.belongsToMany(models.Realm, { through: 'realmsRolesUsers' });
-		Role.belongsToMany(models.User, { through: 'realmsRolesUsers' });
-		Role.hasMany(models.RealmsRolesUsers, {as: 'role-rru', foreignKey: 'roleId', sourceKey: 'id'});
+	AuthRole.associate = function (models) {
+		AuthRole.belongsToMany(models.AuthRealm, { through: 'authRealmsRolesUsers' });
+		AuthRole.belongsToMany(models.AuthUser, { through: 'authRealmsRolesUsers' });
+		AuthRole.hasMany(models.AuthRealmsRolesUsers, {as: 'role-rru', foreignKey: 'roleId', sourceKey: 'id'});
 	};
 
-	return Role;
+	return AuthRole;
 };
 
 // Params to build query URL
@@ -81,14 +81,14 @@ const Query = {
 					example: '{like}SuperAdmin',
 				},
 			},
-			description: 'the role name: User vs [{=}Admin,{<>}Admin,{like}SuperAdmin',
-			example: ['{like}dmin', '{like}User'],
+			description: 'the role name: AuthUser vs [{=}Admin,{<>}Admin,{like}SuperAdmin',
+			example: ['{like}dmin', '{like}AuthUser'],
 		},
 		string: {
 			regex: '',
 			min: 3,
 			max: 64,
-			example: ['{like}User', '{<>}Admin']
+			example: ['{like}AuthUser', '{<>}Admin']
 		},
 	},
 	description: {

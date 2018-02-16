@@ -14,7 +14,7 @@ let baseIds = BaseValidation.ids;
 let lang = BaseValidation.lang;
 
 // Model Validation
-const Validations = ModelValidation(DB.User);
+const Validations = ModelValidation(DB.AuthUser);
 
 let filters = Validations.filters;
 let ids = Validations.ids;
@@ -46,7 +46,7 @@ let Attributes4Select = Validations.Attributes4Select;
 
 
 // Relation Validation
-const RelationValidation = ModelRelationValidation(DB.User, true, DB.User.name, null);
+const RelationValidation = ModelRelationValidation(DB.AuthUser, true, DB.AuthUser.name, null);
 
 let postRelation = RelationValidation.postRelObject;
 let putRelation = RelationValidation.putRelObject;

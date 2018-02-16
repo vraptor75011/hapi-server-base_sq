@@ -1,14 +1,14 @@
 const HeaderValidation = require('../../../../../utilities/validation/header_validation');
-const AuthAttempt = require('../../url_validation/auth_attempt_validation');
-const AuthAttemptHandler = require('../handlers/auth_attempt_handlers');
+const AuthAttempt = require('../../url_validation/attempt_validation');
+const AttemptHandler = require('../handlers/attempt_handlers');
 const { failAction } = require('../../../../../utilities/error/error-helper');
 
 module.exports = [
 	{
 		method: 'GET',
-		path: '/v1/authAttempts',
+		path: '/v1/auth/attempts',
 		config: {
-			handler: AuthAttemptHandler.findAll,
+			handler: AttemptHandler.findAll,
 			auth:
 			// false,
 				{
@@ -16,9 +16,9 @@ module.exports = [
 				},
 			tags: ['api', 'Auth Attempts'],
 			description: 'GET Auth Attempts List',
-			notes: ['Returns AuthAttempts list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
-			'Auth Attempt First Level Relations: ' + AuthAttempt.FLRelations + '<br>' +
-			'Auth Attempt Second Level Relations: ' + AuthAttempt.SLRelations + '<br>' +
+			notes: ['Returns Auth Attempts list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
+			'AuthAttempt First Level Relations: ' + AuthAttempt.FLRelations + '<br>' +
+			'AuthAttempt Second Level Relations: ' + AuthAttempt.SLRelations + '<br>' +
 			'Attributes: ' + AuthAttempt.Attributes + '<br>'],
 			validate: {
 				options: {
@@ -26,16 +26,16 @@ module.exports = [
 				},
 				headers: HeaderValidation.headerRequired,
 				query: AuthAttempt.queryAll,
-				// query: AuthAttempts.query,
+				// query: Attempts.query,
 				failAction: failAction,
 			},
 		},
 	},
 	{
 		method: 'GET',
-		path: '/v1/authAttempts/{authAttemptId}',
+		path: '/v1/auth/attempts/{authAttemptId}',
 		config: {
-			handler: AuthAttemptHandler.findOne,
+			handler: AttemptHandler.findOne,
 			auth:
 			// false,
 				{
@@ -43,7 +43,7 @@ module.exports = [
 				},
 			tags: ['api', 'Auth Attempts'],
 			description: 'GET One Auth Attempt',
-			notes: ['Returns a AuthAttempt identified by the params {authAttemptId} <br>' +
+			notes: ['Returns a Auth Attempt identified by the params {authAttemptId} <br>' +
 			'Attributes: ' + AuthAttempt.Attributes + '<br>'],
 			validate: {
 				options: {
@@ -52,16 +52,16 @@ module.exports = [
 				headers: HeaderValidation.headerRequired,
 				query: AuthAttempt.queryOne,
 				params: AuthAttempt.oneParams,
-				// query: AuthAttempts.query,
+				// query: Attempts.query,
 				failAction: failAction,
 			},
 		},
 	},
 	{
 		method: 'POST',
-		path: '/v1/authAttempts',
+		path: '/v1/auth/attempts',
 		config: {
-			handler: AuthAttemptHandler.create,
+			handler: AttemptHandler.create,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -84,9 +84,9 @@ module.exports = [
 	},
 	{
 		method: 'PUT',
-		path: '/v1/authAttempts/{authAttemptId}',
+		path: '/v1/auth/attempts/{authAttemptId}',
 		config: {
-			handler: AuthAttemptHandler.update,
+			handler: AttemptHandler.update,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -108,9 +108,9 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/authAttempts/{authAttemptId}',
+		path: '/v1/auth/attempts/{authAttemptId}',
 		config: {
-			handler: AuthAttemptHandler.delete,
+			handler: AttemptHandler.delete,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -133,9 +133,9 @@ module.exports = [
 	// EXTRA CRUD
 	{
 		method: 'DELETE',
-		path: '/v1/authAttempts/',
+		path: '/v1/auth/attempts/',
 		config: {
-			handler: AuthAttemptHandler.deleteMany,
+			handler: AttemptHandler.deleteMany,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -157,9 +157,9 @@ module.exports = [
 	},
 	{
 		method: 'POST',
-		path: '/v1/authAttempts/{authAttemptId}/{childModel}/{childId}',
+		path: '/v1/auth/attempts/{authAttemptId}/{childModel}/{childId}',
 		config: {
-			handler: AuthAttemptHandler.addOne,
+			handler: AttemptHandler.addOne,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -181,9 +181,9 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/authAttempts/{authAttemptId}/{childModel}/{childId}',
+		path: '/v1/auth/attempts/{authAttemptId}/{childModel}/{childId}',
 		config: {
-			handler: AuthAttemptHandler.removeOne,
+			handler: AttemptHandler.removeOne,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -207,9 +207,9 @@ module.exports = [
 	},
 	{
 		method: 'POST',
-		path: '/v1/authAttempts/{authAttemptId}/{childModel}',
+		path: '/v1/auth/attempts/{authAttemptId}/{childModel}',
 		config: {
-			handler: AuthAttemptHandler.addMany,
+			handler: AttemptHandler.addMany,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -233,9 +233,9 @@ module.exports = [
 	},
 	{
 		method: 'DELETE',
-		path: '/v1/authAttempts/{authAttemptId}/{childModel}',
+		path: '/v1/auth/attempts/{authAttemptId}/{childModel}',
 		config: {
-			handler: AuthAttemptHandler.removeMany,
+			handler: AttemptHandler.removeMany,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -259,9 +259,9 @@ module.exports = [
 	},
 	{
 		method: 'GET',
-		path: '/v1/authAttempts/{authAttemptId}/{childModel}',
+		path: '/v1/auth/attempts/{authAttemptId}/{childModel}',
 		config: {
-			handler: AuthAttemptHandler.getAll,
+			handler: AttemptHandler.getAll,
 			auth:
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
@@ -282,17 +282,17 @@ module.exports = [
 	},
 	{
 		method: 'GET',
-		path: '/v1/authAttempts/4Select',
+		path: '/v1/auth/attempts/4Select',
 		config: {
-			handler: AuthAttemptHandler.findAll,
+			handler: AttemptHandler.findAll,
 			auth:
 			// false,
 				{
-					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-User', 'WebApp-User'],
+					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-AuthUser', 'WebApp-AuthUser'],
 				},
 			tags: ['api', 'Auth Attempts'],
 			description: 'GET Auth Attempts List for Input Select',
-			notes: ['Returns AuthAttempts list for input select filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
+			notes: ['Returns Attempts list for input select filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
 			'Auth Attempt First Level Relations, only for query: ' + AuthAttempt.FLRelations + '<br>' +
 			'Auth Attempt Second Level Relations only for query: ' + AuthAttempt.SLRelations + '<br>' +
 			'Attributes: ' + AuthAttempt.Attributes4Select + '<br>'],
@@ -302,7 +302,7 @@ module.exports = [
 				},
 				headers: HeaderValidation.headerRequired,
 				query: AuthAttempt.query4Select,
-				// query: AuthAttempts.query,
+				// query: Attempts.query,
 				failAction: failAction,
 			},
 		},

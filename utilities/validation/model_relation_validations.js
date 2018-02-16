@@ -1,7 +1,25 @@
 const Joi = require('joi');
 const Sequelize = require('sequelize');
 const _ = require('lodash');
+const FS = require('fs');
 const ValidationHelper = require('./validation_helper');
+
+
+let getFile = (dir, modelName, file = null) => {
+
+	let	files = FS.readdirSync(dir);
+	if (file === null) {
+		files.forEach(function(f) {
+			if (FS.statSync(dir + '/' + f).isDirectory()) {
+				file = getFile(dir + '/' + f, modelName, file);
+			} else if (_.includes(f, modelName + '_validation_base')) {
+				file = dir + '/' +f;
+			}
+		});
+	}
+
+	return file;
+};
 
 /**
  * Returns the filters JOI validation for query URL
@@ -21,10 +39,11 @@ let getRelObject = (model, recursive, PK, exceptionModel, foreignKey) => {
 		let schema = {};
 
 		if (exceptionModel !== targetModel.name) {
-			let modelName = targetModel.name;
-			let modelFileName = _.snakeCase(modelName);
-			let file = '../../api/' + modelFileName + '/url_validation/' + modelFileName + '_validation_base';
-			let modelValidation = require(file);
+			let modelFileName = _.snakeCase(targetModel.name);
+			let index = _.indexOf(modelFileName, '_');
+			let realmModelName = modelFileName.slice(index+1);
+			let file = getFile('api', realmModelName);
+			let modelValidation = require('../../' + file);
 			let schema1L = Joi.object().keys(modelValidation.putPayloadObj);
 			let subSchema1L = {};
 			let cleanSchema1L = {};

@@ -1,9 +1,9 @@
 const Joi = require('joi');
 const _ = require('lodash');
-const DB = require('../../../config/sequelize');
-const ModelValidation = require('../../../utilities/validation/model_validations');
-const ModelRelationValidation = require('../../../utilities/validation/model_relation_validations');
-const BaseValidation = require('../../../utilities/validation/base_validation');
+const DB = require('../../../../config/sequelize');
+const ModelValidation = require('../../../../utilities/validation/model_validations');
+const ModelRelationValidation = require('../../../../utilities/validation/model_relation_validations');
+const BaseValidation = require('../../../../utilities/validation/base_validation');
 const FixedValidation = require('./role_validation_base');
 
 // Base Validations
@@ -14,7 +14,7 @@ let lang = BaseValidation.lang;
 
 // Model Validations
 
-const Validations = ModelValidation(DB.Role);
+const Validations = ModelValidation(DB.AuthRole);
 
 let filters = Validations.filters;
 let ids = Validations.ids;
@@ -45,7 +45,7 @@ let Attributes = Validations.Attributes;
 let Attributes4Select = Validations.Attributes4Select;
 
 // Model Relations Validation
-const RelationValidation = ModelRelationValidation(DB.Role, true, DB.Role.name, null);
+const RelationValidation = ModelRelationValidation(DB.AuthRole, true, DB.AuthRole.name, null);
 
 let postRelation = RelationValidation.postRelObject;
 let putRelation = RelationValidation.putRelObject;

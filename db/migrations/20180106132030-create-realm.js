@@ -2,7 +2,7 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('realms',
+		await queryInterface.createTable('authRealms',
 			{
 				id: {
 					type: Sequelize.INTEGER.UNSIGNED,
@@ -34,6 +34,6 @@ module.exports = {
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('realms');
+		await queryInterface.dropTable('authRealms');
 	}
 };

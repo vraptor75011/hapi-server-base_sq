@@ -1,6 +1,6 @@
-const { apiLogger } = require('../../../../utilities/logging/logging');
-const Polyglot = require('./../../../../plugins/hapi-polyglot/polyglot');
-const Config = require('./../../../../config/config');
+const { apiLogger } = require('../../../../../utilities/logging/logging');
+const Polyglot = require('./../../../../../plugins/hapi-polyglot/polyglot');
+const Config = require('./../../../../../config/config');
 
 let polyglot = Polyglot.getPolyglot();
 

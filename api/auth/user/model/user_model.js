@@ -1,13 +1,13 @@
 const Bcrypt = require('bcrypt');
 
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function(sequelize, Sequelize) {
 
-	let User = sequelize.define('user', {
+	let AuthUser = sequelize.define('authUser', {
 
 			// ATTRIBUTES
 			id: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
 				autoIncrement: true,
@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.id,
 			},
 			username: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				unique: true,
 				allowNull: true,
 				validation: {
@@ -24,7 +24,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.username,
 			},
 			email: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				unique: true,
 				allowNull: false,
 				validation: {
@@ -33,7 +33,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.email,
 			},
 			password: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				exclude: true,
 				allowNull: false,
 				validation: {
@@ -41,7 +41,7 @@ module.exports = function(sequelize, DataTypes) {
 				},
 			},
 			firstName: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				required: true,
 				validation: {
 					len: [3, 64]
@@ -49,7 +49,7 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.firstName,
 			},
 			lastName: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				required: true,
 				validation: {
 					len: [3, 64]
@@ -57,54 +57,54 @@ module.exports = function(sequelize, DataTypes) {
 				query: Query.lastName,
 			},
 			isActive: {
-				type: DataTypes.BOOLEAN,
+				type: Sequelize.BOOLEAN,
 				defaultValue: false,
 				query: Query.isActive,
 			},
 			currentLoginAt: {
-				type: DataTypes.DATE,
+				type: Sequelize.DATE,
 				query: Query.currentLoginAt,
 			},
 			lastLoginAt: {
-				type: DataTypes.DATE,
+				type: Sequelize.DATE,
 				query: Query.lastLoginAt,
 			},
 			currentLoginIP: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				validation: {
 					len: [3, 15]
 				},
 				query: Query.currentLoginIP,
 			},
 			lastLoginIP: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				validation: {
 					len: [3, 15]
 				},
 				query: Query.lastLoginIP
 			},
 			resetPasswordToken: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				exclude: true,
 			},
 			resetPasswordExpires: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				exclude: true,
 			},
 			resetPasswordNewPWD: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				exclude: true,
 			},
 			activateAccountToken: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				exclude: true,
 			},
 			activateAccountExpires: {
-				type: DataTypes.STRING,
+				type: Sequelize.STRING,
 				exclude: true,
 			},
 			fullName: {
-				type: DataTypes.VIRTUAL(DataTypes.STRING, ['lastName', 'firstName']),
+				type: Sequelize.VIRTUAL(Sequelize.STRING, ['lastName', 'firstName']),
 				default4Select: true,
 				get: function() {
 					if (this.get('lastName') && this.get('firstName')) {
@@ -116,28 +116,28 @@ module.exports = function(sequelize, DataTypes) {
 			}
 		},
 		{
-			tableName: 'users',
+			tableName: 'authUsers',
 			paranoid: true,
 			timestamps: true,
 		},
 	);
 
 	// Model Relations
-	User.associate = function (models) {
-		User.belongsToMany(models.Role, { through: 'realmsRolesUsers' });
-		User.belongsToMany(models.Realm, { through: 'realmsRolesUsers' });
-		User.hasMany(models.RealmsRolesUsers, {as: 'user-rru', foreignKey: 'userId', sourceKey: 'id'});
-		User.hasMany(models.Session);
+	AuthUser.associate = function (models) {
+		AuthUser.belongsToMany(models.AuthRole, { through: 'authRealmsRolesUsers', foreignKey: 'userId', sourceKey: 'id' });
+		AuthUser.belongsToMany(models.AuthRealm, { through: 'authRealmsRolesUsers', foreignKey: 'userId', sourceKey: 'id' });
+		AuthUser.hasMany(models.AuthRealmsRolesUsers, { as: 'user-rru', foreignKey: 'userId', sourceKey: 'id' });
+		AuthUser.hasMany(models.AuthSession, { foreignKey: 'userId', sourceKey: 'id' });
 	};
 
 	// Model Utilities
-	User.hashPassword = (password) => {
+	AuthUser.hashPassword = (password) => {
 		const SaltRounds = 10;
 		let salt = Bcrypt.genSaltSync(SaltRounds);
 		return Bcrypt.hashSync(password, salt);
 	};
 
-	return User;
+	return AuthUser;
 };
 
 // Params to build query URL

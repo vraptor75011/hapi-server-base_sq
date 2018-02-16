@@ -1,6 +1,6 @@
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('auth_attempts',
+		await queryInterface.createTable('authAttempts',
 			{
 				id: {
 					type: Sequelize.INTEGER.UNSIGNED,
@@ -36,12 +36,12 @@ module.exports = {
 					type: Sequelize.DATE
 				},
 			});
-		await queryInterface.addIndex('auth_attempts', ['ip', 'username', 'email']);
+		await queryInterface.addIndex('authAttempts', ['ip', 'username', 'email']);
 
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('auth_attempts');
+		await queryInterface.dropTable('authAttempts');
 
 	}
 };
