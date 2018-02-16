@@ -14,7 +14,7 @@ const Options = {
 		'title': 'HAPI Server API Documentation',
 		'version': '1.0.0',
 	},
-	pathPrefixSize: 3,
+	pathPrefixSize: 4,
 	basePath: BaseOptions.basePath,
 
 	deReference: false,
