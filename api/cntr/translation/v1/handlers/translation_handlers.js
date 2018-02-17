@@ -19,8 +19,8 @@ module.exports = {
 		let stuff = request.query.stuff;
 
 		if (stuff) {
-			let scaffold = require('../../../../locales/'+ polyglot.locale() + '/web_app/scaffold');
-			let model = require('../../../../locales/'+ polyglot.locale() + '/model/model');
+			let scaffold = require('../../../../../locales/'+ polyglot.locale() + '/web_app/scaffold');
+			let model = require('../../../../../locales/'+ polyglot.locale() + '/model/model');
 
 			if (scaffold[stuff]) {
 				translation[stuff] = scaffold[stuff];

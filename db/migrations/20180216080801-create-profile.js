@@ -19,20 +19,10 @@ module.exports = {
 				type: Sequelize.STRING(64),
 				allowNull: false,
 			},
-			isActive: {
-				type: Sequelize.BOOLEAN,
-				defaultValue: false
+			langDefault: {
+				type: Sequelize.STRING(8),
 			},
-			currentLoginAt: {
-				type: Sequelize.DATE,
-			},
-			lastLoginAt: {
-				type: Sequelize.DATE,
-			},
-			currentLoginIP: {
-				type: Sequelize.STRING(16),
-			},
-			lastLoginIP: {
+			mobilePhone: {
 				type: Sequelize.STRING(16),
 			},
 			resetPasswordToken: {
