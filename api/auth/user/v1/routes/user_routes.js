@@ -39,7 +39,7 @@ module.exports = [
 			auth:
 			// false,
 				{
-					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'WebApp-AuthUser-{userId}'],
+					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'WebApp-User-{params.userId}'],
 				},
 			tags: ['api', 'Users'],
 			description: 'GET One AuthUser',
@@ -89,7 +89,7 @@ module.exports = [
 			handler: UserHandler.update,
 			auth:
 				{
-					scope: ['WebApp-SuperAdmin', 'WebApp-Admin', 'WebApp-AuthUser-{userId}'],
+					scope: ['WebApp-SuperAdmin', 'WebApp-Admin', 'WebApp-User-{params.userId}'],
 				},
 			tags: ['api', 'Users'],
 			description: 'PUT an Updated AuthUser',
@@ -263,7 +263,7 @@ module.exports = [
 			handler: UserHandler.getAll,
 			auth:
 				{
-					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
+					scope: ['WebApp-SuperAdmin', 'WebApp-Admin', 'WebApp-User-{params.userId}'],
 				},
 			tags: ['api', 'Users', 'GetAll'],
 			description: 'Get All AuthUser related child model with query filters',
@@ -287,7 +287,7 @@ module.exports = [
 			auth:
 			// false,
 				{
-					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-AuthUser', 'WebApp-AuthUser'],
+					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-User', 'Logged'],
 				},
 			tags: ['api', 'Users'],
 			description: 'GET Users List for Input Select',

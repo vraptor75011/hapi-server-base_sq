@@ -79,7 +79,7 @@ module.exports = {
 	queryAll: Joi.object().keys(val4QueryAll),
 	//FindOne
 	oneParams: Joi.object().keys(_.assign({}, {roleId: paramId})),
-	queryOne: Joi.object().keys(_.assign({}, lang, fields, softDeleted, excludedFields, withRelated)),
+	queryOne: Joi.object().keys(_.assign({}, lang, fields, softDeleted, excludedFields, withRelated, withRelExcludedFields)),
 
 
 	//Payload

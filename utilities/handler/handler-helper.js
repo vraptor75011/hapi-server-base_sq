@@ -150,6 +150,8 @@ async function _list(model, query) {
 		apiLogger.info('RequestData: ' + JSON.stringify(query));
 
 		// First Query count everything
+		let specialFilters = queryFilteredSpecial(query, model);
+		sequelizeQuery = QueryHelper.createSequelizeFilter(model, specialFilters, sequelizeQuery);
 		sequelizeQuery = queryWithDeleted(query, sequelizeQuery, model);
 		totalCount = await model.count(sequelizeQuery);
 
@@ -287,18 +289,18 @@ async function _find(model, id, query) {
 		sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
 		apiLogger.info('RequestData: ' + JSON.stringify(query));
 		result = await model.findOne(sequelizeQuery);
-		if (result.errors) {
+		if (!result) {
+			let message = model.name + ' id: ' + id + ' not present';
+			let data = {type: 'model.notFound', context: {model: model.name, value: id}};
+			apiLogger.error(chalk.red(message));
+			return Boom.notFound(message, data);
+		} else if (result.errors) {
 			error = Boom.badRequest(result);
 			error.output.payload['sql validation'] = {message: error.original.message};
 			error.reformat();
 			return error;
 		} else if (result) {
 			return {doc: result}
-		} else {
-			let error = {};
-			error.message = model.name + ' id: ' + id + ' not present';
-			apiLogger.error(chalk.red(error));
-			return Boom.notFound(error);
 		}
 	}	catch(error) {
 		apiLogger.error(chalk.red(error));
@@ -405,10 +407,10 @@ async function _deleteOne(model, id, payload) {
 		if (result){
 			return true;
 		} else {
-			let error = {};
-			error.message = model.name + ' id: ' + id + ' not present';
-			apiLogger.error(chalk.red(error));
-			return Boom.notFound(error);
+			let message = model.name + ' id: ' + id + ' not present';
+			let data = {type: 'model.notFound', context: {model: model.name, value: id}};
+			apiLogger.error(chalk.red(message));
+			return Boom.notFound(message, data);
 		}
 
 	} catch(error) {
@@ -436,10 +438,10 @@ async function _deleteMany(model, payload) {
 		if (result){
 			return true;
 		} else {
-			let error = {};
-			error.message = model.name + ' ids: ' + payload.$ids + ' not deleted';
-			apiLogger.error(chalk.red(error));
-			return Boom.notFound(error);
+			let message = model.name + ' id: ' + id + ' not present';
+			let data = {type: 'model.notFound', context: {model: model.name, value: id}};
+			apiLogger.error(chalk.red(message));
+			return Boom.notFound(message, data);
 		}
 
 	} catch(error) {
@@ -482,10 +484,10 @@ async function _addOne(ownerModel, ownerId, childModel, childId, associationName
 				return {doc: result};
 			}
 		}	else {
-			let error = {};
-			error.message = ownerModel.name + ' id: ' + id + ' not present';
-			apiLogger.error(chalk.red(error));
-			return Boom.notFound(error);
+			let message = ownerModel.name + ' id: ' + id + ' not present';
+			let data = {type: 'model.notFound', context: {model: ownerModel.name, value: id}};
+			apiLogger.error(chalk.red(message));
+			return Boom.notFound(message, data);
 		}
 	} catch(error) {
 		apiLogger.error(chalk.red(error));
@@ -525,10 +527,10 @@ async function _removeOne(ownerModel, ownerId, childModel, childId, associationN
 				return true;
 			}
 		}	else {
-			let error = {};
-			error.message = ownerModel.name + ' id: ' + id + ' not present';
-			apiLogger.error(chalk.red(error));
-			return Boom.notFound(error);
+			let message = ownerModel.name + ' id: ' + id + ' not present';
+			let data = {type: 'model.notFound', context: {model: ownerModel.name, value: id}};
+			apiLogger.error(chalk.red(message));
+			return Boom.notFound(message, data);
 		}
 	} catch(error) {
 		apiLogger.error(chalk.red(error));
@@ -616,10 +618,10 @@ async function _removeMany(ownerModel, ownerId, childModel, associationName, pay
 				return true;
 			}
 		}	else {
-			let error = {};
-			error.message = ownerModel.name + ' id: ' + id + ' not present';
-			apiLogger.error(chalk.red(error));
-			return Boom.notFound(error);
+			let message = ownerModel.name + ' id: ' + id + ' not present';
+			let data = {type: 'model.notFound', context: {model: ownerModel.name, value: id}};
+			apiLogger.error(chalk.red(message));
+			return Boom.notFound(message, data);
 		}
 	} catch(error) {
 		apiLogger.error(chalk.red(error));
@@ -771,10 +773,10 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 				return {doc: ownerObject, [associationName]: result};
 			}
 		}	else {
-			let error = {};
-			error.message = ownerModel.name + ' id: ' + id + ' not present';
-			apiLogger.error(chalk.red(error));
-			return Boom.notFound(error);
+			let message = ownerModel.name + ' id: ' + id + ' not present';
+			let data = {type: 'model.notFound', context: {model: ownerModel.name, value: id}};
+			apiLogger.error(chalk.red(message));
+			return Boom.notFound(message, data);
 		}
 	} catch(error) {
 		apiLogger.error(chalk.red(error));
@@ -926,6 +928,27 @@ function queryFilteredCount(query, model) {
  * @returns {{}}: managed query URL to Sequelize query
  * @private
  */
+function queryFilteredSpecial(query, model) {
+	let specialList = ModelValidation(model).extendedFilters;
+	let queryResponse = {};
+
+	Object.keys(specialList).map((key) => {
+		if (_.has(query['$special'], key)) {
+			_.set(queryResponse, key, query['$special'][key]);
+		}
+	});
+
+	return queryResponse;
+}
+
+/**
+ * This function is called from handler helper to clean the query URL preparing it to
+ * the sequelizeQuery for math operations (SQL query) with math operators
+ * @param query: the query URL from the request
+ * @param model: the model to build the filter list
+ * @returns {{}}: managed query URL to Sequelize query
+ * @private
+ */
 function queryFilteredMath(query, model) {
 	let mathList = ModelValidation(model).math;
 	let queryResponse = {};
@@ -1050,13 +1073,14 @@ function queryAttributes(query, sequelizeQuery, model) {
 	sequelizeQuery['attributes'] = [];
 
 	// Select Fields to pass in JSON
-	if (_.has(query, '$fields')) {
+	if (_.has(query, '$fields') || _.has(query, '$fields4Select')) {
 		let tmp = [];
+		let queryFields = query['$fields'] || query['$fields4Select'];
 
-		if (!_.isArray(query['$fields'])) {
-			tmp = _.split(query['$fields'], ',');
+		if (!_.isArray(queryFields)) {
+			tmp = _.split(queryFields, ',');
 		} else {
-			tmp = query['$fields'];
+			tmp = queryFields;
 		}
 
 		tmp.forEach((col) => {
@@ -1064,6 +1088,8 @@ function queryAttributes(query, sequelizeQuery, model) {
 			if (query.$withExcludedFields === true && _.includes(allAttributesList, col)) {
 				sequelizeQuery['attributes'].push(col);
 			} else if (query.$withExcludedFields === false && _.includes(attributesList, col)) {
+				sequelizeQuery['attributes'].push(col);
+			} else if (_.includes(attributesList, col)) {
 				sequelizeQuery['attributes'].push(col);
 			}
 		});

@@ -3,7 +3,7 @@ const Token = require('./../../utilities/token/token');
 const { apiLogger, sesLogger, chalk } = require('./../../utilities/logging/logging');
 const Config = require('./../../config/config');
 const Polyglot = require('./../hapi-polyglot/polyglot');
-const Translate = require('../../utilities/translater/translate_helper');
+const Translate = require('../../utilities/translator/translate_helper');
 
 const AuthJWT2 = require('hapi-auth-jwt2');
 

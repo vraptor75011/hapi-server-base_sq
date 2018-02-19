@@ -288,7 +288,7 @@ module.exports = [
 			auth:
 			// false,
 				{
-					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-AuthUser', 'WebApp-AuthUser'],
+					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'Logged'],
 				},
 			tags: ['api', 'Sessions'],
 			description: 'GET Sessions List for Input Select',
