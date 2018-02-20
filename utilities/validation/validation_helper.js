@@ -262,6 +262,41 @@ const ValidationBase = {
 		return new RegExp(result);
 	},
 
+	// STRING admitted in with Related Through Field (related through tables attributes) for BelongsToMany Relationships
+	withRelatedThroughFieldRegExp: (schema) => {
+		let result = '/[]/';
+
+		Object.keys(schema.associations).map((rel, index) => {
+			let relation = schema.associations[rel];
+			if (relation.associationType === 'BelongsToMany'){
+				if (index === 0) {
+					result = '';
+				}
+				let columns = '(';
+
+				let model = relation.throughModel;
+
+				Object.keys(model.attributes).map((attr, index) => {
+					if (index > 0) {
+						columns += '|';
+					}
+					columns += attr;
+				});
+
+				columns += ')';
+
+				let prefix = '{' + rel + '}';
+				if (index > 0) {
+					result += '|';
+				}
+				result += "^" + prefix + columns + "(," + columns + ")*$";
+			}
+
+		});
+
+		return new RegExp(result);
+	},
+
 	// STRING admitted in Sort Attributes
 	sortRegExp: (schema) => {
 		let result = '';
@@ -364,8 +399,65 @@ const ValidationBase = {
 
 		return new RegExp(result);
 	},
-};
 
+// STRING admitted in with FILTER Through Table Attributes filter
+	withThroughFilterRegExp: (schema) => {
+		let result = '/[]/';
+		let attributes = '';
+
+		Object.keys(schema.associations).map((rel, index) => {
+			let relation = schema.associations[rel];
+			if (relation.associationType === 'BelongsToMany') {
+
+				if (index === 0) {
+					result = '';
+				}
+
+				let model = relation.throughModel;
+				let sourceModelName = '{' + rel + '}';
+
+				Object.keys(model.attributes).map((attr, index) => {
+					if (index > 0) {
+						attributes += '|'
+					}
+					attributes += '{' + attr + '}';
+				});
+
+				if (index > 0) {
+					result += '|';
+				}
+				nestedOperators.forEach(function (operator, index) {
+					if (index > 0) {
+						result += '|';
+					}
+					result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + ".+$";
+				});
+
+				likeOperators.forEach(function (operator) {
+					result += '|';
+					result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + ".+$";
+				});
+
+				inOperator.forEach(function (operator) {
+					result += '|';
+					result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + ".+$";
+				});
+
+				btwOperator.forEach(function (operator) {
+					result += '|';
+					result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + ".+$";
+				});
+
+				nullOperator.forEach(function (operator) {
+					result += '|';
+					result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + "$";
+				});
+			}
+		});
+
+		return new RegExp(result);
+	},
+};
 
 
 module.exports = ValidationBase;

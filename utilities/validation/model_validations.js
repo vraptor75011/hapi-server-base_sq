@@ -387,6 +387,18 @@ module.exports = function(model) {
 		),
 	};
 
+	const withRelThroughFields = {
+		$withThroughFields: Joi.alternatives().try(
+			Joi.array().description('selects through fields, the model is the other BelongsToMany: {model}name, [{models}name,description]')
+				.items(Joi.string().max(255)
+					.regex(ValidationHelper.withRelatedThroughFieldRegExp(model)))
+				.example(['{models}name','{model}id']),
+			Joi.string().max(255)
+				.regex(ValidationHelper.withRelatedThroughFieldRegExp(model))
+				.example('{models.model}name,description'),
+		),
+	};
+
 	const withRelFilters = {
 		$withFilter: Joi.alternatives().try(
 			Joi.array().description('filter by relationships fields: {model}[{or|not}]{name}[{=}], [{model}{not}{name}{like}]')
@@ -395,6 +407,18 @@ module.exports = function(model) {
 				.example(['{model}{id}{=}3', '{models}{name}{like}App']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withFilterRegExp(model))
+				.example('{model.models}{not}{username}{null}')
+		),
+	};
+
+	const withRelThroughFilters = {
+		$withThroughFilter: Joi.alternatives().try(
+			Joi.array().description('filter by through fields, the model is the other BelongsToMany: {model}[{or|not}]{name}[{=}], [{model}{not}{name}{like}]')
+				.items(Joi.string().max(255)
+					.regex(ValidationHelper.withThroughFilterRegExp(model)))
+				.example(['{model}{id}{=}3', '{models}{name}{like}App']),
+			Joi.string().max(255)
+				.regex(ValidationHelper.withThroughFilterRegExp(model))
 				.example('{model.models}{not}{username}{null}')
 		),
 	};
@@ -441,7 +465,9 @@ module.exports = function(model) {
 		withRelated,
 		withRelExcludedFields,
 		withRelFields,
+		withRelThroughFields,
 		withRelFilters,
+		withRelThroughFilters,
 		withRelCount,
 		withRelSort,
 

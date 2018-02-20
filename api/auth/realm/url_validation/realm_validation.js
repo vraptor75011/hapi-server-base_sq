@@ -25,11 +25,14 @@ let fields4Select = Validations.fields4Select;
 let withRelated = Validations.withRelated;
 let withRelExcludedFields = Validations.withRelExcludedFields;
 let withRelFields = Validations.withRelFields;
+let withRelTFields = Validations.withRelThroughFields;
 let withRelFilters = Validations.withRelFilters;
+let withRelTFilters = Validations.withRelThroughFilters;
 let withRelCount = Validations.withRelCount;
 let withRelSort = Validations.withRelSort;
 let val4QueryAll = Object.assign({}, lang, filters, pagination, fulTextSearch, sort, math, softDeleted, excludedFields,
-	count, fields, withRelated, withRelExcludedFields, withRelFields, withRelFilters, withRelCount, withRelSort);
+	count, fields, withRelated, withRelExcludedFields, withRelFields, withRelTFields, withRelFilters, withRelTFilters,
+	withRelCount, withRelSort);
 let val4Select = Object.assign({}, lang, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
 
 let FLRelations = Validations.FLRelations;
