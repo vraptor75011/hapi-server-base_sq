@@ -415,6 +415,26 @@ let getExtra = (model) => {
 					.regex(ValidationHelper.withSortRegExp(model))
 					.example('{'+ ass0 + '}description')
 			);
+			if (relation.associationType === 'BelongsToMany') {
+				extraSchema[rel + '.$withThroughFields'] = Joi.alternatives().try(
+					Joi.array().description('selects through fields, the model is the other BelongsToMany: {model}name, [{models}name,description]')
+						.items(Joi.string().max(255)
+							.regex(ValidationHelper.withRelatedThroughFieldRegExp(model)))
+						.example(['{models}name','{model}id']),
+					Joi.string().max(255)
+						.regex(ValidationHelper.withRelatedThroughFieldRegExp(model))
+						.example('{models.model}name,description'),
+				);
+				extraSchema[rel + '.$withThroughFilter'] = Joi.alternatives().try(
+					Joi.array().description('filter by through fields, the model is the other BelongsToMany: {model}[{or|not}]{name}[{=}], [{model}{not}{name}{like}]')
+						.items(Joi.string().max(255)
+							.regex(ValidationHelper.withThroughFilterRegExp(model)))
+						.example(['{model}{id}{=}3', '{models}{name}{like}App']),
+					Joi.string().max(255)
+						.regex(ValidationHelper.withThroughFilterRegExp(model))
+						.example('{model.models}{not}{username}{null}')
+				);
+			}
 		}
 	});
 

@@ -68,6 +68,14 @@ let relFields = RelationValidation.fields;
 let relRelated = RelationValidation.related;
 let relExtra = RelationValidation.extra;
 
+let unordered = _.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted,
+	relExcludedFields, relCount, relFields, relRelated, relExtra);
+let ordered = {};
+
+Object.keys(unordered).sort().forEach((key) => {
+	ordered[key] = unordered[key];
+});
+
 
 module.exports = {
 	//Model Information
@@ -126,8 +134,7 @@ module.exports = {
 
 	//GET_ALL
 	getAllParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
-	queryGetAll: Joi.object().keys(_.assign({}, lang, relFilters, relPagination, relSort, relMath, relSoftDeleted,
-		relExcludedFields, relCount, relFields, relRelated, relExtra)),
+	queryGetAll: Joi.object().keys(_.assign({}, lang, ordered)),
 
 	//GET for Select
 	query4Select: Joi.object().keys(val4Select),
