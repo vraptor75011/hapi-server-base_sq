@@ -1,4 +1,3 @@
-'use strict';
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
 		await queryInterface.createTable('authProfiles', {
@@ -25,20 +24,18 @@ module.exports = {
 			mobilePhone: {
 				type: Sequelize.STRING(16),
 			},
-			resetPasswordToken: {
-				type: Sequelize.STRING,
+			public: {
+				type: Sequelize.BOOLEAN,
+				defaultValue: false,
 			},
-			resetPasswordExpires: {
-				type: Sequelize.STRING,
+			avatarId: {
+				type: Sequelize.INTEGER,
+				allowNull: true,
 			},
-			resetPasswordNewPWD: {
-				type: Sequelize.STRING(128),
-			},
-			activateAccountToken: {
-				type: Sequelize.STRING,
-			},
-			activateAccountExpires: {
-				type: Sequelize.STRING,
+			userId: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+				unique: true,
 			},
 			createdAt: {
 				type: Sequelize.DATE
@@ -50,11 +47,10 @@ module.exports = {
 				type: Sequelize.DATE
 			},
 		});
-		await queryInterface.addIndex('authUsers', ['username']);
-		await queryInterface.addIndex('authUsers', ['email']);
-		await queryInterface.addIndex('authUsers', ['password']);
+		await queryInterface.addIndex('authProfiles', ['avatarId']);
+		await queryInterface.addIndex('authProfiles', ['userId']);
 	},
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('authUsers');
+		await queryInterface.dropTable('authProfiles');
 	}
 };

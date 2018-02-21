@@ -4,12 +4,17 @@ const DB = require('../../../../config/sequelize');
 const ModelValidation = require('../../../../utilities/validation/model_validations');
 const ModelRelationValidation = require('../../../../utilities/validation/model_relation_validations');
 const BaseValidation = require('../../../../utilities/validation/base_validation');
-const UserValidationBase = require('./attempt_validation_base');
+const ProfileValidationBase = require('./profile_validation_base');
 
+
+// Base Validation
+let paramId = BaseValidation.paramId;
+let payloadId = BaseValidation.payloadId;
+let baseIds = BaseValidation.ids;
 let lang = BaseValidation.lang;
 
-
-const Validations = ModelValidation(DB.AuthAttempt);
+// Model Validation
+const Validations = ModelValidation(DB.AuthProfile);
 
 let filters = Validations.filters;
 let ids = Validations.ids;
@@ -42,7 +47,9 @@ let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
 let Attributes4Select = Validations.Attributes4Select;
 
-const RelationValidation = ModelRelationValidation(DB.AuthAttempt, true, DB.AuthAttempt.name, null);
+
+// Relation Validation
+const RelationValidation = ModelRelationValidation(DB.AuthProfile, true, DB.AuthProfile.name, null);
 
 let postRelation = RelationValidation.postRelObject;
 let putRelation = RelationValidation.putRelObject;
@@ -75,16 +82,16 @@ module.exports = {
 	//FindAll
 	queryAll: Joi.object().keys(val4QueryAll),
 	//FindOne
-	oneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId})),
+	oneParams: Joi.object().keys(_.assign({}, {profileId: paramId})),
 	queryOne: Joi.object().keys(_.assign({}, lang, fields, softDeleted, excludedFields, withRelated, withRelExcludedFields)),
 
 
 	//Payload
 	//POST
-	postPayload:  Joi.object().keys(_.assign({}, UserValidationBase.postPayloadObj, postRelation)),
+	postPayload:  Joi.object().keys(_.assign({}, ProfileValidationBase.postPayloadObj, postRelation)),
 
 	//PUT
-	putPayload:  Joi.object().keys(_.assign({}, BaseValidation.payloadId, UserValidationBase.putPayloadObj, putRelation)),
+	putPayload:  Joi.object().keys(_.assign({}, BaseValidation.payloadId, ProfileValidationBase.putPayloadObj, putRelation)),
 
 	//DELETE
 	deleteOnePayload: Joi.alternatives().try(
@@ -97,28 +104,28 @@ module.exports = {
 
 	//Relations URL
 	//ADD_ONE
-	addOneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
+	addOneParams: Joi.object().keys(_.assign({}, {profileId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
 
 	//REMOVE_ONE
-	removeOneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
+	removeOneParams: Joi.object().keys(_.assign({}, {profileId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
 	removeOnePayload: Joi.alternatives().try(
 		Joi.object().keys(_.assign({}, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//ADD_MANY
-	addManyParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
+	addManyParams: Joi.object().keys(_.assign({}, {profileId: BaseValidation.paramId}, {childModel: relationList})),
 	addManyPayload: Joi.object().keys(_.assign({}, postRelation, BaseValidation.ids)),
 
 	//REMOVE_MANY
-	removeManyParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
+	removeManyParams: Joi.object().keys(_.assign({}, {profileId: BaseValidation.paramId}, {childModel: relationList})),
 	removeManyPayload: Joi.alternatives().try(
 		Joi.object().keys(_.assign({}, BaseValidation.ids, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//GET_ALL
-	getAllParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
+	getAllParams: Joi.object().keys(_.assign({}, {profileId: BaseValidation.paramId}, {childModel: relationList})),
 	queryGetAll: Joi.object().keys(_.assign({}, lang, relFilters, relPagination, relSort, relMath, relSoftDeleted,
 		relExcludedFields, relCount, relFields, relRelated, relExtra)),
 

@@ -64,6 +64,17 @@ module.exports =
 					break;
 			}
 
+			let profile = {};
+			if (userPre.authProfile) {
+				let authProfile = userPre.authProfile;
+				profile = {
+					id: authProfile.id,
+					fullName: authProfile.fullName,
+					firstName: authProfile.firstName,
+					lastName: authProfile.lastName,
+				};
+			}
+
 			let user = {
 				id: userPre.id,
 				email: userPre.email,
@@ -71,6 +82,7 @@ module.exports =
 				username: userPre.username,
 				firstName: userPre.firstName,
 				lastName: userPre.lastName,
+				profile: profile,
 				realms,
 				roles,
 			};
@@ -104,8 +116,10 @@ module.exports =
 					return true;
 				} else {
 					apiLogger.info(chalk.cyan('AuthUser: ' + user.username + ' failed to log out'));
-					let error = AuthSession.name + ' key: ' + sessionKey + ' not present';
-					return Boom.notFound(error);
+					let message = AuthSession.name + ' key: ' + sessionKey + ' not present';
+					let data = {type: AuthSession.name, context: {model: AuthSession.name, value: sessionKey}};
+					apiLogger.error(chalk.red(message));
+					return Boom.notFound(message, data);
 				}
 			} catch(error) {
 				apiLogger.error(chalk.red(error));

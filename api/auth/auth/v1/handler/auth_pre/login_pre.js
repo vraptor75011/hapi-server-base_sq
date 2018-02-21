@@ -17,6 +17,7 @@ const AuthRealm = DB.AuthRealm;
 const AuthRole = DB.AuthRole;
 const AuthSession = DB.AuthSession;
 const AuthAttempt = DB.AuthAttempt;
+const AuthProfile = DB.AuthProfile;
 
 const LoginPre = [
 	{
@@ -81,7 +82,7 @@ const LoginPre = [
 
 					attempt.count += 1;
 					if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate && blockDate > expirationDate) {
-						let error = 'Exceeded the AuthUser maximum attempts';
+						let error = 'Exceeded the User maximum attempts';
 						apiLogger.error(chalk.red(error));
 						return Boom.unauthorized(error);
 					} else if (attempt.count > authAttemptsConfig.forIpAndUser && blockDate && blockDate <= expirationDate) {
@@ -113,13 +114,17 @@ const LoginPre = [
 
 			try {
 				let user = await AuthUser.findOne(
-					{where:
+					{
+						where:
 							{
 								[Op.or]: [
 									{	username: {[Op.eq]: username} },
 									{	email: {[Op.eq]: email}	}
 								]
-							}
+							},
+						include: [{
+							model: AuthProfile,
+						}]
 					});
 				if (!user) {
 					return Boom.unauthorized('Invalid username or password');
@@ -168,7 +173,7 @@ const LoginPre = [
 				return h.continue
 			}
 			else {
-				return Boom.unauthorized('Account is inactive.');
+				return Boom.unauthorized('Account is inactive');
 			}
 		}
 	},
@@ -221,7 +226,7 @@ const LoginPre = [
 				if(roles && roles.length){
 					return h.response(roles);
 				} else {
-					return Boom.unauthorized('AuthUser with no roles');
+					return Boom.unauthorized('User with no roles');
 				}
 			} catch(error) {
 				apiLogger.error(chalk.red(error));
@@ -241,8 +246,9 @@ const LoginPre = [
 			scope = scope.concat('Logged');
 			// Add AuthRealm-Roles to Scope
 			roles.forEach(function (role){
-				if (role.name.indexOf('AuthUser') !== -1) {
-					scope = scope.concat(realm.name+'-'+role.name+'-'+request.pre.user.id)
+				if (role.name.indexOf('User') !== -1) {
+					scope = scope.concat(realm.name+'-'+role.name+'-'+request.pre.user.id);
+					scope = scope.concat(realm.name+'-'+role.name);
 				} else {
 					scope = scope.concat(realm.name+'-'+role.name);
 				}

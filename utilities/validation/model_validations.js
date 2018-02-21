@@ -9,6 +9,60 @@ const _ = require('lodash');
  * @param model: The model with the attributes to build query URL validation.
  * @returns {object} A Joi schema object for all model attributes.
  */
+let getExtendedFilters = (model) => {
+	let filtersSchema = {};
+	Object.keys(model.attributes).map((attr) => {
+		let attribute = model.attributes[attr];
+		let schema = {};
+		let joiArray = [];
+		let type = attribute.type.key;
+		let date = Sequelize.DATE().key;
+
+		if (attribute.query) {
+			Object.keys(attribute.query).map((el) => {
+				let element = attribute.query[el];
+				joiArray.push(joiCompile(el, element, model));
+
+			});
+
+			if (joiArray.length > 1) {
+				schema = Joi.alternatives().try(joiArray);
+			} else {
+				schema = joiArray[0];
+			}
+
+			filtersSchema[attr] = schema;
+		} else if (!attribute.exclude && type === date) {
+			schema = Joi.alternatives().try(
+				Joi.array().description('the date: 2017-08-15 09:00:00] vs [{or}{btw}2017-08-17 09:00:00,2017-08-17 23:30:00, {or}{btw}2017-12-25 09:00:00,2018-01-06 23:30:00]')
+					.items(Joi.string().max(255)
+						.regex(ValidationHelper.filterRegExp('date')))
+					.example(['{>=}2017-08-01', '{<}2017-09-01']),
+				Joi.string().max(255).regex(ValidationHelper.filterRegExp())
+					.example('{=}2017-08-17 10:00:00'),
+			);
+			filtersSchema[attr] = schema;
+		} else if (!attribute.exclude && type === 'INTEGER' && _.includes(attr, 'Id')) {
+			schema = Joi.alternatives().try(
+				Joi.array().description('modelId: 1 vs [{or}{btw}1,5, {or}{btw}2,8]')
+					.items(Joi.number().integer().min(1))
+					.example(['{>=}2', '{<}5']),
+				Joi.number().integer().min(1)
+					.example('{=}2'),
+			);
+			filtersSchema[attr] = schema;
+		}
+
+	});
+
+	return filtersSchema;
+};
+
+/**
+ * Returns the filters JOI validation for query URL
+ * @param model: The model with the attributes to build query URL validation.
+ * @returns {object} A Joi schema object for all model attributes.
+ */
 let getFilters = (model) => {
 	let filtersSchema = {};
 	Object.keys(model.attributes).map((attr) => {
@@ -208,6 +262,8 @@ module.exports = function(model) {
 
 	const filters = getFilters(model);
 
+	const extendedFilters = getExtendedFilters(model);
+
 	const ids = {
 		ids: Joi.array().min(1).required()
 			.items(
@@ -331,6 +387,18 @@ module.exports = function(model) {
 		),
 	};
 
+	const withRelThroughFields = {
+		$withThroughFields: Joi.alternatives().try(
+			Joi.array().description('selects through fields, the model is the other BelongsToMany: {model}name, [{models}name,description]')
+				.items(Joi.string().max(255)
+					.regex(ValidationHelper.withRelatedThroughFieldRegExp(model)))
+				.example(['{models}name','{model}id']),
+			Joi.string().max(255)
+				.regex(ValidationHelper.withRelatedThroughFieldRegExp(model))
+				.example('{models.model}name,description'),
+		),
+	};
+
 	const withRelFilters = {
 		$withFilter: Joi.alternatives().try(
 			Joi.array().description('filter by relationships fields: {model}[{or|not}]{name}[{=}], [{model}{not}{name}{like}]')
@@ -339,6 +407,18 @@ module.exports = function(model) {
 				.example(['{model}{id}{=}3', '{models}{name}{like}App']),
 			Joi.string().max(255)
 				.regex(ValidationHelper.withFilterRegExp(model))
+				.example('{model.models}{not}{username}{null}')
+		),
+	};
+
+	const withRelThroughFilters = {
+		$withThroughFilter: Joi.alternatives().try(
+			Joi.array().description('filter by through fields, the model is the other BelongsToMany: {model}[{or|not}]{name}[{=}], [{model}{not}{name}{like}]')
+				.items(Joi.string().max(255)
+					.regex(ValidationHelper.withThroughFilterRegExp(model)))
+				.example(['{model}{id}{=}3', '{models}{name}{like}App']),
+			Joi.string().max(255)
+				.regex(ValidationHelper.withThroughFilterRegExp(model))
 				.example('{model.models}{not}{username}{null}')
 		),
 	};
@@ -370,6 +450,7 @@ module.exports = function(model) {
 
 	const modelValidations = {
 		filters,
+		extendedFilters,
 		ids,
 		pagination,
 		sort,
@@ -384,7 +465,9 @@ module.exports = function(model) {
 		withRelated,
 		withRelExcludedFields,
 		withRelFields,
+		withRelThroughFields,
 		withRelFilters,
+		withRelThroughFilters,
 		withRelCount,
 		withRelSort,
 

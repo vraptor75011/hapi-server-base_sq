@@ -38,7 +38,7 @@ module.exports = function(sequelize, Sequelize) {
 	AuthRealm.associate = function (models) {
 		AuthRealm.belongsToMany(models.AuthRole, { through: 'authRealmsRolesUsers', foreignKey: 'realmId', otherKey: 'roleId' });
 		AuthRealm.belongsToMany(models.AuthUser, { through: 'authRealmsRolesUsers', foreignKey: 'realmId', otherKey: 'userId' });
-		AuthRealm.hasMany(models.AuthRealmsRolesUsers, {as: 'realm-rru', foreignKey: 'realmId', sourceKey: 'id'});
+		AuthRealm.hasMany(models.AuthRealmsRolesUsers, {as: 'realmRRU', foreignKey: 'realmId', sourceKey: 'id'});
 	};
 
 	return AuthRealm;

@@ -82,7 +82,7 @@ module.exports = {
 
 		// requestData.queryData.fields = ['id'];
 
-		let filtersQuery = ModelValidation(model).filters;
+		let filtersQuery = ModelValidation(model).extendedFilters;
 		let fullTextSearch = ModelValidation(model).fullTextSearch;
 		let sortQuery = ModelValidation(model).sort;
 		let mathQuery = ModelValidation(model).math;
