@@ -87,10 +87,11 @@ module.exports = {
 		let sortQuery = ModelValidation(model).sort;
 		let mathQuery = ModelValidation(model).math;
 		let relFiltersQuery = ModelValidation(model).withRelFilters;
+		let relThroughFiltersQuery = ModelValidation(model).withRelThroughFilters;
 		let relCountQuery = ModelValidation(model).withRelCount;
 		let relSortQuery = ModelValidation(model).withRelSort;
 		let fields4Select = ModelValidation(model).fields4Select;
-		let extraQuery = _.assign({}, fields4Select, relFiltersQuery, relCountQuery, relSortQuery);
+		let extraQuery = _.assign({}, fields4Select, relFiltersQuery, relThroughFiltersQuery, relCountQuery, relSortQuery);
 
 		Object.keys(query).map((e) => {
 			// Filters

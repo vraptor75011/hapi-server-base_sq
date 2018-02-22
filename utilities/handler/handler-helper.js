@@ -1027,12 +1027,13 @@ function queryFilteredRest(query, model) {
 	let fieldsList = ModelValidation(model).fields;
 	let withRelFields = ModelValidation(model).withRelFields;
 	let withRelFilters = ModelValidation(model).withRelFilters;
+	let withRelThroughFilters = ModelValidation(model).withRelThroughFilters;
 	let withRelCount = ModelValidation(model).withRelCount;
 	let withRelSort = ModelValidation(model).withRelSort;
 	let fields4Select = ModelValidation(model).fields4Select;
 
 	let queryAll = (_.assign({}, filtersList, fullTextSearch, relatedList, fieldsList, fields4Select,
-		withRelFields, withRelFilters, withRelCount, withRelSort));
+		withRelFields, withRelFilters, withRelThroughFilters, withRelCount, withRelSort));
 
 	const queryResponse = {};
 
@@ -1251,6 +1252,83 @@ function queryAttributes(query, sequelizeQuery, model) {
 				}
 			});
 		});
+
+	}
+
+	if (_.has(query, '$withThroughFields')) {
+		sequelizeQuery['include'] = sequelizeQuery.include || [];
+		let relation = '';
+		let throughModel;
+		let tmp = [];
+
+		if (!_.isArray(query['$withThroughFields'])) {
+			tmp.push(query['$withThroughFields']);
+		} else {
+			tmp = query['$withThroughFields'];
+		}
+
+		tmp.forEach((rel) => {
+			let indexFirstBrace = rel.indexOf('{');
+			let indexSecondBrace = rel.indexOf('}');
+			relation = rel.slice(indexFirstBrace + 1, indexSecondBrace);
+			let realValue = rel.slice(indexSecondBrace + 1);
+
+			let includeLevel = sequelizeQuery.include;
+			let schemaClone = _.clone(model);
+			let relTree = _.split(relation, '.');
+
+			relTree.forEach(function(levelRel, level){
+				let targetAssociation = schemaClone.associations[levelRel];
+				let targetModel = targetAssociation.target;
+				let as = targetAssociation.as;
+				throughModel = targetAssociation.through.model;
+
+				if (!_.some(includeLevel, {model: targetModel, as: as})) {
+					if (level === 0) {
+						let tmp = {};
+						tmp.model = targetModel;
+						tmp.as = as;
+						includeLevel.push(tmp);
+						includeLevel = tmp;
+					} else if (level > 0) {
+						if (!_.has(includeLevel, 'include')) {
+							includeLevel['include'] = [];
+						}
+						if (!_.some(includeLevel['include'], {model: targetModel, as: as})) {
+							let tmp = {};
+							tmp.model = targetModel;
+							tmp.as = as;
+							includeLevel['include'].push(tmp);
+							includeLevel = tmp;
+						}
+					}
+				} else {
+					includeLevel.forEach(function(include){
+						if (!_.some(include, {model: targetModel, as: as})) {
+							includeLevel = include;
+						}
+					});
+				}
+				schemaClone = targetModel;
+			});
+
+			let columns = _.split(realValue, ',');
+
+			if (!_.has(includeLevel, 'through')) {
+				includeLevel['through'] = {};
+			}
+			includeLevel = includeLevel.through;
+
+			if (!_.has(includeLevel, 'attributes')) {
+				includeLevel['attributes'] = [];
+			}
+			columns.forEach(function(col){
+				includeLevel['attributes'].push(col);
+			});
+
+		});
+
+
 
 	}
 
