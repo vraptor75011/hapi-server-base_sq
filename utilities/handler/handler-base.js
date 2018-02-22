@@ -179,16 +179,27 @@ const PreHandlerBase = {
 				let targetAssociation = schema.associations[el];
 				let targetModel = targetAssociation.target;
 				let as = targetAssociation.as;
+				let column = targetAssociation.foreignIdentifierField;
+				fieldsLevel.push([Sequelize.fn('COUNT', Sequelize.col(column)), targetAssociation.as + 'Count']);
+
 				if (!_.some(includeLevel, {model: targetModel, as: as})) {
-					let column = targetAssociation.foreignIdentifierField;
 					let tmp = {};
 					tmp.model = targetModel;
 					tmp.as = as;
 					tmp.attributes = [];
 					tmp.duplicating = false;
-					fieldsLevel.push([Sequelize.fn('COUNT', Sequelize.col(column)), targetAssociation.as + 'Count']);
 					includeLevel.push(tmp);
+				} else {
+					includeLevel.forEach((level) => {
+						if (level.as === as) {
+							level['attributes'] = level['attributes'] || [];
+							// level['attributes'].push(column);
+							level['duplicating'] = false;
+						}
+					});
 				}
+
+
 
 				responseChanged = true;
 			}

@@ -237,9 +237,10 @@ async function _list(model, query) {
 		let queryPagination = queryFilteredPagination(query, model);
 		let querySort = queryFilteredSort(query, model);
 		let queryRest = queryFilteredRest(query, model);
-		let queryInclude = _.assign({}, queryPagination, querySort, queryRest);
+		let queryInclude = _.assign({}, querySort, queryRest);
 		sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryInclude, sequelizeQuery);
 		sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
+		sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryPagination, sequelizeQuery);
 		result = await model.findAll(sequelizeQuery);
 
 		const pages = {
@@ -972,9 +973,16 @@ function queryFilteredMath(query, model) {
  */
 function queryFilteredPagination(query, model) {
 	let paginationList = ModelValidation(model).pagination;
+	let withPaginationList = ModelValidation(model).withPagination;
 	let queryResponse = {};
 
 	Object.keys(paginationList).map((key) => {
+		if (_.has(query, key)) {
+			_.set(queryResponse, key, query[key]);
+		}
+	});
+
+	Object.keys(withPaginationList).map((key) => {
 		if (_.has(query, key)) {
 			_.set(queryResponse, key, query[key]);
 		}
@@ -1070,8 +1078,6 @@ function queryAttributes(query, sequelizeQuery, model) {
 	let attributesArray = attributesList.split(', ');
 	let allAttributesArray = allAttributesList.split(', ');
 
-	sequelizeQuery['attributes'] = [];
-
 	// Select Fields to pass in JSON
 	if (_.has(query, '$fields') || _.has(query, '$fields4Select')) {
 		let tmp = [];
@@ -1094,10 +1100,11 @@ function queryAttributes(query, sequelizeQuery, model) {
 			}
 		});
 	} else {
+		sequelizeQuery['attributes'] = sequelizeQuery.attributes || [];
 		if (query.$withExcludedFields === true) {
-			sequelizeQuery['attributes'] = allAttributesArray;
+			sequelizeQuery['attributes'].concat(allAttributesArray);
 		} else {
-			sequelizeQuery['attributes'] = attributesArray;
+			sequelizeQuery['attributes'] = _.union(sequelizeQuery['attributes'], attributesArray);
 		}
 	}
 

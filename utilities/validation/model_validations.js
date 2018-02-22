@@ -371,6 +371,13 @@ module.exports = function(model) {
 		),
 	};
 
+	const withPagination = {
+		$withPage: Joi.number().integer().min(1).description('page number')
+			.default(1),
+		$withPageSize: Joi.number().integer().min(1).max(100).description('rows per page')
+			.default(10),
+	};
+
 	const withRelExcludedFields = {
 		$withRelExcludedFields: Joi.boolean().description('includes excluded related attributes').default(false),
 	};
@@ -463,6 +470,7 @@ module.exports = function(model) {
 		fields,
 		fields4Select,
 		withRelated,
+		withPagination,
 		withRelExcludedFields,
 		withRelFields,
 		withRelThroughFields,

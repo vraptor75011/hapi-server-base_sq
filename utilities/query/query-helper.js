@@ -155,6 +155,25 @@ module.exports = {
 			sequelizeQuery.limit = pageSize;
 		}
 
+		if (query.$withPage && query.$withPageSize) {
+			if (_.has(sequelizeQuery, 'include')) {
+				let page = parseInt(query['$withPage']) || 1;
+				let pageSize = parseInt(query['$withPageSize']) || 10;
+				sequelizeQuery.include.forEach((relIncluded) => {
+					let relation = model.associations[relIncluded.as];
+					if (relation.associationType === 'HasMany') {
+						relIncluded.offset = pageSize * (page - 1);
+						relIncluded.limit = pageSize;
+					}
+					if (relation.associationType === 'BelongsToMany') {
+						relIncluded['through'] = relIncluded['through'] || {};
+						relIncluded.through.offset = pageSize * (page - 1);
+						relIncluded.through.limit = pageSize;
+					}
+				})
+			}
+		}
+
 		// }
 
 		return sequelizeQuery;
