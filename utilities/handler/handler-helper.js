@@ -51,7 +51,7 @@ module.exports = {
 
 	/**
 	 * Deletes a model document
-	 * @param model: A mongoose model.
+	 * @param model: A Sequelize model.
 	 * @param _id: The document id.
 	 * @param payload: Data used to determine a soft or hard delete.
 	 * @param Log: A logging object.
@@ -127,7 +127,16 @@ module.exports = {
 	 * @returns {object} A promise returning true if the add succeeds.
 	 * @private
 	 */
-	getAll: _getAll
+	getAll: _getAll,
+
+	/**
+	 * Adding Reletions information for them pagination
+	 * @param result: The query result.
+	 * @param query: rest-hapi query parameters to be converted to a mongoose query.
+	 * @param model: A Sequelize model.
+	 * @returns {object} A result with relations pagination information
+	 */
+	result4Relations: _result4Relations,
 
 };
 
@@ -143,6 +152,7 @@ async function _list(model, query) {
 	try {
 		let sequelizeQuery = {};
 		let result;
+		let nestedPages;
 
 		let totalCount;
 		let filteredCount;
@@ -243,6 +253,7 @@ async function _list(model, query) {
 		sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryPagination, sequelizeQuery);
 		result = await model.findAll(sequelizeQuery);
 
+		// Building response
 		const pages = {
 			current: Number(query.$page) || 1,
 			prev: 0,
@@ -263,8 +274,10 @@ async function _list(model, query) {
 		pages.hasNext = pages.next <= pages.total;
 		pages.prev = pages.current - 1;
 		pages.hasPrev = pages.prev !== 0;
+
+
 		// FindALL response
-		return {items: items, pages: pages, docs: result};
+		return {items: items, pages: pages, nestedPages: {}, docs: result};
 
 	}	catch(error) {
 		apiLogger.error(chalk.red(error));
@@ -301,7 +314,7 @@ async function _find(model, id, query) {
 			error.reformat();
 			return error;
 		} else if (result) {
-			return {doc: result}
+			return {nestedPages: {}, doc: result}
 		}
 	}	catch(error) {
 		apiLogger.error(chalk.red(error));
@@ -1122,7 +1135,7 @@ function queryAttributes(query, sequelizeQuery, model) {
 		} else {
 			tmp = query['$withFields'];
 		}
-		
+
 		tmp.forEach((attr) => {
 			associationsArray.forEach(function(rel){
 				if (_.includes(attr, rel.name)) {
@@ -1141,7 +1154,7 @@ function queryAttributes(query, sequelizeQuery, model) {
 				let targetModel = targetAssociation.target;
 				let as = targetAssociation.as;
 
-				if (!_.some(includeLevel, {model: targetModel, as: as})) {
+				if (!_.some(includeLevel, {model: targetModel, as: as}) && !_.some(includeLevel.include, {model: targetModel, as: as})) {
 					if (level === 0) {
 						let tmp = {};
 						tmp.model = targetModel;
@@ -1161,8 +1174,11 @@ function queryAttributes(query, sequelizeQuery, model) {
 						}
 					}
 				} else {
+					if (!_.isArray(includeLevel)) {
+						includeLevel = includeLevel.include;
+					}
 					includeLevel.forEach(function(include){
-						if (!_.some(include, {model: targetModel, as: as})) {
+						if (_.includes(include, as)) {
 							includeLevel = include;
 						}
 					});
@@ -1184,7 +1200,7 @@ function queryAttributes(query, sequelizeQuery, model) {
 				} else if (query.$withExcludedFields === false && _.includes(attributesList, col)) {
 					includeLevel['attributes'].push(col);
 				}
-			});			
+			});
 		});
 	}
 
@@ -1207,7 +1223,7 @@ function queryAttributes(query, sequelizeQuery, model) {
 				let targetModel = targetAssociation.target;
 				let as = targetAssociation.as;
 
-				if (!_.some(includeLevel, {model: targetModel, as: as})) {
+				if (!_.some(includeLevel, {model: targetModel, as: as}) && !_.some(includeLevel.include, {model: targetModel, as: as})) {
 					if (level === 0) {
 						let tmp = {};
 						tmp.model = targetModel;
@@ -1227,8 +1243,11 @@ function queryAttributes(query, sequelizeQuery, model) {
 						}
 					}
 				} else {
+					if (!_.isArray(includeLevel)) {
+						includeLevel = includeLevel.include;
+					}
 					includeLevel.forEach(function(include){
-						if (!_.some(include, {model: targetModel, as: as})) {
+						if (_.includes(include, as)) {
 							includeLevel = include;
 						}
 					});
@@ -1283,7 +1302,7 @@ function queryAttributes(query, sequelizeQuery, model) {
 				let as = targetAssociation.as;
 				throughModel = targetAssociation.through.model;
 
-				if (!_.some(includeLevel, {model: targetModel, as: as})) {
+				if (!_.some(includeLevel, {model: targetModel, as: as}) && !_.some(includeLevel.include, {model: targetModel, as: as})) {
 					if (level === 0) {
 						let tmp = {};
 						tmp.model = targetModel;
@@ -1303,8 +1322,11 @@ function queryAttributes(query, sequelizeQuery, model) {
 						}
 					}
 				} else {
+					if (!_.isArray(includeLevel)) {
+						includeLevel = includeLevel.include;
+					}
 					includeLevel.forEach(function(include){
-						if (!_.some(include, {model: targetModel, as: as})) {
+						if (_.includes(include, as)) {
 							includeLevel = include;
 						}
 					});
@@ -1333,4 +1355,248 @@ function queryAttributes(query, sequelizeQuery, model) {
 	}
 
 	return sequelizeQuery;
+}
+
+
+
+async function _result4Relations(result, query, model) {
+	const asyncForEach = async (array, callback) => {
+		for (let index = 0; index < array.length; index++) {
+			await callback(array[index], index, array)
+		}
+	};
+
+	let nestedPages = {};
+	let sequelizeQuery = {};
+
+	let queryPagination = queryFilteredPagination(query, model);
+	let querySort = queryFilteredSort(query, model);
+	let queryRest = queryFilteredRest(query, model);
+	let queryInclude = _.assign({}, querySort, queryRest);
+	sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryInclude, sequelizeQuery);
+	sequelizeQuery = queryAttributes(query, sequelizeQuery, model);
+	sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryPagination, sequelizeQuery);
+
+	if (_.has(sequelizeQuery, 'include') && !_.has(query, '$withCount')) {
+		await asyncForEach(sequelizeQuery.include, async (include1L) => {
+			let targetAssociation1L = model.associations[include1L.as];
+			let targetModel1L = targetAssociation1L.target;
+
+			// Only relation BelongsToMany and HasMany
+			if (targetAssociation1L.associationType === 'BelongsToMany' || targetAssociation1L.associationType === 'HasMany') {
+
+				let docs = result.docs || [result.doc];
+
+				await asyncForEach(docs, async (baseModel1L) => {
+					let option = {};
+					option.where = include1L.where;
+					option.through = include1L.through;
+					if (option.through) {
+						delete option.through.limit;
+						delete option.through.offset;
+					}
+					let action = 'count'+_.upperFirst(include1L.as);
+					let filteredCount = await baseModel1L[action](option);
+					console.log(filteredCount);
+
+					let pages1L = {
+						[model.name]: {
+							id: baseModel1L.id,
+						},
+						current: Number(query.$with1LPage) || 1,
+						prev: 0,
+						hasPrev: false,
+						next: 0,
+						hasNext: false,
+						total: 0
+					};
+
+					let totalCount = await baseModel1L[action]();
+					console.log(totalCount);
+
+					let items1L = {
+						[model.name]: {
+							id: baseModel1L.id,
+						},
+						total: totalCount,
+						filtered: filteredCount,
+						page: Number(query.$with1LPage),
+						pageSize: Number(query.$with1LPageSize),
+					};
+
+					if (include1L.include) {
+						await asyncForEach(include1L.include, async (include2L) => {
+							let targetAssociation2L = targetModel1L.associations[include2L.as];
+
+							if (targetAssociation2L.associationType === 'BelongsToMany' || targetAssociation2L.associationType === 'HasMany') {
+
+								let docs = baseModel1L[targetAssociation1L.as];
+
+								await asyncForEach(docs, async (baseModel2L) => {
+									let option = {};
+									option.where = include2L.where;
+									option.through = include2L.through;
+									if (option.through) {
+										delete option.through.limit;
+										delete option.through.offset;
+									}
+									let action = 'count'+_.upperFirst(include2L.as);
+									let filteredCount = await baseModel2L[action](option);
+									console.log(filteredCount);
+
+									let pages2L = {
+										[targetModel1L.name]: {
+											id: baseModel2L.id,
+										},
+										current: Number(query.$with2LPage) || 1,
+										prev: 0,
+										hasPrev: false,
+										next: 0,
+										hasNext: false,
+										total: 0
+									};
+
+									let totalCount = await baseModel2L[action]();
+									console.log(totalCount);
+
+									let items2L = {
+										[targetModel1L.name]: {
+											id: baseModel2L.id,
+										},
+										total: totalCount,
+										filtered: filteredCount,
+										page: Number(query.$with2LPage),
+										pageSize: Number(query.$with1LPageSize),
+									};
+
+									pages2L.total = Math.ceil(filteredCount / Number(query.$with2LPageSize));
+									pages2L.next = pages2L.current + 1;
+									pages2L.hasNext = pages2L.next <= pages2L.total;
+									pages2L.prev = pages2L.current - 1;
+									pages2L.hasPrev = pages2L.prev !== 0;
+
+									items1L[include2L.as + 'Items'] = items1L[include2L.as + 'Items'] || [];
+									items1L[include2L.as + 'Items'].push(items2L);
+									pages1L[include2L.as + 'Pages'] = pages1L[include2L.as + 'Pages'] || [];
+									pages1L[include2L.as + 'Pages'].push(pages2L);
+
+								});
+
+
+							}
+
+						});
+					}
+
+					pages1L.total = Math.ceil(filteredCount / Number(query.$with1LPageSize));
+					pages1L.next = pages1L.current + 1;
+					pages1L.hasNext = pages1L.next <= pages1L.total;
+					pages1L.prev = pages1L.current - 1;
+					pages1L.hasPrev = pages1L.prev !== 0;
+
+					nestedPages[include1L.as + 'Items'] = nestedPages[include1L.as + 'Items'] || [];
+					nestedPages[include1L.as + 'Items'].push(items1L);
+					nestedPages[include1L.as + 'Pages'] = nestedPages[include1L.as + 'Pages'] || [];
+					nestedPages[include1L.as + 'Pages'].push(pages1L);
+
+				});
+			}
+
+			// Only relation BelongsTo and HasOne
+			if (targetAssociation1L.associationType === 'BelongsTo' || targetAssociation1L.associationType === 'HasOne') {
+
+				let docs = result.docs || [result.doc];
+
+				await asyncForEach(docs, async (baseModel1L) => {
+					let pages1L = {
+						[model.name]: {
+							id: baseModel1L.id,
+						},
+					};
+
+					let items1L = {
+						[model.name]: {
+							id: baseModel1L.id,
+						},
+					};
+
+					if (include1L.include) {
+						await asyncForEach(include1L.include, async (include2L) => {
+							let targetAssociation2L = targetModel1L.associations[include2L.as];
+
+							if (targetAssociation2L.associationType === 'BelongsToMany' || targetAssociation2L.associationType === 'HasMany') {
+
+								let docs = [baseModel1L[targetAssociation1L.as]];
+
+								await asyncForEach(docs, async (baseModel2L) => {
+									let option = {};
+									option.where = include2L.where;
+									option.through = include2L.through;
+									if (option.through) {
+										delete option.through.limit;
+										delete option.through.offset;
+									}
+									let action = 'count'+_.upperFirst(include2L.as);
+									let filteredCount = await baseModel2L[action](option);
+									console.log(filteredCount);
+
+									let pages2L = {
+										[targetModel1L.name]: {
+											id: baseModel2L.id,
+										},
+										current: Number(query.$with2LPage) || 1,
+										prev: 0,
+										hasPrev: false,
+										next: 0,
+										hasNext: false,
+										total: 0
+									};
+
+									let totalCount = await baseModel2L[action]();
+									console.log(totalCount);
+
+									let items2L = {
+										[targetModel1L.name]: {
+											id: baseModel2L.id,
+										},
+										total: totalCount,
+										filtered: filteredCount,
+										page: Number(query.$with2LPage),
+										pageSize: Number(query.$with1LPageSize),
+									};
+
+									pages2L.total = Math.ceil(filteredCount / Number(query.$with2LPageSize));
+									pages2L.next = pages2L.current + 1;
+									pages2L.hasNext = pages2L.next <= pages2L.total;
+									pages2L.prev = pages2L.current - 1;
+									pages2L.hasPrev = pages2L.prev !== 0;
+
+									items1L[include2L.as + 'Items'] = items1L[include2L.as + 'Items'] || [];
+									items1L[include2L.as + 'Items'].push(items2L);
+									pages1L[include2L.as + 'Pages'] = pages1L[include2L.as + 'Pages'] || [];
+									pages1L[include2L.as + 'Pages'].push(pages2L);
+
+								});
+
+
+							}
+
+						});
+					}
+
+					nestedPages[include1L.as + 'Items'] = nestedPages[include1L.as + 'Items'] || [];
+					nestedPages[include1L.as + 'Items'].push(items1L);
+					nestedPages[include1L.as + 'Pages'] = nestedPages[include1L.as + 'Pages'] || [];
+					nestedPages[include1L.as + 'Pages'].push(pages1L);
+
+				});
+			}
+
+		});
+
+	return nestedPages;
+	} else {
+		return nestedPages
+	}
+
 }

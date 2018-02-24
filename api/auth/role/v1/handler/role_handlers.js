@@ -12,7 +12,10 @@ const Handler =
 			// call LIST Handler for CRUD function valid for all present models
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let result = await HandlerHelper.list(AuthRole, request.query);
-			return result;
+			if (!result.isBoom) {
+				result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthRole);
+			}
+			return result
 
 		},
 
@@ -21,7 +24,10 @@ const Handler =
 			// call FIND ONE Handler for CRUD function valid for all present models
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let result = await HandlerHelper.find(AuthRole, request.params.roleId, request.query);
-			return result;
+			if (!result.isBoom) {
+				result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthRole);
+			}
+			return result
 
 		},
 

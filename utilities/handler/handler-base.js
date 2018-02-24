@@ -170,34 +170,91 @@ const PreHandlerBase = {
 
 			if (op === '$withCount' && !responseChanged) {
 				response['include'] = response.include || [];
-				response['group'] = response.group || [];
-				response['attributes'] = response.attributes || [];
-				response['includeIgnoreAttributes'] = false;
-				response.group.push(schema.name + '.id');
+				let preLevel = response;
+				let preRel = '';
 				let includeLevel = response.include;
-				let fieldsLevel = response.attributes;
-				let targetAssociation = schema.associations[el];
-				let targetModel = targetAssociation.target;
-				let as = targetAssociation.as;
-				let column = targetAssociation.foreignIdentifierField;
-				fieldsLevel.push([Sequelize.fn('COUNT', Sequelize.col(column)), targetAssociation.as + 'Count']);
+				let schemaClone = schema;
+				let relTree = _.split(el,'.');
+				let column = '';
+				let targetAssociation = '';
+				let targetModel = '';
+				let as = '';
+				relTree.forEach(function(levelRel, level){
+					targetAssociation = schemaClone.associations[levelRel];
+					targetModel = targetAssociation.target;
+					as = targetAssociation.as;
+					if (level === 0) {
+						preLevel['includeIgnoreAttributes'] = false;
+						preLevel['attributes'] = preLevel.attributes || [];
+						preLevel.group = preLevel.group || [];
+						preLevel.group.push(schemaClone.name + '.id');
+					} else {
+						// includeLevel.group = includeLevel.group || [];
+						// includeLevel.group.push(preRel + '.id');
+						preLevel.group.push(preRel + '.id');
+					}
+					column += levelRel + '.';
 
-				if (!_.some(includeLevel, {model: targetModel, as: as})) {
-					let tmp = {};
-					tmp.model = targetModel;
-					tmp.as = as;
-					tmp.attributes = [];
-					tmp.duplicating = false;
-					includeLevel.push(tmp);
-				} else {
-					includeLevel.forEach((level) => {
-						if (level.as === as) {
-							level['attributes'] = level['attributes'] || [];
-							// level['attributes'].push(column);
-							level['duplicating'] = false;
+					if (!_.some(includeLevel, {model: targetModel, as: as})) {
+						if (level === 0) {
+							let tmp = {};
+							tmp.model = targetModel;
+							tmp.as = as;
+							tmp.duplicating = false;
+							tmp.attributes = [];
+							includeLevel.push(tmp);
+							includeLevel = tmp;
+						} else if (level > 0) {
+							if (!_.has(includeLevel, 'include')) {
+								includeLevel['include'] = [];
+							}
+							if (!_.some(includeLevel['include'], {model: targetModel, as: as})) {
+								let tmp = {};
+								tmp.model = targetModel;
+								tmp.as = as;
+								tmp.duplicating = false;
+								tmp.attributes = [];
+								includeLevel['include'].push(tmp);
+								includeLevel = tmp;
+							}
 						}
-					});
-				}
+					} else {
+						includeLevel.forEach(function(include){
+							if (!_.some(include, {model: targetModel, as: as})) {
+								includeLevel = include;
+							}
+						});
+					}
+					schemaClone = targetModel;
+					preRel = levelRel;
+				});
+
+				preLevel.attributes.push([Sequelize.fn('COUNT', column + 'id'), targetAssociation.as + 'Count']);
+
+				// preLevel['includeIgnoreAttributes'] = false;
+
+				// preLevel['attributes'] = preLevel.attributes || [];
+				// let column = el + '.id';
+				// includeLevel.attributes = includeLevel.attributes || [];
+				// preLevel.attributes.push([Sequelize.fn('COUNT', Sequelize.col(column)), targetAssociation.as + 'Count']);
+				// includeLevel.duplicating = false;
+
+				// if (!_.some(includeLevel, {model: targetModel, as: as})) {
+				// 	let tmp = {};
+				// 	tmp.model = targetModel;
+				// 	tmp.as = as;
+				// 	tmp.attributes = [];
+				// 	tmp.duplicating = false;
+				// 	includeLevel.push(tmp);
+				// } else {
+				// 	includeLevel.forEach((level) => {
+				// 		if (level.as === as) {
+				// 			level['attributes'] = level['attributes'] || [];
+				// 			// level['attributes'].push(column);
+				// 			level['duplicating'] = false;
+				// 		}
+				// 	});
+				// }
 
 
 

@@ -372,9 +372,13 @@ module.exports = function(model) {
 	};
 
 	const withPagination = {
-		$withPage: Joi.number().integer().min(1).description('page number')
+		$with1LPage: Joi.number().integer().min(1).description('1L association page number')
 			.default(1),
-		$withPageSize: Joi.number().integer().min(1).max(100).description('rows per page')
+		$with1LPageSize: Joi.number().integer().min(1).max(100).description('1L association rows per page')
+			.default(10),
+		$with2LPage: Joi.number().integer().min(1).description('2L association page number')
+			.default(1),
+		$with2LPageSize: Joi.number().integer().min(1).max(100).description('2L association rows per page')
 			.default(10),
 	};
 
@@ -432,12 +436,12 @@ module.exports = function(model) {
 
 	const withRelCount = {
 		$withCount: Joi.alternatives().try(
-			Joi.array().description('count relationships occurrences: model, [model, models]')
+			Joi.array().description('count 1L relationships occurrences: model')
 				.items(
 					Joi.string().max(255)
 						.regex(ValidationHelper.withCountRegExp(model)))
 				.example(['models','model']),
-			Joi.string().max(255).description('relationships: model, [model.models, models]')
+			Joi.string().max(255).description('relationships: model, [model, model]')
 				.regex(ValidationHelper.withCountRegExp(model))
 				.example('models')
 		),

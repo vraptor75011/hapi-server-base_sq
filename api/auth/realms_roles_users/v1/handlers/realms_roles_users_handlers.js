@@ -1,6 +1,6 @@
 const DB = require('../../../../../config/sequelize');
 const HandlerHelper = require('../../../../../utilities/handler/handler-helper');
-const Log = require('../../../../../utilities/logging/logging');
+const { apiLogger } = require('../../../../../utilities/logging/logging');
 
 const AuthRealmsRolesUsers = DB.AuthRealmsRolesUsers;
 
@@ -12,6 +12,9 @@ const Handler =
 			// call LIST Handler for CRUD function valid for all present models
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let result = await HandlerHelper.list(AuthRealmsRolesUsers, request.query);
+			if (!result.isBoom) {
+				result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthRealmsRolesUsers);
+			}
 			return result;
 
 		},
@@ -21,6 +24,9 @@ const Handler =
 			// call FIND ONE Handler for CRUD function valid for all present models
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let result = await HandlerHelper.find(AuthRealmsRolesUsers, request.params.realmsRolesUsersId, request.query);
+			if (!result.isBoom) {
+				result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthRealmsRolesUsers);
+			}
 			return result;
 
 		},

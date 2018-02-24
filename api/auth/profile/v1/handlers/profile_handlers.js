@@ -20,7 +20,11 @@ module.exports = {
 		// call LIST Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		request.query = AccessHelper.getNoHerachy(AuthProfile, request.auth.credentials.user.id, request.query);
-		return await HandlerHelper.list(AuthProfile, request.query);
+		let result = await HandlerHelper.list(AuthProfile, request.query);
+		if (!result.isBoom) {
+			result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthProfile);
+		}
+		return result;
 
 	},
 

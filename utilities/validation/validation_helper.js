@@ -220,6 +220,8 @@ const ValidationBase = {
 		Object.keys(schemaRelations).map((rel, index) => {
 			if (index > 0) {
 				relations += '|';
+			} else {
+				result = '';
 			}
 
 			relations += rel;

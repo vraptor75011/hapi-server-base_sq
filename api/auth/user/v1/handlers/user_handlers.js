@@ -16,7 +16,11 @@ module.exports = {
 		// Call listAll async function with await inside handler-helper
 		// call LIST Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		return await HandlerHelper.list(AuthUser, request.query);
+		let result = await HandlerHelper.list(AuthUser, request.query);
+		if (!result.isBoom) {
+			result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthUser);
+		}
+		return result
 
 	},
 
@@ -24,8 +28,11 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 		// call FIND ONE Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		return await HandlerHelper.find(AuthUser, request.params.userId, request.query);
-
+		let result = await HandlerHelper.find(AuthUser, request.params.userId, request.query);
+		if (!result.isBoom) {
+			result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthUser);
+		}
+		return result
 	},
 
 	create: async (request, h) => {

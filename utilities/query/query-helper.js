@@ -156,20 +156,40 @@ module.exports = {
 			sequelizeQuery.limit = pageSize;
 		}
 
-		if (query.$withPage && query.$withPageSize) {
+		if (query.$with1LPage && query.$with1LPageSize) {
 			if (_.has(sequelizeQuery, 'include')) {
-				let page = parseInt(query['$withPage']) || 1;
-				let pageSize = parseInt(query['$withPageSize']) || 10;
+				let page = parseInt(query['$with1LPage']) || 1;
+				let pageSize = parseInt(query['$with1LPageSize']) || 10;
+				let page2L = parseInt(query['$with2LPage']) || 1;
+				let pageSize2L = parseInt(query['$with2LPageSize']) || 10;
 				sequelizeQuery.include.forEach((relIncluded) => {
 					let relation = model.associations[relIncluded.as];
-					if (relation.associationType === 'HasMany') {
-						relIncluded.offset = pageSize * (page - 1);
-						relIncluded.limit = pageSize;
+					let targetModel = relation.target;
+
+					if (relIncluded.duplicating === undefined) {
+						if (relation.associationType === 'HasMany') {
+							relIncluded.offset = pageSize * (page - 1);
+							relIncluded.limit = pageSize;
+						}
+						if (relation.associationType === 'BelongsToMany') {
+							relIncluded['through'] = relIncluded['through'] || {};
+							relIncluded.through.offset = pageSize * (page - 1);
+							relIncluded.through.limit = pageSize;
+						}
 					}
-					if (relation.associationType === 'BelongsToMany') {
-						relIncluded['through'] = relIncluded['through'] || {};
-						relIncluded.through.offset = pageSize * (page - 1);
-						relIncluded.through.limit = pageSize;
+					if (relIncluded.include) {
+						relIncluded.include.forEach((rel2LIncluded) => {
+							let relation = targetModel.associations[rel2LIncluded.as];
+							if (relation.associationType === 'HasMany') {
+								rel2LIncluded.offset = pageSize2L * (page2L - 1);
+								rel2LIncluded.limit = pageSize2L;
+							}
+							if (relation.associationType === 'BelongsToMany') {
+								rel2LIncluded['through'] = relIncluded['through'] || {};
+								rel2LIncluded.through.offset = pageSize2L * (page2L - 1);
+								rel2LIncluded.through.limit = pageSize2L;
+							}
+						})
 					}
 				})
 			}
