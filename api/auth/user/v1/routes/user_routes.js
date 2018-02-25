@@ -17,9 +17,9 @@ module.exports = [
 			tags: ['api', 'Users'],
 			description: 'GET Users List',
 			notes: ['Returns Users list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
-			'AuthUser First Level Relations: ' + UserValidation.FLRelations + '<br>' +
-			'AuthUser Second Level Relations: ' + UserValidation.SLRelations + '<br>' +
-			'Attributes: ' + UserValidation.Attributes + '<br>'],
+			'<b>AuthUser First Level Relations:</b> ' + UserValidation.FLRelations + '<br>' +
+			'<b>AuthUser Second Level Relations:</b> ' + UserValidation.SLRelations + '<br>' +
+			'<b>Attributes:</b> ' + UserValidation.Attributes + '<br>'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -69,8 +69,8 @@ module.exports = [
 			tags: ['api', 'Users'],
 			description: 'POST a New AuthUser',
 			notes: ['Save a new AuthUser with params in payload with one or more Child object.<br>' +
-			'AuthUser hasMany Child Model: AuthUser object can contain one or more Child object <br>' +
-			'AuthUser BelongsToMany Child Model: AuthUser object can contain one or more Child object can contain one Through object'],
+			'<b>AuthUser hasMany Child Model:</b> AuthUser object can contain one or more Child object <br>' +
+			'AuthUser BelongsToMany Child Model:</b> AuthUser object can contain one or more Child object can contain one Through object'],
 			validate: {
 				options: {
 					abortEarly: false

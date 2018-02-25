@@ -21,7 +21,7 @@ module.exports = function(sequelize, Sequelize) {
 				default4Select: true,
 				unique: true,
 				allowNull: false,
-				validation: {
+				validate: {
 					len: [3, 64]
 				},
 				query: Query.key,
@@ -30,7 +30,7 @@ module.exports = function(sequelize, Sequelize) {
 				type: Sequelize.STRING,
 				exclude: true,
 				allowNull: false,
-				validation: {
+				validate: {
 					len: [8, 128]
 				},
 			},

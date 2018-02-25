@@ -18,7 +18,7 @@ module.exports = function(sequelize, Sequelize) {
 				type: Sequelize.STRING,
 				unique: true,
 				allowNull: true,
-				validation: {
+				validate: {
 					len: [3, 64]
 				},
 				query: Query.username,
@@ -27,7 +27,7 @@ module.exports = function(sequelize, Sequelize) {
 				type: Sequelize.STRING,
 				unique: true,
 				allowNull: false,
-				validation: {
+				validate: {
 					isEmail: true
 				},
 				query: Query.email,
@@ -36,14 +36,14 @@ module.exports = function(sequelize, Sequelize) {
 				type: Sequelize.STRING,
 				exclude: true,
 				allowNull: false,
-				validation: {
+				validate: {
 					len: [8, 128]
 				},
 			},
 			firstName: {
 				type: Sequelize.STRING,
 				required: true,
-				validation: {
+				validate: {
 					len: [3, 64]
 				},
 				query: Query.firstName,
@@ -51,7 +51,7 @@ module.exports = function(sequelize, Sequelize) {
 			lastName: {
 				type: Sequelize.STRING,
 				required: true,
-				validation: {
+				validate: {
 					len: [3, 64]
 				},
 				query: Query.lastName,
@@ -71,14 +71,14 @@ module.exports = function(sequelize, Sequelize) {
 			},
 			currentLoginIP: {
 				type: Sequelize.STRING,
-				validation: {
+				validate: {
 					len: [3, 15]
 				},
 				query: Query.currentLoginIP,
 			},
 			lastLoginIP: {
 				type: Sequelize.STRING,
-				validation: {
+				validate: {
 					len: [3, 15]
 				},
 				query: Query.lastLoginIP
