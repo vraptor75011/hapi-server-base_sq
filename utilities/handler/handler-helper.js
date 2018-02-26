@@ -675,14 +675,14 @@ async function _getAll(ownerModel, ownerId, childModel, associationName, query) 
 		if (ownerObject) {
 			let relation = ownerModel.associations[associationName];
 			let model = relation.target;
-			if (relation.associationType === 'BelongsTo' || relation.associationType === 'hasOne') {
+			if (relation.associationType === 'BelongsTo' || relation.associationType === 'HasOne') {
 				let queryRest = queryFilteredRest(realQuery, model);
 				sequelizeQuery = QueryHelper.createSequelizeFilter(model, queryRest, {});
 				sequelizeQuery = queryWithDeleted(realQuery, sequelizeQuery, model);
 				sequelizeQuery = queryAttributes(realQuery, sequelizeQuery, model);
 				let action = 'get'+_.upperFirst(associationName);
 				result = await ownerObject[action](sequelizeQuery);
-			} else if (relation.associationType === 'BelongsToMany' || relation.associationType === 'hasMany') {
+			} else if (relation.associationType === 'BelongsToMany' || relation.associationType === 'HasMany') {
 				sequelizeQuery = {};
 				let totalCount;
 				let filteredCount;
