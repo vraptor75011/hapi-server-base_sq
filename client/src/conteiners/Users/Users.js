@@ -8,6 +8,7 @@ import {withStyles} from 'material-ui/styles';
 import {getUsers, deleteUser, editUser, newUser} from '../../actions/users';
 import {cancelForm} from '../../actions/form';
 import { openModal, closeModal } from '../../actions/modals';
+import { translate } from 'react-i18next';
 
 
 
@@ -53,7 +54,7 @@ class Users extends React.PureComponent {
 
     render() {
 
-
+        console.log(this.props)
         const { modal } = this.props;
 
         return (<div>
@@ -82,4 +83,4 @@ function mapStateToProps(state) {
     return {users: state.reducers.users, user: state.reducers.user, modal: state.reducers.modal, form: state.reducers.form };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Users));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(translate()(Users)));

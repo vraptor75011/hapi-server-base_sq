@@ -15,7 +15,10 @@ import {ConnectedRouter, routerMiddleware, routerReducer} from 'react-router-red
 
 import {Route, Switch} from 'react-router-dom';
 import reduxThunk from 'redux-thunk';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
 
+//import messages from './locale/en_US/messages.json';
 
 import ReduxPromise from 'redux-promise'
 
@@ -46,7 +49,10 @@ const theme = createMuiTheme({
     }
 });
 
+
+
 ReactDOM.render(
+    <I18nextProvider i18n={i18n}>
     <Provider store={store}>
         <ConnectedRouter history={history}>
             <MuiThemeProvider theme={theme}>
@@ -59,6 +65,7 @@ ReactDOM.render(
                 </Switch>
             </MuiThemeProvider>
         </ConnectedRouter>
-    </Provider>,
+    </Provider>
+    </I18nextProvider>,
     document.getElementById('root')
 );

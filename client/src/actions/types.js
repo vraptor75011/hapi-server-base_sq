@@ -29,3 +29,8 @@ export const NEW_ROLE = 'NEW_ROLE';
 
 export const FORM_ERROR = 'FORM_ERROR';
 export const FORM_CANCEL =  'FORM_CANCEL';
+
+
+//LOCALES
+
+export const UPDATE_LOCALES = 'UPDATE_LOCALES';

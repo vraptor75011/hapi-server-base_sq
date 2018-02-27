@@ -10,6 +10,8 @@ import role from './roles/role_reducer';
 
 import form from './form_reducer';
 
+import locale from './localesReducer';
+
 
 
 const rootReducer = combineReducers({
@@ -19,7 +21,8 @@ const rootReducer = combineReducers({
     user,
     modal,
     roles,
-    role
+    role,
+    locale
 
 });
 
