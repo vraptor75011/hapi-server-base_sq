@@ -5,7 +5,6 @@ const { failAction } = require('../../../../../utilities/error/error-helper');
 
 module.exports = [
 
-
 	{
 		method: 'GET',
 		path: '/static/locales/en/common.json',
