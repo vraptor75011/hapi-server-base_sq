@@ -11,6 +11,9 @@ module.exports = {
 		// call LIST Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let result = await HandlerHelper.list(AuthAttempt, request.query);
+		if (!result.isBoom) {
+			result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthAttempt);
+		}
 		return result;
 
 	},
@@ -19,7 +22,10 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 		// call FIND ONE Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		let result = await HandlerHelper.find(AuthAttempt, request.params.authAttemptId, request.query);
+		let result = await HandlerHelper.find(AuthAttempt, request.params.attemptId, request.query);
+		if (!result.isBoom) {
+			result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthAttempt);
+		}
 		return result;
 
 	},
@@ -41,7 +47,7 @@ module.exports = {
 
 		// call CREATE Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		let result = await HandlerHelper.update(AuthAttempt, request.params.authAttemptId, request.payload);
+		let result = await HandlerHelper.update(AuthAttempt, request.params.attemptId, request.payload);
 		return result;
 	},
 
@@ -51,7 +57,7 @@ module.exports = {
 
 		// call DELETE Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		let result = await HandlerHelper.deleteOne(AuthAttempt, request.params.authAttemptId, request.payload);
+		let result = await HandlerHelper.deleteOne(AuthAttempt, request.params.attemptId, request.payload);
 		return result;
 	},
 
@@ -71,7 +77,7 @@ module.exports = {
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.addOne(AuthAttempt, request.params.authAttemptId, childModel, request.params.childId, request.params.childModel);
+		let result = await HandlerHelper.addOne(AuthAttempt, request.params.attemptId, childModel, request.params.childId, request.params.childModel);
 		return result;
 	},
 
@@ -81,7 +87,7 @@ module.exports = {
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.removeOne(AuthAttempt, request.params.authAttemptId, childModel, request.params.childId, request.params.childModel);
+		let result = await HandlerHelper.removeOne(AuthAttempt, request.params.attemptId, childModel, request.params.childId, request.params.childModel);
 		return result;
 	},
 
@@ -91,7 +97,7 @@ module.exports = {
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.addMany(AuthAttempt, request.params.authAttemptId, childModel, request.params.childModel, request.payload);
+		let result = await HandlerHelper.addMany(AuthAttempt, request.params.attemptId, childModel, request.params.childModel, request.payload);
 		return result;
 	},
 
@@ -101,7 +107,7 @@ module.exports = {
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.removeMany(AuthAttempt, request.params.authAttemptId, childModel, request.params.childModel, request.payload);
+		let result = await HandlerHelper.removeMany(AuthAttempt, request.params.attemptId, childModel, request.params.childModel, request.payload);
 		return result;
 	},
 
@@ -111,7 +117,7 @@ module.exports = {
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		let childModel = AuthAttempt.associations[request.params.childModel].target;
 		// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
-		let result = await HandlerHelper.getAll(AuthAttempt, request.params.authAttemptId, childModel, request.params.childModel, request.query);
+		let result = await HandlerHelper.getAll(AuthAttempt, request.params.attemptId, childModel, request.params.childModel, request.query);
 		return result;
 	},
 

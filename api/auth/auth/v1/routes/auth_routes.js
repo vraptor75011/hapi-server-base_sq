@@ -15,7 +15,7 @@ module.exports= [
 		config: {
 			handler: AuthLogin.login,
 			auth: false,
-			tags: ['Login', 'api', 'v1'],
+			tags: ['api', 'Auth', 'Login'],
 			description: 'AuthUser login.',
 			notes: ['Returns TOKENS after AuthUser authentication'],
 			validate: {
@@ -37,7 +37,7 @@ module.exports= [
 			auth: {
 				scope: ['Logged'],
 			},
-			tags: ['Logout', 'api', 'v1'],
+			tags: ['api', 'Auth', 'Logout'],
 			description: 'AuthUser logout. Destroy his session.',
 			notes: ['Returns true if destroy completed'],
 			validate: {
@@ -60,7 +60,7 @@ module.exports= [
 			auth: {
 				scope: ['Refresh'],
 			},
-			tags: ['Refresh', 'Token', 'api', 'v1'],
+			tags: ['api', 'Auth', 'Refresh', 'Token'],
 			description: 'AuthUser refresh his store. Return two refreshed tokens.',
 			notes: ['Returns two refreshed tokens if refresh store is OK'],
 			validate: {
@@ -81,7 +81,7 @@ module.exports= [
 		config: {
 			handler: AuthLogin.accountRegistration,
 			auth: false,
-			tags: ['Registration', 'api', 'v1'],
+			tags: ['api', 'Auth', 'Registration'],
 			description: 'Register new AuthUser (no active).',
 			notes: ['Returns the new AuthUser object no active'],
 			validate: {
@@ -102,7 +102,7 @@ module.exports= [
 			auth: {
 				scope: ['WebApp-Admin']
 			},
-			tags: ['Invitation', 'api', 'v1'],
+			tags: ['api', 'Auth', 'Invitation'],
 			description: 'Admin invites a new AuthUser (no active).',
 			notes: ['Returns the new AuthUser object no active'],
 			validate: {
@@ -122,7 +122,7 @@ module.exports= [
 			handler: AuthLogin.accountActivation,
 			auth: false,
 			description: 'AuthUser account activation.',
-			tags: ['Activation', 'api', 'v1'],
+			tags: ['api', 'Auth', 'Activation'],
 			validate: {
 				options: {
 					abortEarly: false
@@ -139,7 +139,7 @@ module.exports= [
 		config: {
 			handler: AuthLogin.resetPWDRequest,
 			auth: false,
-			tags: ['Reset Password', 'api', 'v1'],
+			tags: ['api', 'Auth', 'Reset', 'Password'],
 			description: 'Everybody can send request to reset his pwd.',
 			notes: ['Returns the updated AuthUser object with new pwd not active'],
 			validate: {
@@ -159,7 +159,7 @@ module.exports= [
 			handler: AuthLogin.activeNewPWD,
 			auth: false,
 			description: 'AuthUser reset PWD confirm.',
-			tags: ['Reset Password', 'api', 'v1'],
+			tags: ['api', 'Auth', 'Reset', 'Password'],
 			validate: {
 				options: {
 					abortEarly: false

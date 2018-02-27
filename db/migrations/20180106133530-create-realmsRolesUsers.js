@@ -12,7 +12,7 @@ module.exports = {
 					comment: "Primary and auto incremented key of the table"
 				},
 				realmId: {
-					type: Sequelize.INTEGER,
+					type: Sequelize.INTEGER.UNSIGNED,
 					// references: {
 					// 	// This is a reference to model Realm
 					// 	model: 'Realm',
@@ -22,11 +22,11 @@ module.exports = {
 					allowNull: false,
 				},
 				roleId: {
-					type: Sequelize.INTEGER,
+					type: Sequelize.INTEGER.UNSIGNED,
 					allowNull: false,
 				},
 				userId: {
-					type: Sequelize.INTEGER,
+					type: Sequelize.INTEGER.UNSIGNED,
 					allowNull: false,
 				},
 			});

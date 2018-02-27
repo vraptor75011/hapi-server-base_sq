@@ -220,6 +220,8 @@ const ValidationBase = {
 		Object.keys(schemaRelations).map((rel, index) => {
 			if (index > 0) {
 				relations += '|';
+			} else {
+				result = '';
 			}
 
 			relations += rel;
@@ -266,12 +268,17 @@ const ValidationBase = {
 	withRelatedThroughFieldRegExp: (schema) => {
 		let result = '/[]/';
 
-		Object.keys(schema.associations).map((rel, index) => {
+		Object.keys(schema.associations).map((rel) => {
 			let relation = schema.associations[rel];
+			let targetModel = relation.target;
+
 			if (relation.associationType === 'BelongsToMany'){
-				if (index === 0) {
+				if (result === '/[]/') {
 					result = '';
+				} else {
+					result += '|';
 				}
+
 				let columns = '(';
 
 				let model = relation.throughModel;
@@ -286,11 +293,38 @@ const ValidationBase = {
 				columns += ')';
 
 				let prefix = '{' + rel + '}';
-				if (index > 0) {
-					result += '|';
-				}
+
 				result += "^" + prefix + columns + "(," + columns + ")*$";
 			}
+
+			// Second Level!!
+			Object.keys(targetModel.associations).map((rel2Level, index) => {
+				let relation = targetModel.associations[rel2Level];
+
+				if (relation.associationType === 'BelongsToMany'){
+					if (result === '/[]/') {
+						result = '';
+					} else {
+						result += '|';
+					}
+					let columns = '(';
+
+					let model = relation.throughModel;
+
+					Object.keys(model.attributes).map((attr, index) => {
+						if (index > 0) {
+							columns += '|';
+						}
+						columns += attr;
+					});
+
+					columns += ')';
+
+					let prefix = '{' + rel + '.' + rel2Level + '}';
+					result += "^" + prefix + columns + "(," + columns + ")*$";
+				}
+
+			});
 
 		});
 
@@ -405,12 +439,16 @@ const ValidationBase = {
 		let result = '/[]/';
 		let attributes = '';
 
-		Object.keys(schema.associations).map((rel, index) => {
+		Object.keys(schema.associations).map((rel) => {
 			let relation = schema.associations[rel];
+			let targetModel = relation.target;
+
 			if (relation.associationType === 'BelongsToMany') {
 
-				if (index === 0) {
+				if (result === '/[]/') {
 					result = '';
+				} else {
+					result += '|';
 				}
 
 				let model = relation.throughModel;
@@ -423,9 +461,6 @@ const ValidationBase = {
 					attributes += '{' + attr + '}';
 				});
 
-				if (index > 0) {
-					result += '|';
-				}
 				nestedOperators.forEach(function (operator, index) {
 					if (index > 0) {
 						result += '|';
@@ -453,6 +488,57 @@ const ValidationBase = {
 					result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + "$";
 				});
 			}
+
+			// Second Level!!
+			Object.keys(targetModel.associations).map((rel2Level) => {
+				let relation = targetModel.associations[rel2Level];
+
+				if (relation.associationType === 'BelongsToMany') {
+
+					if (result === '/[]/') {
+						result = '';
+					} else {
+						result += '|';
+					}
+
+					let model = relation.throughModel;
+					let sourceModelName = '{' + rel + '.' + rel2Level + '}';
+
+					Object.keys(model.attributes).map((attr, index) => {
+						if (index > 0) {
+							attributes += '|'
+						}
+						attributes += '{' + attr + '}';
+					});
+
+					nestedOperators.forEach(function (operator, index) {
+						if (index > 0) {
+							result += '|';
+						}
+						result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + ".+$";
+					});
+
+					likeOperators.forEach(function (operator) {
+						result += '|';
+						result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + ".+$";
+					});
+
+					inOperator.forEach(function (operator) {
+						result += '|';
+						result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + ".+$";
+					});
+
+					btwOperator.forEach(function (operator) {
+						result += '|';
+						result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + ".+$";
+					});
+
+					nullOperator.forEach(function (operator) {
+						result += '|';
+						result += "^" + sourceModelName + Or + "(" + attributes + ")" + operator + "$";
+					});
+				}
+			});
 		});
 
 		return new RegExp(result);

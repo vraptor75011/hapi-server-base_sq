@@ -24,11 +24,11 @@ module.exports = {
 					allowNull: false,
 				},
 				userId: {
-					type: Sequelize.INTEGER,
+					type: Sequelize.INTEGER.UNSIGNED,
 					allowNull: false,
 				},
 				realmId: {
-					type: Sequelize.INTEGER,
+					type: Sequelize.INTEGER.UNSIGNED,
 					allowNull: false,
 				},
 				createdAt: {

@@ -1,16 +1,12 @@
 const DB = require('../../../../../config/sequelize');
+const HandlerHelper = require('../../../../../utilities/handler/handler-helper');
 const { apiLogger, chalk } = require('../../../../../utilities/logging/logging');
 const Sequelize = require('sequelize');
-const Boom = require('boom');
-
-const HandlerHelper = require('../../../../../utilities/handler/handler-helper');
-const AccessHelper = require('../../../../../utilities/access/access-helper');
-
 const Polyglot = require('./../../../../../plugins/hapi-polyglot/polyglot');
 
 const Op = Sequelize.Op;
 
-const AuthProfile = DB.AuthProfile;
+const AuthAvatar = DB.AuthAvatar;
 
 let polyglot = Polyglot.getPolyglot();
 
@@ -19,12 +15,11 @@ module.exports = {
 		// Call listAll async function with await inside handler-helper
 		// call LIST Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		request.query = AccessHelper.getNoHerachy(AuthProfile, request.auth.credentials.user.id, request.query);
-		let result = await HandlerHelper.list(AuthProfile, request.query);
+		let result = await HandlerHelper.list(AuthAvatar, request.query);
 		if (!result.isBoom) {
-			result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthProfile);
+			result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthAvatar);
 		}
-		return result;
+		return result
 
 	},
 
@@ -32,94 +27,93 @@ module.exports = {
 		// Call an async function with await inside in handler-helper
 		// call FIND ONE Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		request.query = AccessHelper.getNoHerachy(AuthProfile, request.auth.credentials.user.id, request.query);
-		let result = await HandlerHelper.find(AuthProfile, request.params.profileId, request.query);
-		if (result.isBoom) {
-			return result;
+		let result = await HandlerHelper.find(AuthAvatar, request.params.avatarId, request.query);
+		if (!result.isBoom) {
+			result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthAvatar);
 		}
-		return result;
+		return result
 	},
 
 	create: async (request, h) => {
 		// Call an async function with await inside in handler-helper
-		// Only for Admin to Add a new AuthProfile without free registration
+		// Only for Admin to Add a new AuthAvatar without free registration
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		request.payload.password = await AuthProfile.hashPassword(request.payload.password);
+		request.payload.password = await AuthAvatar.hashPassword(request.payload.password);
 		// call CREATE Handler for CRUD function valid for all present models
-		return await HandlerHelper.create(AuthProfile, request.payload);
+		return await HandlerHelper.create(AuthAvatar, request.payload);
 
 	},
 
 	update: async (request, h) => {
-		// Admin and AuthProfile can update an AuthProfile, but AuthProfile can't change his roles and realms
+		// Admin and AuthAvatar can update an AuthAvatar, but AuthAvatar can't change his roles and realms
 		// Call an async function with await inside in handler-helper
 
 		// call CREATE Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		return await HandlerHelper.update(AuthProfile, request.params.profileId, request.payload);
+		return await HandlerHelper.update(AuthAvatar, request.params.avatarId, request.payload);
 	},
 
 	delete: async (request, h) => {
-		// Admin can delete an AuthProfile
+		// Admin can delete an AuthAvatar
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE Handler for CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		return await HandlerHelper.deleteOne(AuthProfile, request.params.profileId, request.payload);
+		return await HandlerHelper.deleteOne(AuthAvatar, request.params.avatarId, request.payload);
 	},
 
 	deleteMany: async (request, h) => {
-		// Admin can delete an AuthProfile
+		// Admin can delete an AuthAvatar
 		// Call an async function with await inside in handler-helper
 
 		// call DELETE MANY Handler for EXTRA CRUD function valid for all present models
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		return await HandlerHelper.deleteMany(AuthProfile, request.payload);
+		return await HandlerHelper.deleteMany(AuthAvatar, request.payload);
 	},
 
 	addOne: async (request, h) => {
-		// Admin can add one child model to an AuthProfile
+		// Admin can add one child model to an AuthAvatar
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		let childModel = AuthProfile.associations[request.params.childModel].target;
+		let childModel = AuthAvatar.associations[request.params.childModel].target;
 		// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-		return await HandlerHelper.addOne(AuthProfile, request.params.profileId, childModel, request.params.childId, request.params.childModel);
+		return await HandlerHelper.addOne(AuthAvatar, request.params.avatarId, childModel, request.params.childId, request.params.childModel);
 	},
 
 	removeOne: async (request, h) => {
-		// Admin can remove one child model from an AuthProfile
+		// Admin can remove one child model from an AuthAvatar
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		let childModel = AuthProfile.associations[request.params.childModel].target;
+		let childModel = AuthAvatar.associations[request.params.childModel].target;
 		// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-		return await HandlerHelper.removeOne(AuthProfile, request.params.profileId, childModel, request.params.childId, request.params.childModel);
+		return await HandlerHelper.removeOne(AuthAvatar, request.params.avatarId, childModel, request.params.childId, request.params.childModel);
 	},
 
 	addMany: async (request, h) => {
-		// Admin can add one or more child model to an AuthProfile
+		// Admin can add one or more child model to an AuthAvatar
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		let childModel = AuthProfile.associations[request.params.childModel].target;
+		let childModel = AuthAvatar.associations[request.params.childModel].target;
 		// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-		return await HandlerHelper.addMany(AuthProfile, request.params.profileId, childModel, request.params.childModel, request.payload);
+		return await HandlerHelper.addMany(AuthAvatar, request.params.avatarId, childModel, request.params.childModel, request.payload);
 	},
 
 	removeMany: async (request, h) => {
-		// Admin can remove one or more child model from an AuthProfile
+		// Admin can remove one or more child model from an AuthAvatar
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		let childModel = AuthProfile.associations[request.params.childModel].target;
+		let childModel = AuthAvatar.associations[request.params.childModel].target;
 		// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-		return await HandlerHelper.removeMany(AuthProfile, request.params.profileId, childModel, request.params.childModel, request.payload);
+		return await HandlerHelper.removeMany(AuthAvatar, request.params.avatarId, childModel, request.params.childModel, request.payload);
 	},
 
 	getAll: async (request, h) => {
-		// Admin can get list of Child model related to AuthProfile
+		// Admin can get list of Child model related to AuthAvatar
 		// Call an async function with await inside in handler-helper
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-		let childModel = AuthProfile.associations[request.params.childModel].target;
+		let childModel = AuthAvatar.associations[request.params.childModel].target;
 		// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
-		return await HandlerHelper.getAll(AuthProfile, request.params.profileId, childModel, request.params.childModel, request.query);
+		return await HandlerHelper.getAll(AuthAvatar, request.params.avatarId, childModel, request.params.childModel, request.query);
 	},
 
 };

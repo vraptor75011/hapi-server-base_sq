@@ -12,8 +12,10 @@ const Handler =
 			// call LIST Handler for CRUD function valid for all present models
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let result = await HandlerHelper.list(AuthRealm, request.query);
+			if (!result.isBoom) {
+				result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthRealm);
+			}
 			return result;
-
 		},
 
 		findOne: async (request, h) => {
@@ -21,6 +23,9 @@ const Handler =
 			// call FIND ONE Handler for CRUD function valid for all present models
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let result = await HandlerHelper.find(AuthRealm, request.params.realmId, request.query);
+			if (!result.isBoom) {
+				result.nestedPages = await HandlerHelper.result4Relations(result, request.query, AuthRealm);
+			}
 			return result;
 
 		},

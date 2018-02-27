@@ -69,6 +69,7 @@ module.exports = function(sequelize, Sequelize) {
 	// Model Relations
 	AuthProfile.associate = function (models) {
 		AuthProfile.belongsTo(models.AuthUser, { foreignKey: 'userId', sourceKey: 'id' });
+		AuthProfile.hasOne(models.AuthAvatar, { foreignKey: 'profileId', sourceKey: 'id' });
 	};
 
 	return AuthProfile;

@@ -28,12 +28,8 @@ module.exports = {
 				type: Sequelize.BOOLEAN,
 				defaultValue: false,
 			},
-			avatarId: {
-				type: Sequelize.INTEGER,
-				allowNull: true,
-			},
 			userId: {
-				type: Sequelize.INTEGER,
+				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
 				unique: true,
 			},
@@ -47,7 +43,6 @@ module.exports = {
 				type: Sequelize.DATE
 			},
 		});
-		await queryInterface.addIndex('authProfiles', ['avatarId']);
 		await queryInterface.addIndex('authProfiles', ['userId']);
 	},
 	down: async (queryInterface, Sequelize) => {

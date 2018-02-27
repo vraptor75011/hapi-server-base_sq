@@ -24,6 +24,7 @@ let count = Validations.sort;
 let fields = Validations.fields;
 let fields4Select = Validations.fields4Select;
 let withRelated = Validations.withRelated;
+let withPagination = Validations.withPagination;
 let withRelExcludedFields = Validations.withRelExcludedFields;
 let withRelFields = Validations.withRelFields;
 let withRelTFields = Validations.withRelThroughFields;
@@ -32,8 +33,8 @@ let withRelTFilters = Validations.withRelThroughFilters;
 let withRelCount = Validations.withRelCount;
 let withRelSort = Validations.withRelSort;
 let val4QueryAll = Object.assign({}, lang, filters, pagination, fulTextSearch, sort, math, softDeleted, excludedFields,
-	count, fields, withRelated, withRelExcludedFields, withRelFields, withRelTFields, withRelFilters, withRelTFilters,
-	withRelCount, withRelSort);
+	count, fields, withRelated, withPagination, withRelExcludedFields, withRelFields, withRelTFields, withRelFilters,
+	withRelTFilters, withRelCount, withRelSort);
 let val4Select = Object.assign({}, lang, filters, pagination, sort, fields4Select, withRelated, withRelFilters);
 
 let FLRelations = Validations.FLRelations;
@@ -75,7 +76,7 @@ module.exports = {
 	//FindAll
 	queryAll: Joi.object().keys(val4QueryAll),
 	//FindOne
-	oneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId})),
+	oneParams: Joi.object().keys(_.assign({}, {attemptId: BaseValidation.paramId})),
 	queryOne: Joi.object().keys(_.assign({}, lang, fields, softDeleted, excludedFields, withRelated, withRelExcludedFields)),
 
 
@@ -97,28 +98,28 @@ module.exports = {
 
 	//Relations URL
 	//ADD_ONE
-	addOneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
+	addOneParams: Joi.object().keys(_.assign({}, {attemptId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
 
 	//REMOVE_ONE
-	removeOneParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
+	removeOneParams: Joi.object().keys(_.assign({}, {attemptId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
 	removeOnePayload: Joi.alternatives().try(
 		Joi.object().keys(_.assign({}, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//ADD_MANY
-	addManyParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
+	addManyParams: Joi.object().keys(_.assign({}, {attemptId: BaseValidation.paramId}, {childModel: relationList})),
 	addManyPayload: Joi.object().keys(_.assign({}, postRelation, BaseValidation.ids)),
 
 	//REMOVE_MANY
-	removeManyParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
+	removeManyParams: Joi.object().keys(_.assign({}, {attemptId: BaseValidation.paramId}, {childModel: relationList})),
 	removeManyPayload: Joi.alternatives().try(
 		Joi.object().keys(_.assign({}, BaseValidation.ids, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//GET_ALL
-	getAllParams: Joi.object().keys(_.assign({}, {userId: BaseValidation.paramId}, {childModel: relationList})),
+	getAllParams: Joi.object().keys(_.assign({}, {attemptId: BaseValidation.paramId}, {childModel: relationList})),
 	queryGetAll: Joi.object().keys(_.assign({}, lang, relFilters, relPagination, relSort, relMath, relSoftDeleted,
 		relExcludedFields, relCount, relFields, relRelated, relExtra)),
 

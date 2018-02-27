@@ -14,7 +14,7 @@ module.exports = [
 				{
 					scope: ['GameApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'GET Auth Attempts List',
 			notes: ['Returns Auth Attempts list filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
 			'AuthAttempt First Level Relations: ' + AuthAttempt.FLRelations + '<br>' +
@@ -41,7 +41,7 @@ module.exports = [
 				{
 					scope: ['GameApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'GET One Auth Attempt',
 			notes: ['Returns a Auth Attempt identified by the params {authAttemptId} <br>' +
 			'Attributes: ' + AuthAttempt.Attributes + '<br>'],
@@ -66,7 +66,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'POST a New Auth Attempt',
 			notes: ['Save a new Auth Attempt with params in payload with one or more Child object.<br>' +
 			'Auth Attempt hasMany Child Model: Auth Attempt object can contain one or more Child object <br>' +
@@ -91,7 +91,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'PUT an Updated Auth Attempt',
 			notes: ['Save an updated Auth Attempt with params in payload <br>'],
 			validate: {
@@ -115,7 +115,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'DELETE an Auth Attempt',
 			notes: ['Delete un AuthAttempt <br>'],
 			validate: {
@@ -140,7 +140,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'DELETE many Auth Attempts by Ids Array',
 			notes: ['Delete many Auth Attempts <br>'],
 			validate: {
@@ -164,7 +164,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'ADD one related Model to Auth Attempt',
 			notes: ['Add one related model (to save) to a persisted Auth Attempt <br>' +
 			'Add a persisted child Model to Auth Attempt.'],
@@ -188,7 +188,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'Remove one related Model from Auth Attempt',
 			notes: ['Remove one related model (delete) from a persisted Auth Attempt <br>' +
 			'Auth Attempt hasMany Child Model: Auth Attempt object can contain one or more Child object <br>' +
@@ -214,7 +214,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'ADD one or more related Model to Auth Attempt',
 			notes: ['Add one or more related model (to save) to an existed AuthAttempt <br>' +
 			'Auth Attempt hasMany Child Model: Auth Attempt object can contain one or more Child object <br>' +
@@ -240,7 +240,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'Remove one or many related Model from Auth Attempt',
 			notes: ['Remove one or many related model (delete) from a persisted AuthAttempt <br>' +
 			'Auth Attempt hasMany Child Model: Auth Attempt object can contain one or more Child object <br>' +
@@ -266,7 +266,7 @@ module.exports = [
 				{
 					scope: ['WebApp-SuperAdmin', 'WebApp-Admin'],
 				},
-			tags: ['api', 'Auth Attempts', 'GetAll'],
+			tags: ['api', 'Auth', 'Attempts', 'GetAll'],
 			description: 'Get All AuthAttempt related child model with query filters',
 			notes: ['Get All records of Auth Attempt related Child Model <br>'],
 			validate: {
@@ -290,7 +290,7 @@ module.exports = [
 				{
 					scope: ['GameApp-SuperAdmin', 'WebApp-Admin', 'GameApp-AuthUser', 'WebApp-AuthUser'],
 				},
-			tags: ['api', 'Auth Attempts'],
+			tags: ['api', 'Auth', 'Attempts'],
 			description: 'GET Auth Attempts List for Input Select',
 			notes: ['Returns Attempts list for input select filtered by query (url), paginated and sorted. Default pageSize: 10 <br>' +
 			'Auth Attempt First Level Relations, only for query: ' + AuthAttempt.FLRelations + '<br>' +

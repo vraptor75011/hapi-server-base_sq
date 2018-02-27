@@ -35,7 +35,9 @@ let getRelObject = (model, recursive, PK, exceptionModel, foreignKey) => {
 	Object.keys(model.associations).map((rel) => {
 		let relation = model.associations[rel];
 		let targetModel = relation.target;
-		foreignKey = foreignKey || relation.foreignKey;
+		if (recursive) {
+			foreignKey = relation.foreignKey;
+		}
 		let schema = {};
 
 		if (exceptionModel !== targetModel.name) {
@@ -53,6 +55,13 @@ let getRelObject = (model, recursive, PK, exceptionModel, foreignKey) => {
 					if (Joi.reach(schema1L, attr) !== undefined) {
 						cleanSchema1L[attr] = Joi.reach(schema1L, attr)
 					}
+				}
+			});
+
+			let specialKeys = ['image', 'images', 'attachment', 'attachments'];
+			specialKeys.forEach((key) => {
+				if (Joi.reach(schema1L, key) !== undefined) {
+					cleanSchema1L[key] = Joi.reach(schema1L, key)
 				}
 			});
 

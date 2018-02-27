@@ -4,7 +4,8 @@ const DB = require('../../../../config/sequelize');
 const ModelValidation = require('../../../../utilities/validation/model_validations');
 const ModelRelationValidation = require('../../../../utilities/validation/model_relation_validations');
 const BaseValidation = require('../../../../utilities/validation/base_validation');
-const SessionValidationBase = require('./session_validation_base');
+const AvatarValidationBase = require('./avatar_validation_base');
+
 
 // Base Validation
 let paramId = BaseValidation.paramId;
@@ -13,7 +14,7 @@ let baseIds = BaseValidation.ids;
 let lang = BaseValidation.lang;
 
 // Model Validation
-const Validations = ModelValidation(DB.AuthSession);
+const Validations = ModelValidation(DB.AuthAvatar);
 
 let filters = Validations.filters;
 let ids = Validations.ids;
@@ -45,9 +46,11 @@ let FLRelations = Validations.FLRelations;
 let SLRelations = Validations.SLRelations;
 let ALLRelations = Validations.ALLRelations;
 let Attributes = Validations.Attributes;
+let Attributes4Select = Validations.Attributes4Select;
 
-// Model Relations Validation
-const RelationValidation = ModelRelationValidation(DB.AuthSession, true, DB.AuthSession.name, null);
+
+// Relation Validation
+const RelationValidation = ModelRelationValidation(DB.AuthAvatar, true, DB.AuthAvatar.name, null);
 
 let postRelation = RelationValidation.postRelObject;
 let putRelation = RelationValidation.putRelObject;
@@ -66,6 +69,14 @@ let relFields = RelationValidation.fields;
 let relRelated = RelationValidation.related;
 let relExtra = RelationValidation.extra;
 
+let unordered = _.assign({}, relFilters, relPagination, relSort, relMath, relSoftDeleted,
+	relExcludedFields, relCount, relFields, relRelated, relExtra);
+let ordered = {};
+
+Object.keys(unordered).sort().forEach((key) => {
+	ordered[key] = unordered[key];
+});
+
 
 module.exports = {
 	//Model Information
@@ -73,22 +84,23 @@ module.exports = {
 	SLRelations: SLRelations,
 	AllRelations: ALLRelations,
 	Attributes: Attributes,
+	Attributes4Select: Attributes4Select,
 
 	//URL Query
 	queryLang: Joi.object().keys(_.assign({}, lang)),
 	//FindAll
 	queryAll: Joi.object().keys(val4QueryAll),
 	//FindOne
-	oneParams: Joi.object().keys(_.assign({}, {sessionId: paramId})),
+	oneParams: Joi.object().keys(_.assign({}, {avatarId: paramId})),
 	queryOne: Joi.object().keys(_.assign({}, lang, fields, softDeleted, excludedFields, withRelated, withRelExcludedFields)),
 
 
 	//Payload
 	//POST
-	postPayload:  Joi.object().keys(_.assign({}, SessionValidationBase.postPayloadObj, postRelation)),
+	postPayload:  Joi.object().keys(_.assign({}, AvatarValidationBase.postPayloadObj, postRelation)),
 
 	//PUT
-	putPayload:  Joi.object().keys(_.assign({}, payloadId, SessionValidationBase.putPayloadObj, putRelation)),
+	putPayload:  Joi.object().keys(_.assign({}, BaseValidation.payloadId, AvatarValidationBase.putPayloadObj, putRelation)),
 
 	//DELETE
 	deleteOnePayload: Joi.alternatives().try(
@@ -101,32 +113,34 @@ module.exports = {
 
 	//Relations URL
 	//ADD_ONE
-	addOneParams: Joi.object().keys(_.assign({}, {sessionId: paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
+	addOneParams: Joi.object().keys(_.assign({}, {avatarId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
 
 	//REMOVE_ONE
-	removeOneParams: Joi.object().keys(_.assign({}, {sessionId: paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
+	removeOneParams: Joi.object().keys(_.assign({}, {avatarId: BaseValidation.paramId}, {childModel: relationList}, {childId: BaseValidation.paramId})),
 	removeOnePayload: Joi.alternatives().try(
 		Joi.object().keys(_.assign({}, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//ADD_MANY
-	addManyParams: Joi.object().keys(_.assign({}, {sessionId: paramId}, {childModel: relationList})),
-	addManyPayload: Joi.object().keys(_.assign({}, postRelation, baseIds)),
+	addManyParams: Joi.object().keys(_.assign({}, {avatarId: BaseValidation.paramId}, {childModel: relationList})),
+	addManyPayload: Joi.object().keys(_.assign({}, postRelation, BaseValidation.ids)),
 
 	//REMOVE_MANY
-	removeManyParams: Joi.object().keys(_.assign({}, {sessionId: paramId}, {childModel: relationList})),
+	removeManyParams: Joi.object().keys(_.assign({}, {avatarId: BaseValidation.paramId}, {childModel: relationList})),
 	removeManyPayload: Joi.alternatives().try(
 		Joi.object().keys(_.assign({}, BaseValidation.ids, hardDelete)),
 		Joi.object().allow(null),
 	),
 
 	//GET_ALL
-	getAllParams: Joi.object().keys(_.assign({}, {sessionId: paramId}, {childModel: relationList})),
-	queryGetAll: Joi.object().keys(_.assign({}, lang, relFilters, relPagination, relSort, relMath, relSoftDeleted,
-		relExcludedFields, relCount, relFields, relRelated, relExtra)),
+	getAllParams: Joi.object().keys(_.assign({}, {avatarId: BaseValidation.paramId}, {childModel: relationList})),
+	queryGetAll: Joi.object().keys(_.assign({}, lang, ordered)),
 
-    //GET for Select
-    query4Select: Joi.object().keys(val4Select),
+	//GET for Select
+	query4Select: Joi.object().keys(val4Select),
+
+	//Check Email
+	checkMailParams: Joi.string().email().required(),
 
 };
