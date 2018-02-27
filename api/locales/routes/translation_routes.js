@@ -3,6 +3,7 @@ const { query } = require('../../url_validation/translation_validation');
 const { translation, availableLang } = require('../handlers/translation_handlers');
 const { failAction } = require('../../../../../utilities/error/error-helper');
 
+
 module.exports = [
 
 	{
