@@ -155,14 +155,14 @@ const Query = {
 					example: '{like}it',
 				},
 			},
-			description: 'the profile default language: it_IT vs [{or}{=}en_US,{or}{=}it_IT,{or}{like}en]',
+			description: 'the profile default language: it vs [{or}{=}en,{or}{=}it,{or}{like}en]',
 			example: ['{like}Rossini', '{like}Verdini'],
 		},
 		string: {
 			regex: '',
 			min: 3,
 			max: 64,
-			example: ['{<>}it_IT']
+			example: ['{<>}it']
 		},
 	},
 

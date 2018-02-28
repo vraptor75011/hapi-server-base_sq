@@ -12,7 +12,7 @@ let polyglot = new Polyglot();
 module.exports = {
 
 	constructor () {
-		this.currentLocale = 'en_US';
+		this.currentLocale = 'en';
 	},
 
 	bestMatch (requested) {
@@ -22,7 +22,7 @@ module.exports = {
 		for (let one of requested) {
 			if (Locales.indexOf(one) > -1) return one
 		}
-		return 'en_US'
+		return 'en'
 	},
 
 	parseHeader (request) {
@@ -83,7 +83,7 @@ module.exports = {
 			let extend = {};
 			files.forEach((file) => {
 				let f = require('../../' + file.dir + '/' + file.file);
-				if (file.dir === 'locales/it_IT/model') {
+				if (file.dir === 'locales/it/model') {
 					Object.keys(f).map((key) => {
 						_.extend(extend, f[key]);
 					});

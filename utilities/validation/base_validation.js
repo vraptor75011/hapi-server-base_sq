@@ -1,8 +1,8 @@
 const Joi = require('joi');
 const Config = require('./../../config/config');
 
-const TModel = require('../../locales/it_IT/model/model');
-const TWeb = require('../../locales/it_IT/web_app/scaffold');
+const TModel = require('../../locales/it/model/model');
+const TWeb = require('../../locales/it/web_app/scaffold');
 
 const Locales = Config.get('/locales');
 
@@ -17,6 +17,8 @@ let translationValues = () => {
 
 	return transArray.sort();
 };
+
+let files = ['app.json', 'common.js'];
 
 module.exports = {
 	paramId: Joi.number().integer().min(1).required(),
@@ -41,6 +43,10 @@ module.exports = {
 
 	stuff: {
 		stuff: Joi.string().allow(translationValues())
+	},
+
+	file: {
+		file: Joi.string().allow(files)
 	},
 
 };

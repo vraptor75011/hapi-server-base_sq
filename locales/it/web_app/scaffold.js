@@ -4,7 +4,7 @@ module.exports = {
 
 	},
 	header: {
-		title: "titolo Web"
+		title: "titolo web"
 	},
 	navigation:{
 		dashboard: "cruscotto",
