@@ -18,7 +18,7 @@ let translationValues = () => {
 	return transArray.sort();
 };
 
-let files = ['app.json', 'common.js'];
+let files = ['app.json', 'common.json'];
 
 module.exports = {
 	paramId: Joi.number().integer().min(1).required(),

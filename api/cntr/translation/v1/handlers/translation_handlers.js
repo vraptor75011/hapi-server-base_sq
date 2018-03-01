@@ -55,7 +55,7 @@ module.exports = {
 	},
 
 	translationAll: async (request, h) => {
-		let files = ['app.json', 'common.js'];
+		let files = ['app.json', 'common.json'];
 
 		apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 		apiLogger.info('RequestData: ' + JSON.stringify(request.query));
