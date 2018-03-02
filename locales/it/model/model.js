@@ -34,8 +34,12 @@ module.exports = {
 
 	// Realm
 	realm: {
-		name: "nome",
-		description: "descrizione",
+		name: "Nome",
+		description: "Descrizione",
+        new: 'Nuovo Reame',
+        edit: 'Modifica Reame',
+        delete: 'Cancella Reame',
+        deleteWarning: "Sei sucuro di voler cancellare questo reame?",
 	},
 
 	// Role

@@ -59,7 +59,7 @@ class RolesTable extends React.PureComponent {
       },
       columns: [
         {
-          Header: props.t('app:role.name'),
+          Header: props.t('app:realm.name'),
           accessor: 'name',
           minWidth: 200,
           Filter: ({ filter, onChange }) => (
@@ -79,7 +79,7 @@ class RolesTable extends React.PureComponent {
           ),
         },
         {
-          Header: props.t('app:role.description'),
+          Header: props.t('app:realm.description'),
           accessor: 'description',
           minWidth: 200,
           Filter: ({ filter, onChange }) => (
