@@ -45,24 +45,27 @@ class Home extends Component {
     super(props);
   }
 
-  handlerClick = (type) => {
-      switch(type) {
-          case 'users':
-              this.props.dispatch(push('/users'));
-              break;
-          case 'roles':
-              this.props.dispatch(push('/roles'));
-              break;
-      }
+  handlerClick = type => {
+    switch (type) {
+      case 'users':
+        this.props.dispatch(push('/users'));
+        break;
+      case 'roles':
+        this.props.dispatch(push('/roles'));
+        break;
+      case 'realms':
+        this.props.dispatch(push('/realms'));
+        break;
+    }
   };
 
   render() {
     const { classes } = this.props;
     return (
-      <div style={{display: 'flex'}}>
+      <div style={{ display: 'flex' }}>
         <div
           className={classes.singleIconContainer}
-          onClick={()=>this.handlerClick('users')}
+          onClick={() => this.handlerClick('users')}
         >
           <PersonIcon className={classes.icon} />
 
@@ -83,7 +86,7 @@ class Home extends Component {
         </div>
         <div
           className={classes.singleIconContainer}
-          onClick={()=>this.handlerClick('roles')}
+          onClick={() => this.handlerClick('roles')}
         >
           <GroupIcon className={classes.icon} />
 
@@ -100,6 +103,27 @@ class Home extends Component {
             type="subheading"
           >
             Add, rename and manage roles
+          </Typography>
+        </div>
+        <div
+          className={classes.singleIconContainer}
+          onClick={() => this.handlerClick('realms')}
+        >
+          <GroupIcon className={classes.icon} />
+
+          <Typography
+            style={{ fontSize: '1rem' }}
+            className={classes.typography}
+            type="title"
+          >
+            Realms
+          </Typography>
+          <Typography
+            style={{ fontSize: '0.8rem', opacity: '.87' }}
+            className={classes.typography}
+            type="subheading"
+          >
+            Add, rename and manage realms
           </Typography>
         </div>
       </div>

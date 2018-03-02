@@ -39,7 +39,7 @@ export function signInUser(fields) {
                 localStorage.setItem(refreshTokenName, response.data.meta.refreshToken);
                 localStorage.setItem(profileName, JSON.stringify(response.data.doc.user));
 
-                console.log('REDIRECT')
+
                 //redirect to retstricted area by dispatch push
                 dispatch(push("/dashboard"));
 
