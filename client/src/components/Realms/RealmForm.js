@@ -68,12 +68,12 @@ class RoleForm extends Component {
             open={modal}
             onClose={cancel}
         >
-            <DialogTitle>{row.type === 'delete'? t('app:role.deleteRole') : row.type === 'edit' ? t('app:role.editRole'): t('app:role.newRole') }</DialogTitle>
+            <DialogTitle>{row.type === 'delete'? t('app:realm.delete') : row.type === 'edit' ? t('app:realm.edit'): t('app:realm.new') }</DialogTitle>
             <DialogContent>
                 {row.type !== 'delete' && <form noValidate autoComplete="off">
                     <TextField
                         id="name"
-                        label={t('app:role.name')}
+                        label={t('app:realm.name')}
                         value={currentData.name}
                         onChange={(event) => this.handleChangeForm(event, 'name')}
                         margin="normal"
@@ -83,7 +83,7 @@ class RoleForm extends Component {
                     />
                     <TextField
                         id="description"
-                        label={t('app:role.description')}
+                        label={t('app:realm.description')}
                         value={currentData.description}
                         onChange={(event) => this.handleChangeForm(event, 'description')}
                         margin="normal"
@@ -94,7 +94,7 @@ class RoleForm extends Component {
                     />
 
                 </form>}
-                {row.type === 'delete' && <div>{ t('app:role.deleteRoleWarning')}</div>}
+                {row.type === 'delete' && <div>{ t('app:realm.deleteWarning')}</div>}
             </DialogContent>
             <DialogActions>
                 <Button onClick={cancel} color="primary">{t('crud.cancel')}</Button>
