@@ -1,7 +1,9 @@
 module.exports = {
+	"Bad Request": "Richiesta non valida",
 	"Unauthorized": "Non autorizzato",
 	"Internal Server Error": "Errore interno",
 	"Forbidden": "Proibito",
+	"Invalid request payload JSON format": "Formato JSON della richiesta non valido",
 
 	"Invalid token": "Token non valido",
 	"Expired token": "Token scaduto",

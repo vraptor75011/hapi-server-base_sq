@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const Polyglot = require('./../../plugins/hapi-polyglot/polyglot');
 
 let polyglot = Polyglot.getPolyglot();
@@ -8,17 +9,29 @@ module.exports = (request) => {
 
 	if (statusCode === 400) {
 		let details = response.output.payload.details;
-		details.forEach((detail) => {
-			if (detail.context.limit) {
-				detail.message = polyglot.t(detail.type, {limit: detail.context.limit});
-			} else if (detail.context.value && detail.context.pattern) {
-				detail.message = polyglot.t(detail.type, {value: detail.context.value, pattern: detail.context.pattern});
-			} else {
-				detail.message = polyglot.t(detail.type);
-			}
+		if (_.isArray(details)) {
+			details.forEach((detail) => {
+				if (detail.context.limit) {
+					detail.message = polyglot.t(detail.type, {limit: detail.context.limit});
+				} else if (detail.context.value && detail.context.pattern) {
+					detail.message = polyglot.t(detail.type, {value: detail.context.value, pattern: detail.context.pattern});
+				} else {
+					detail.message = polyglot.t(detail.type);
+				}
 
-			detail.context.label = polyglot.t(detail.context.label);
-		});
+				detail.context.label = polyglot.t(detail.context.label);
+			});
+		} else {
+			let payload = response.output.payload;
+			if (payload.limit) {
+				payload.message = polyglot.t(payload.type, {limit: payload.context.limit});
+			} else if (payload.context && payload.context.value && payload.context.pattern) {
+				payload.message = polyglot.t(payload.type, {value: payload.context.value, pattern: payload.context.pattern});
+			} else {
+				payload.message = polyglot.t(payload.message);
+				payload.error = polyglot.t(payload.error);
+			}
+		}
 
 	}
 
