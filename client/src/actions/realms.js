@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { GET_ROLES, MODAL_CLOSE, FORM_ERROR } from './types';
+import { GET_REALMS, MODAL_CLOSE, FORM_ERROR } from './types';
 import { tokenName } from '../config';
 import authHelper from '../helpers/auth_helper';
 
 import { push } from 'react-router-redux';
 
-export function getRoles(params) {
+export function getRealms(params) {
 
   return async (dispatch, getState) => {
 
@@ -13,8 +13,8 @@ export function getRoles(params) {
       if(token) {
           try {
               axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-              const response = await axios.get(`/api/v1/auth/roles`, {params: params} );
-              return dispatch({type: GET_ROLES, payload: response.data});
+              const response = await axios.get(`/api/v1/auth/realms`, {params: params} );
+              return dispatch({type: GET_REALMS, payload: response.data});
           } catch (error) {
               /*if (error.response && error.response.status === 401) {
                   dispatch(push('/login'));
@@ -27,12 +27,12 @@ export function getRoles(params) {
   };
 }
 
-export function deleteRole(id) {
+export function deleteRealm(id) {
   return async dispatch => {
     try {
         axios.defaults.headers.common['Authorization'] = localStorage.getItem( tokenName);
-        await axios.delete(`/api/v1/auth/roles/${id}`, { data: { "$hardDelete": true }});
-        dispatch(getRoles());
+        await axios.delete(`/api/v1/auth/realms/${id}`, { data: { "$hardDelete": true }});
+        dispatch(getRealms());
         return dispatch({type: MODAL_CLOSE });
 
     } catch (error) {
@@ -50,7 +50,7 @@ export function deleteRole(id) {
 }
 
 
-export function editRole(data) {
+export function editRealm(data) {
     return async (dispatch, getState) => {
 
         const token = await authHelper();
@@ -60,9 +60,9 @@ export function editRole(data) {
             try {
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
 
-                await axios.put(`/api/v1/auth/roles/${data.id}`, data);
+                await axios.put(`/api/v1/auth/realms/${data.id}`, data);
 
-                dispatch(getRoles());
+                dispatch(getRealms());
                 return dispatch({type: MODAL_CLOSE });
 
 
@@ -80,7 +80,7 @@ export function editRole(data) {
     };
 }
 
-export function newRole(data) {
+export function newRealm(data) {
     return async (dispatch, getState) => {
 
         const token = await authHelper();
@@ -88,9 +88,9 @@ export function newRole(data) {
             try {
                 const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-                await axios.post('/api/v1/auth/roles', data, config);
+                await axios.post('/api/v1/auth/realm', data, config);
 
-                    dispatch(getRoles());
+                    dispatch(getRealms());
                     dispatch({type: MODAL_CLOSE });
 
 

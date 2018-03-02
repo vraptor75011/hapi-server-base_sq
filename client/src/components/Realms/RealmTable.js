@@ -5,7 +5,7 @@ import IconButton from 'material-ui/IconButton';
 import { Button } from 'material-ui';
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
-import UserForm from './UserForm';
+import Form from './RealmForm';
 import ReactTable from 'react-table';
 import SearchIcon from 'material-ui-icons/Search';
 import ArrowRight from 'material-ui-icons/KeyboardArrowRight';
@@ -18,7 +18,7 @@ import moment from 'moment'
 
 
 
-class Users extends React.PureComponent {
+class RolesTable extends React.PureComponent {
   constructor(props) {
     super(props);
       const AddButton = ({ onExecute }) => (
@@ -48,7 +48,7 @@ class Users extends React.PureComponent {
           onExecute: PropTypes.func.isRequired,
       };
     this.state = {
-      users: [],
+      roles: [],
       pages: {
         current: 1,
         hasNext: false,
@@ -59,8 +59,8 @@ class Users extends React.PureComponent {
       },
       columns: [
         {
-          Header: props.t('app:user.firstName'),
-          accessor: 'firstName',
+          Header: props.t('app:role.name'),
+          accessor: 'name',
           minWidth: 200,
           Filter: ({ filter, onChange }) => (
             <div style={{ width: '100%' }}>
@@ -79,8 +79,8 @@ class Users extends React.PureComponent {
           ),
         },
         {
-          Header: props.t('app:user.lastName'),
-          accessor: 'lastName',
+          Header: props.t('app:role.description'),
+          accessor: 'description',
           minWidth: 200,
           Filter: ({ filter, onChange }) => (
             <div style={{ width: '100%' }}>
@@ -98,44 +98,7 @@ class Users extends React.PureComponent {
             </div>
           ),
         },
-        {
-          Header: 'Email',
-          accessor: 'email',
-          minWidth: 200,
-          Filter: ({ filter, onChange }) => (
-            <div style={{ width: '100%' }}>
-              <Input
-                id="email"
-                value={filter ? filter.value : ''}
-                style={{ width: '100%' }}
-                onChange={event => onChange(event.target.value)}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <SearchIcon />
-                  </InputAdornment>
-                }
-              />
-            </div>
-          ),
-        },
-        {
-          Header: props.t('app:user.isActive'),
-          id: 'isActive',
-          maxWidth: 120,
-          filterable: false,
-          accessor: user => {
-            return <div>{user.isActive ? 'Si' : 'No'}</div>;
-          }
-        },
-          {
-              Header: props.t('app:user.lastLoginAt'),
-              id:'currentLoginAt',
-              filterable: false,
-              accessor: user => {
-                  return (<div>{user.lastLoginAt &&  moment(user.lastLoginAt).format('DD-MM-YYYY')+'/' }{user.lastLoginIP}</div>);
-              }
 
-          },
         {
           Header: () => (
             <AddButton
@@ -188,7 +151,7 @@ class Users extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.props.getUsers();
+    this.props.getRealms();
   }
   fetchData = debounce(state => {
     const filtered = state.filtered;
@@ -204,7 +167,7 @@ class Users extends React.PureComponent {
       Object.assign(params, { ['$page']: page });
     }
 
-    this.props.getUsers(params);
+    this.props.getRoles(params);
   }, 300);
 
   handleClickButtons = (type, data) => {
@@ -247,20 +210,20 @@ class Users extends React.PureComponent {
   };
 
   render() {
-    const { classes, users, modal, t } = this.props;
+    const { classes, roles, modal, t } = this.props;
     const { columns } = this.state;
 
     return (
       <div>
         {modal && (
-          <UserForm {...this.state} {...this.props} cancel={this.cancel} />
+          <Form {...this.state} {...this.props} cancel={this.cancel} />
         )}
         <Paper className={classes.root}>
           <ReactTable
             columns={columns}
             manual // Forces table not to paginate or sort automatically, so we can handle it server-side
-            data={users.docs ? users.docs : []}
-            pages={users.pages ? users.pages.total : 1} // Display the total number of pages
+            data={roles.docs ? roles.docs : []}
+            pages={roles.pages ? roles.pages.total : 1} // Display the total number of pages
             loading={false} // Display the loading overlay when we need it
             onFetchData={this.fetchData} // Request new data when things change
             filterable={true}
@@ -269,7 +232,7 @@ class Users extends React.PureComponent {
             collapseOnSortingChange={true}
             collapseOnPageChange={true}
             collapseOnDataChange={true}
-            defaultPageSize={users.items ? users.items.total : 3}
+            defaultPageSize={roles.items ? roles.items.total : 3}
             showPageSizeOptions={false}
             previousText={t('table.previousText')}
             nextText={t('table.nextText')}
@@ -296,8 +259,6 @@ class Users extends React.PureComponent {
   }
 }
 
-Users.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
 
-export default (Users);
+
+export default (RolesTable);

@@ -4,7 +4,7 @@ import {Provider} from 'react-redux';
 import {applyMiddleware, combineReducers, createStore} from 'redux';
 import {createMuiTheme, MuiThemeProvider} from 'material-ui/styles';
 import purple from 'material-ui/colors/purple';
-import {DashBoard, Users, Roles} from './conteiners/ComposedPages';
+import {DashBoard, Users, Roles, Realms} from './conteiners/ComposedPages';
 import Page404 from './components/Page404';
 import RequiredAuth from './conteiners/auth/Required_auth';
 import reducers from './reducers';
@@ -61,6 +61,7 @@ ReactDOM.render(
                 <Route exact path="/dashboard" component={RequiredAuth(DashBoard)}/>
                 <Route exact path="/users" component={RequiredAuth(Users)}/>
                 <Route exact path="/roles" component={RequiredAuth(Roles)}/>
+                <Route exact path="/realms" component={RequiredAuth(Realms)}/>
                 <Route component={Page404} />
                 </Switch>
             </MuiThemeProvider>

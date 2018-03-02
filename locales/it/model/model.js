@@ -40,8 +40,12 @@ module.exports = {
 
 	// Role
 	role: {
-		name: "nome",
-		description: "descrizione",
+		name: "Nome",
+		description: "Descrizione",
+        newRole: 'Nuovo Ruolo',
+        editRole: 'Modifica Ruolo',
+        deleteRole: 'Cancella Ruolo',
+        deleteRoleWarning: "Sei sucuro di voler cancellare questo ruolo?",
 	},
 
 	// Session
@@ -54,26 +58,30 @@ module.exports = {
 
 	// User
 	user: {
-		activateAccountExpires: "scadenza attivazione account",
-		activateAccountToken: "token attivazione account",
-		currentLoginAt: "attuale login alle",
-		currentLoginIP: "attuale login ip",
-		email: "email",
-		firstName: "nome",
-		ip: "ip",
-		isActive: "attivo",
-		lastLoginAt: "ultimo login alle",
-		lastLoginIP: "ultimo login ip",
-		lastName: "cognome",
-		password: "password",
-		resetPasswordExpires: "scadenza reset password",
-		resetPasswordNewPWD: "nuova password reset password",
-		resetPasswordToken: "token reset password",
-		username: "nome utente",
+		activateAccountExpires: "Scadenza attivazione account",
+		activateAccountToken: "Token attivazione account",
+		currentLoginAt: "Accesso corrente",
+		currentLoginIP: "Attuale ip",
+		email: "Email",
+		firstName: "Nome",
+		ip: "Ip",
+		isActive: "Attivo",
+		lastLoginAt: "Ultimo accesso",
+		lastLoginIP: "Ultimo accesso ip",
+		lastName: "Cognome",
+		password: "Password",
+		resetPasswordExpires: "Scadenza reset password",
+		resetPasswordNewPWD: "Nuova password reset password",
+		resetPasswordToken: "Token reset password",
+		username: "Nome utente",
+		newUser: 'Nuovo Utente',
+        editUser: 'Modifica Utente',
+        deleteUser: 'Cancella Utente',
+		deleteUserWarning: "Sei sucuro di voler cancellare questo utente?",
 
 		// Virtual Attributes
-		fullName: "nome completo",
-		confirmPassword: "conferma password",
-		confirmEmail: "conferma email",
+		fullName: "Nome completo",
+		confirmPassword: "Conferma password",
+		confirmEmail: "Conferma email",
 	},
 };

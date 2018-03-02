@@ -10,7 +10,7 @@ import {Button} from 'material-ui';
 import DeleteIcon from 'material-ui-icons/Delete';
 import EditIcon from 'material-ui-icons/Edit';
 import {withStyles} from 'material-ui/styles';
-import UserForm from './UserForm';
+import UserForm from '../Users/UserForm';
 import {AgGridReact, AgGridColumn, SortableHeaderComponent} from 'ag-grid-react';
 
 import CellButtons from './CellButtons';

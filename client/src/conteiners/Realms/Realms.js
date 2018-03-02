@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import RolesTable from '../../components/Roles/RolesTable';
 import {withStyles} from 'material-ui/styles';
-import {getRoles, deleteRole, editRole, newRole} from '../../actions/roles';
+import {getRealms, deleteRealm, editRealm, newRealm} from '../../actions/realms';
 import {cancelForm} from '../../actions/form';
 import { openModal, closeModal } from '../../actions/modals';
 import { translate } from 'react-i18next';
@@ -21,7 +21,7 @@ const styles = theme => ({
 
 
 
-class Roles extends React.PureComponent {
+class Realms extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -59,7 +59,7 @@ class Roles extends React.PureComponent {
 }
 
 
-Roles.propTypes = {
+Realms.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
@@ -67,14 +67,14 @@ Roles.propTypes = {
 
 function mapDispatchToProps(dispatch){
 
-    return bindActionCreators({getRoles, deleteRole, openModal, closeModal, editRole, newRole, cancelForm  }, dispatch);
+    return bindActionCreators({getRealms, deleteRealm, openModal, closeModal, editRealm, newRealm, cancelForm  }, dispatch);
 
 }
 
 
 function mapStateToProps(state) {
 
-    return {roles: state.reducers.roles, role: state.reducers.role, modal: state.reducers.modal, form: state.reducers.form };
+    return {realms: state.reducers.realms, realm: state.reducers.realm, modal: state.reducers.modal, form: state.reducers.form };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(translate()(Roles)));

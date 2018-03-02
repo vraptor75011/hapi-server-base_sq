@@ -24,6 +24,12 @@ export const DELETE_ROLE = 'DELETE_ROLE';
 export const EDIT_ROLE = 'EDIT_ROLE';
 export const NEW_ROLE = 'NEW_ROLE';
 
+////// realm
+export const GET_REALMS = 'GET_REALMS';
+export const DELETE_REALM = 'DELETE_REALM';
+export const EDIT_REALM = 'EDIT_REALM';
+export const NEW_REALM= 'NEW_REALM';
+
 
 /// form
 

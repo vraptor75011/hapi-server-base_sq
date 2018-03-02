@@ -45,4 +45,14 @@ export const Roles = () => (
             <RolesComponent/>
         </div>
     </div>
-)
+);
+
+export const Realms = () => (
+    <div>
+        <App/>
+        <Broadcrumbs linkName={'Realms'}/>
+        <div style={styles.rootContainer}>
+            <RolesComponent/>
+        </div>
+    </div>
+);

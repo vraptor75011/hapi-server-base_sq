@@ -30,7 +30,6 @@ class Users extends React.PureComponent {
         }
 
 
-
     }
 
 
@@ -54,8 +53,6 @@ class Users extends React.PureComponent {
 
     render() {
 
-        console.log(this.props)
-        const { modal } = this.props;
 
         return (<div>
                 <UsersTable {...this.props}/>

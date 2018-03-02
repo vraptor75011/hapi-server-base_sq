@@ -35,7 +35,7 @@ class UserForm extends Component {
     };
 
     saveUser = () => {
-console.log('ciaoo')
+
         const {currentData} = this.state;
         const data = {
             id: currentData.id,
@@ -45,7 +45,7 @@ console.log('ciaoo')
             password: currentData.password
         };
 
-        console.log(data, this.props.row.type)
+
                 switch (this.props.row.type) {
 
                     case 'edit':
@@ -70,7 +70,7 @@ console.log('ciaoo')
 
     render() {
 
-        const {modal, cancel, row, form} = this.props;
+        const {modal, cancel, row, form, t} = this.props;
         const {currentData} = this.state;
 
 
@@ -78,12 +78,12 @@ console.log('ciaoo')
             open={modal}
             onClose={cancel}
         >
-            <DialogTitle>{row.type === 'delete'? 'Delete User' : row.type === 'edit' ? 'Edit User': 'New User' }</DialogTitle>
+            <DialogTitle>{row.type === 'delete'? t('app:user.deleteUser') : row.type === 'edit' ? t('app:user.editUser'): t('app:user.newUser') }</DialogTitle>
             <DialogContent>
                 {row.type !== 'delete' && <form noValidate autoComplete="off">
                     <TextField
                         id="firstName"
-                        label="First Name"
+                        label={t('app:user.firstName')}
                         value={currentData.firstName}
                         onChange={(event) => this.handleChangeForm(event, 'firstName')}
                         margin="normal"
@@ -93,7 +93,7 @@ console.log('ciaoo')
                     />
                     <TextField
                         id="lastName"
-                        label="Last Name"
+                        label={t('app:user.lastName')}
                         value={currentData.lastName}
                         onChange={(event) => this.handleChangeForm(event, 'lastName')}
                         margin="normal"
@@ -123,12 +123,12 @@ console.log('ciaoo')
                     />}
 
                 </form>}
-                {row.type === 'delete' && <div>Are you sure to delete this user?</div>}
+                {row.type === 'delete' && <div>{ t('app:user.deleteUserWarning')}</div>}
             </DialogContent>
             <DialogActions>
-                <Button onClick={cancel} color="primary">Cancel</Button>
-                {row.type !== 'delete' && <Button onClick={this.saveUser} color="primary">Save</Button>}
-                {row.type === 'delete' && <Button onClick={this.saveUser} color="primary">Delete</Button>}
+                <Button onClick={cancel} color="primary">{t('crud.cancel')}</Button>
+                {row.type !== 'delete' && <Button onClick={this.saveUser} color="primary">{t('crud.save')}</Button>}
+                {row.type === 'delete' && <Button onClick={this.saveUser} color="primary">{t('crud.delete')}</Button>}
             </DialogActions>
         </Dialog>)
     }

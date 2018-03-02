@@ -30,7 +30,7 @@ export function signInUser(fields) {
             .then(response => {
                 // If request is good...
                 // - Update state to indicate user is authenticated
-                console.log(response)
+
                 dispatch({
                     type: AUTH_USER
                 });
