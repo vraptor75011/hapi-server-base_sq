@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import RolesTable from '../../components/Roles/RolesTable';
+import RealmsTable from '../../components/Realms/RealmTable';
 import {withStyles} from 'material-ui/styles';
 import {getRealms, deleteRealm, editRealm, newRealm} from '../../actions/realms';
 import {cancelForm} from '../../actions/form';
@@ -52,7 +52,7 @@ class Realms extends React.PureComponent {
         const { modal } = this.props;
         return (<div>
 
-                <RolesTable{...this.props}/>
+                <RealmsTable{...this.props}/>
             </div>
         );
     }
@@ -77,4 +77,4 @@ function mapStateToProps(state) {
     return {realms: state.reducers.realms, realm: state.reducers.realm, modal: state.reducers.modal, form: state.reducers.form };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(translate()(Roles)));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(translate()(Realms)));

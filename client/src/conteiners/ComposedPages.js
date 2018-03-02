@@ -4,6 +4,7 @@ import App from './Layout/AppBar.js';
 import DashBoardComponent from '../components/DashBoard';
 import UsersComponent from './Users/Users';
 import RolesComponent from './Roles/Roles';
+import RealmsComponent from './Realms/Realms';
 import Broadcrumbs from '../components/Breadcrumbs'
 
 
@@ -52,7 +53,7 @@ export const Realms = () => (
         <App/>
         <Broadcrumbs linkName={'Realms'}/>
         <div style={styles.rootContainer}>
-            <RolesComponent/>
+            <RealmsComponent/>
         </div>
     </div>
 );

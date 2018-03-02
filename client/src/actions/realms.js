@@ -88,7 +88,7 @@ export function newRealm(data) {
             try {
                 const config = { responseType: 'json'};
                 axios.defaults.headers.common['Authorization'] = localStorage.getItem(tokenName);
-                await axios.post('/api/v1/auth/realm', data, config);
+                await axios.post('/api/v1/auth/realms', data, config);
 
                     dispatch(getRealms());
                     dispatch({type: MODAL_CLOSE });

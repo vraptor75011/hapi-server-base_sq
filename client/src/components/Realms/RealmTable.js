@@ -167,7 +167,7 @@ class RolesTable extends React.PureComponent {
       Object.assign(params, { ['$page']: page });
     }
 
-    this.props.getRoles(params);
+    this.props.getRealms(params);
   }, 300);
 
   handleClickButtons = (type, data) => {
@@ -210,7 +210,7 @@ class RolesTable extends React.PureComponent {
   };
 
   render() {
-    const { classes, roles, modal, t } = this.props;
+    const { classes, realms, modal, t } = this.props;
     const { columns } = this.state;
 
     return (
@@ -222,8 +222,8 @@ class RolesTable extends React.PureComponent {
           <ReactTable
             columns={columns}
             manual // Forces table not to paginate or sort automatically, so we can handle it server-side
-            data={roles.docs ? roles.docs : []}
-            pages={roles.pages ? roles.pages.total : 1} // Display the total number of pages
+            data={realms.docs ? realms.docs : []}
+            pages={realms.pages ? realms.pages.total : 1} // Display the total number of pages
             loading={false} // Display the loading overlay when we need it
             onFetchData={this.fetchData} // Request new data when things change
             filterable={true}
@@ -232,7 +232,7 @@ class RolesTable extends React.PureComponent {
             collapseOnSortingChange={true}
             collapseOnPageChange={true}
             collapseOnDataChange={true}
-            defaultPageSize={roles.items ? roles.items.total : 3}
+            defaultPageSize={realms.items ? realms.items.total : 3}
             showPageSizeOptions={false}
             previousText={t('table.previousText')}
             nextText={t('table.nextText')}

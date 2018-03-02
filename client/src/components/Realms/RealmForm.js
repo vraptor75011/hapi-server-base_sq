@@ -41,14 +41,14 @@ class RoleForm extends Component {
                 switch (this.props.row.type) {
 
                     case 'edit':
-                        this.props.editRole(data);
+                        this.props.editRealm(data);
                         break;
                     case 'new':
                         delete data.id;
-                        this.props.newRole(data);
+                        this.props.newRealm(data);
                         break;
                     case 'delete':
-                        this.props.deleteRole(data.id);
+                        this.props.deleteRealm(data.id);
                         break;
 
 
