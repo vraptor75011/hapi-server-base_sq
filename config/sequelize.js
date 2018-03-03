@@ -10,15 +10,18 @@ const { seqLogger, chalk } = require('../utilities/logging/logging');
 //
 Dotenv.config({ silent: true });
 //
-let getFiles = function(dir, level = 0, prefix = '', fileList = []) {
+let getFiles = function(dir, level, prefix = '', fileList = []) {
 //
 	let	files = FS.readdirSync(dir);
 	files.forEach(function(file) {
+		if (level === 0) {
+			prefix = _.upperFirst(file);
+		}
 		if (FS.statSync(dir + '/' + file).isDirectory()) {
 			if (level === 0) {
 				prefix = _.upperFirst(file);
 			}
-			getFiles(dir + '/' + file, ++level, prefix, fileList);
+			getFiles(dir + '/' + file, level+1, prefix, fileList);
 		}
 		else if (_.includes(file, '_model.js')) {
 			let tmp = {};
@@ -77,7 +80,7 @@ const DB = {
 };
 
 //
-let modelFiles = getFiles('api');
+let modelFiles = getFiles('api', 0);
 //
 modelFiles.forEach(function(model){
 	DB[model.name] = DB.sequelize.import(model.path);

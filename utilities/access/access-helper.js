@@ -30,7 +30,7 @@ module.exports = {
 	 * @param userId: The current userID that try to update the model.
 	 * @param query: the query URL to modify depending by current User Role and current userId.
 	 */
-	getNoHerachy: (model, userId, query) => {
+	getPublic: (model, userId, query) => {
 		const Validation = ModelValidation(model);
 		let attributes = Validation.Attributes;
 
