@@ -23,7 +23,7 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 			// call FIND ONE Handler for CRUD function valid for all present models
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
-			let result = await HandlerHelper.find(CntrGeoRepartition, request.params.roleId, request.query);
+			let result = await HandlerHelper.find(CntrGeoRepartition, request.params.geoRepartitionId, request.query);
 			if (!result.isBoom) {
 				result.nestedPages = await HandlerHelper.result4Relations(result, request.query, CntrGeoRepartition);
 			}
@@ -46,7 +46,7 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			// call CREATE Handler for CRUD function valid for all present models
-			let result = await HandlerHelper.update(CntrGeoRepartition, request.params.roleId, request.payload);
+			let result = await HandlerHelper.update(CntrGeoRepartition, request.params.geoRepartitionId, request.payload);
 			return result;
 		},
 
@@ -55,7 +55,7 @@ const Handler =
 			// Call an async function with await inside in handler-helper
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			// call DELETE Handler for CRUD function valid for all present models
-			let result = await HandlerHelper.deleteOne(CntrGeoRepartition, request.params.roleId, request.payload);
+			let result = await HandlerHelper.deleteOne(CntrGeoRepartition, request.params.geoRepartitionId, request.payload);
 			return result;
 		},
 
@@ -74,7 +74,7 @@ const Handler =
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let childModel = CntrGeoRepartition.associations[request.params.childModel].target;
 			// call ADD_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-			let result = await HandlerHelper.addOne(CntrGeoRepartition, request.params.roleId, childModel, request.params.childId, request.params.childModel);
+			let result = await HandlerHelper.addOne(CntrGeoRepartition, request.params.geoRepartitionId, childModel, request.params.childId, request.params.childModel);
 			return result;
 		},
 
@@ -84,7 +84,7 @@ const Handler =
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let childModel = CntrGeoRepartition.associations[request.params.childModel].target;
 			// call REMOVE_ONE Handler for EXTRA CRUD function valid for all present models and a new child model
-			let result = await HandlerHelper.removeOne(CntrGeoRepartition, request.params.roleId, childModel, request.params.childId, request.params.childModel);
+			let result = await HandlerHelper.removeOne(CntrGeoRepartition, request.params.geoRepartitionId, childModel, request.params.childId, request.params.childModel);
 			return result;
 		},
 
@@ -94,7 +94,7 @@ const Handler =
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let childModel = CntrGeoRepartition.associations[request.params.childModel].target;
 			// call ADD_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-			let result = await HandlerHelper.addMany(CntrGeoRepartition, request.params.roleId, childModel, request.params.childModel, request.payload);
+			let result = await HandlerHelper.addMany(CntrGeoRepartition, request.params.geoRepartitionId, childModel, request.params.childModel, request.payload);
 			return result;
 		},
 
@@ -104,7 +104,7 @@ const Handler =
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let childModel = CntrGeoRepartition.associations[request.params.childModel].target;
 			// call REMOVE_MANY Handler for EXTRA CRUD function valid for all present models and a new child model
-			let result = await HandlerHelper.removeMany(CntrGeoRepartition, request.params.roleId, childModel, request.params.childModel, request.payload);
+			let result = await HandlerHelper.removeMany(CntrGeoRepartition, request.params.geoRepartitionId, childModel, request.params.childModel, request.payload);
 			return result;
 		},
 
@@ -114,7 +114,7 @@ const Handler =
 			apiLogger.info('Method: ' + request.method.toUpperCase() + ' Request: ' + request.path);
 			let childModel = CntrGeoRepartition.associations[request.params.childModel].target;
 			// call GET_ALL Handler for EXTRA CRUD function valid for all present models and a new child model
-			let result = await HandlerHelper.getAll(CntrGeoRepartition, request.params.roleId, childModel, request.params.childModel, request.query);
+			let result = await HandlerHelper.getAll(CntrGeoRepartition, request.params.geoRepartitionId, childModel, request.params.childModel, request.query);
 			return result;
 		},
 	};
