@@ -34,6 +34,7 @@ module.exports = {
 			profileId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: true,
+				unique: true,
 			},
 			createdAt: {
 				type: Sequelize.DATE

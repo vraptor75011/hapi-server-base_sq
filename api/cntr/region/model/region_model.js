@@ -1,6 +1,6 @@
 module.exports = function(sequelize, Sequelize) {
 
-	let CntrGeoRepartition = sequelize.define('cntrGeoRipartition', {
+	let CntrRegion = sequelize.define('cntrRegion', {
 
 			// ATTRIBUTES
 			id: {
@@ -23,18 +23,18 @@ module.exports = function(sequelize, Sequelize) {
 			},
 		},
 		{
-			tableName: 'cntrGeoRepartitions',
+			tableName: 'cntrRegions',
 			paranoid: true,
 			timestamps: true,
 		},
 	);
 
 	// Class Method
-	CntrGeoRepartition.associate = function (models) {
-		CntrGeoRepartition.hasMany(models.CntrRegion, { foreignKey: 'geoRepartitionId', sourceKey: 'id' });
+	CntrRegion.associate = function (models) {
+		CntrRegion.belongsTo(models.CntrGeoRepartition, { foreignKey: 'geoRepartitionId', sourceKey: 'id' });
 	};
 
-	return CntrGeoRepartition;
+	return CntrRegion;
 };
 
 // Params to build query URL
@@ -51,7 +51,7 @@ const Query = {
 					example: 35,
 				},
 			},
-			description: 'the Geo Repartition ID PK auto-increment: [{=}]1 vs [{>}1,{<>}20,{<=}100]',
+			description: 'the Region ID PK auto-increment: [{=}]1 vs [{>}1,{<>}20,{<=}100]',
 			example: ['{>}35', '{<}50'],
 		},
 		string: {
@@ -71,17 +71,17 @@ const Query = {
 					regex: '',
 					min: 3,
 					max: 64,
-					example: '{like}Nord',
+					example: '{like}Piemonte',
 				},
 			},
-			description: 'the geo repartition name: CntrGeoRepartition vs [{=}Nord,{<>}Sud,{like}Centro',
-			example: ['{like}ord', '{like}entro'],
+			description: 'the Region name: CntrRegion vs [{=}Lombardia,{<>}Veneto,{like}Toscana',
+			example: ['{like}egna', '{like}eneto'],
 		},
 		string: {
 			regex: '',
 			min: 3,
 			max: 64,
-			example: ['{like}ord', '{like}entro']
+			example: ['{like}scana', '{like}ardia']
 		},
 	},
 };
