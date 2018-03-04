@@ -1,6 +1,6 @@
 module.exports = function(sequelize, Sequelize) {
 
-	let CntrGeoRepartition = sequelize.define('cntrGeoRipartition', {
+	let CntrGeoRepartition = sequelize.define('cntrGeoRepartition', {
 
 			// ATTRIBUTES
 			id: {
