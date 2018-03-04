@@ -5,6 +5,7 @@ import DashBoardComponent from '../components/DashBoard';
 import UsersComponent from './Users/Users';
 import RolesComponent from './Roles/Roles';
 import RealmsComponent from './Realms/Realms';
+import GeoRepartitionsComponent from './GeoRepartitions/GeoRepartitions';
 import Broadcrumbs from '../components/Breadcrumbs'
 
 
@@ -54,6 +55,16 @@ export const Realms = () => (
         <Broadcrumbs linkName={'Realms'}/>
         <div style={styles.rootContainer}>
             <RealmsComponent/>
+        </div>
+    </div>
+);
+
+export const GeoRepartitions = () => (
+    <div>
+        <App/>
+        <Broadcrumbs linkName={'GeoRepartitions'}/>
+        <div style={styles.rootContainer}>
+            <GeoRepartitionsComponent/>
         </div>
     </div>
 );

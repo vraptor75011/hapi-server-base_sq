@@ -52,6 +52,15 @@ module.exports = {
         deleteRoleWarning: "Sei sucuro di voler cancellare questo ruolo?",
 	},
 
+    // GeoRepartition
+    geoRepartition: {
+        name: "Nome",
+        newGeoRepartition: 'Nuovo Zona Geografica',
+        editGeoRepartition: 'Modifica Zona Geografica',
+        deleteGeoRepartition: 'Cancella Zona Geografica',
+        deleteGeoRepartitionWarning: "Sei sucuro di voler cancellare questa zona geografica?",
+    },
+
 	// Session
 	session: {
 		// Attributes

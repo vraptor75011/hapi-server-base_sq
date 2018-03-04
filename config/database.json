@@ -1,5 +1,5 @@
 {
-  "development": {
+  "development_local": {
     "username": "spectreAdmin",
     "password": "Fre5610;029!",
     "database": "meltdown",
@@ -7,9 +7,9 @@
     "dialect": "mysql",
     "port": "3306"
   },
-  "development_local": {
+  "development": {
     "username": "userHapi",
-    "password": "webstorm",
+    "password": "WebStorm",
     "database": "hapi_development",
     "host": "localhost",
     "dialect": "mysql",

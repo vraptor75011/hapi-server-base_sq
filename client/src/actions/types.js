@@ -16,7 +16,11 @@ export const NEW_USER = 'NEW_USER';
 export const MODAL_CLOSE = 'MODAL_CLOSE';
 export const MODAL_OPEN = 'MODAL_OPEN';
 
-
+////// geoRepartitions
+export const GET_GEOREPARTITIONS = 'GET_GEOREPARTITIONS';
+export const DELETE_GEOREPARTITION = 'DELETE_GEOREPARTITION';
+export const EDIT_GEOREPARTITION = 'EDIT_GEOREPARTITION';
+export const NEW_GEOREPARTITION = 'NEW_GEOREPARTITION';
 
 ////// roles
 export const GET_ROLES = 'GET_ROLES';

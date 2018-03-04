@@ -4,6 +4,8 @@ import users from './users/get_users_reducer';
 import user from './users/user_reducer';
 import modal from './modal_reducer';
 
+import geoRepartitions from './geoRepartitions/get_geoRepartitions_reducer';
+import geoRepartition from './geoRepartitions/geoRepartition_reducer';
 
 import roles from './roles/get_roles_reducer';
 import role from './roles/role_reducer';
@@ -23,6 +25,8 @@ const rootReducer = combineReducers({
     users,
     user,
     modal,
+    geoRepartitions,
+    geoRepartition,
     roles,
     role,
     locale,
